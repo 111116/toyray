@@ -37,6 +37,10 @@ vec3 operator - (vec3 a, vec3 b)
 {
 	return vec3(a.x - b.x, a.y - b.y, a.z - b.z);
 }
+vec3 operator - (vec3 b)
+{
+	return vec3(-b.x, -b.y, -b.z);
+}
 
 vec3& operator *= (vec3& a, float k)
 {

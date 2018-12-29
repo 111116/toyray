@@ -15,14 +15,63 @@ void loadSAS()
 }
 
 
-int nCameraRay = 0;
+int nRay = 0;
 
 vec3 cast(Ray ray)
 {
-	nCameraRay++;
+	ray.origin += 1e-5 * ray.dir;
+	// printf("%f %f %f %f %f %f\n",ray.origin.x,ray.origin.y,ray.origin.z,ray.dir.x,ray.dir.y,ray.dir.z);
+	// if (rand()%100==0) return vec3(1,0,0);
+	nRay++;
 	vec3 lightSourceDir = normalize(vec3(-0.4,0.8,1.0));
 	Sphere ball(vec3(0,0,0), 1);
-	if (!ball.hasIntersection(ray)) return vec3(0,0,0);
+	if (!ball.hasIntersection(ray))
+	{
+		if (ray.dir.y < 0)
+		{
+			float y0 = -2;
+			float k = (y0 - ray.origin.y) / ray.dir.y;
+			float x0 = ray.origin.x + k * ray.dir.x;
+			float z0 = ray.origin.z + k * ray.dir.z;
+			if ((int(floor(x0)) + int(floor(z0))) % 2 == 0)
+				return vec3(0,0,0);
+			else
+			{
+				float k = exp(-norm(vec3(x0,y0,z0))/100);
+				if (x0>=0 && z0>=0) return vec3(0.4,0.8,1.0)*k;
+				if (x0<=0 && z0<=0) return vec3(0.8,0.3,1.0)*k;
+				if (x0<=0 && z0>=0) return vec3(1.0,0.7,0.2)*k;
+				if (x0>=0 && z0<=0) return vec3(0.2,0.9,0.5)*k;
+				return vec3(0.4*(x0<0),0.8,0.4*(z0<0));
+			}
+		}
+		return vec3(0,0,0);
+	}
+	point p = ball.intersection(ray);
+	vec3 nap = ball.normalAtPoint(p);
+	vec3 newdir;
+	// return vec3(0.4,0.8,1.0);
+	float kk = 3.0;
+	if (dot(nap, ray.dir) < 0)
+	{
+		float theta = acos(dot(-nap, ray.dir));
+		// newdir = ray.dir;
+		newdir = normalize(tan(asin(sin(theta)/kk)) * normalize(ray.dir + nap * dot(-nap, ray.dir)) + normalize(-nap));
+	}
+	else
+	{
+		float theta = acos(dot(nap, ray.dir));
+		if (sin(theta)*kk >= 1)
+		{
+			// return vec3(0.4,0.8,1.0);
+			newdir = ray.dir - 2 * nap * dot(nap, ray.dir);
+		}
+		else
+			// newdir = ray.dir;
+			newdir = normalize(tan(asin(sin(theta)*kk)) * normalize(ray.dir - nap * dot(nap, ray.dir)) + normalize(nap));
+	}
+	// return 0.8 * cast((Ray){p,ray.dir+2*nap});
+	return cast((Ray){p,newdir});
 	float brightness = std::max(0.0f, dot(ball.normalAtPoint(ball.intersection(ray)), lightSourceDir));
 	vec3 color(0.4,0.8,1.0);
 	return brightness * color;
@@ -43,6 +92,7 @@ int main(int argc, char* argv[])
 		{
 			vec3 camera(-8,0,0);
 			vec3 res(0,0,0);
+			/*
 			float offsetx[] = {0.4, 0.8, 0.2, 0.6};
 			float offsety[] = {0.2, 0.4, 0.6, 0.8};
 			for (int i=0; i<4; ++i)
@@ -53,10 +103,19 @@ int main(int argc, char* argv[])
 				res += cast(ray);
 			}
 			res *= 0.25;
+			*/
+			for (int i=0; i<64; ++i)
+			{
+				vec3 tar(0, 2.0-4.0*(y+(float)rand()/RAND_MAX)/imageHeight,
+						 -2.0+4.0*(x+(float)rand()/RAND_MAX)/imageWidth);
+				Ray ray = {camera, normalize(tar - camera)};
+				res += cast(ray);
+			}
+			res *= 1.0/64;
 			pixels[byteCnt++] = res.x * 255;
 			pixels[byteCnt++] = res.y * 255;
 			pixels[byteCnt++] = res.z * 255;
 		}
 	writeBMP("output.bmp", pixels, imageWidth, imageHeight);
-	fprintf(stderr, "%d camera rays casted \n", nCameraRay);
+	fprintf(stderr, "%d rays casted \n", nRay);
 }

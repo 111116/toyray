@@ -15,6 +15,7 @@ struct Ray
 {
 	point origin;
 	vec3 dir; // must be normalized
+	// Ray(point p, vec3 d): origin(p), dir(d) {}
 };
 
 
@@ -27,17 +28,22 @@ struct Sphere
 	bool hasIntersection(Ray ray)
 	{
 		float l = norm(origin - ray.origin);
-		if (l >= radius && dot(ray.dir, origin - ray.origin) < 0) return false;
+		// DEBUG!!!
+		if (dot(ray.dir, origin - ray.origin) < 1e-4) return false;
 		return norm(cross(ray.dir, origin - ray.origin)) < radius;
 	}
 	
 	point intersection(Ray ray)
 	{
+		// fprintf(stderr, "%f %f %f %f %f %f\n", ray.origin.x, ray.origin.y, ray.origin.z, ray.dir.x,ray.dir.y,ray.dir.z);
 		float l = norm(origin - ray.origin);
 		float lcos = dot(ray.dir, origin - ray.origin);
-		float resl = abs(abs(lcos) - sqrt(lcos*lcos + radius*radius - l*l));
+		float a=abs(lcos), b=sqrt(lcos*lcos + radius*radius - l*l);
+		float resl = a<b? a+b: a-b;
+		// fprintf(stderr, "l=%f\n", l);
+		// fprintf(stderr, "resl=%f\n", resl);
 #ifdef DEBUG
-		assert(abs(norm(ray.origin + ray.dir * resl - origin) - radius) < 1e-5);
+		assert(abs(norm(ray.origin + ray.dir * resl - origin) - radius) < 1e-4);
 #endif
 		return ray.origin + ray.dir * resl;
 	}
@@ -45,7 +51,7 @@ struct Sphere
 	vec3 normalAtPoint(point p)
 	{
 #ifdef DEBUG
-		assert(abs(norm(p - origin) - radius) < 1e-5);
+		assert(abs(norm(p - origin) - radius) < 1e-4);
 #endif
 		return normalize(p - origin);
 	}
