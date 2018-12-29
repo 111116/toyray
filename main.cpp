@@ -38,10 +38,10 @@ vec3 cast(Ray ray)
 			else
 			{
 				float k = exp(-norm(vec3(x0,y0,z0))/100);
-				if (x0>=0 && z0>=0) return vec3(0.4,0.8,1.0)*k;
-				if (x0<=0 && z0<=0) return vec3(0.8,0.3,1.0)*k;
-				if (x0<=0 && z0>=0) return vec3(1.0,0.7,0.2)*k;
-				if (x0>=0 && z0<=0) return vec3(0.2,0.9,0.5)*k;
+				if (x0>=2 && z0>=0) return vec3(0.4,0.8,1.0)*k;
+				if (x0<=2 && z0<=0) return vec3(0.8,0.3,1.0)*k;
+				if (x0<=2 && z0>=0) return vec3(1.0,0.7,0.2)*k;
+				if (x0>=2 && z0<=0) return vec3(0.2,0.9,0.5)*k;
 				return vec3(0.4*(x0<0),0.8,0.4*(z0<0));
 			}
 		}
@@ -51,12 +51,13 @@ vec3 cast(Ray ray)
 	vec3 nap = ball.normalAtPoint(p);
 	vec3 newdir;
 	// return vec3(0.4,0.8,1.0);
-	float kk = 3.0;
+	float kk = 1.6;
 	if (dot(nap, ray.dir) < 0)
 	{
 		float theta = acos(dot(-nap, ray.dir));
 		// newdir = ray.dir;
 		newdir = normalize(tan(asin(sin(theta)/kk)) * normalize(ray.dir + nap * dot(-nap, ray.dir)) + normalize(-nap));
+		
 	}
 	else
 	{
@@ -70,6 +71,15 @@ vec3 cast(Ray ray)
 			// newdir = ray.dir;
 			newdir = normalize(tan(asin(sin(theta)*kk)) * normalize(ray.dir - nap * dot(nap, ray.dir)) + normalize(nap));
 	}
+	bool black = 0;
+	if (rand()%100 < 5.5)
+		black = 1;
+	if (dot(nap, ray.dir) < 0 && (float)rand()/RAND_MAX < 0.3 * pow(norm(cross(ray.dir, nap)), 50))
+		newdir = ray.dir - 2 * nap * dot(nap, ray.dir), black = 0;
+	if (rand()%100 < 10)
+		newdir = ray.dir - 2 * nap * dot(nap, ray.dir), black = 0;
+	if (black)
+		return vec3(0,0,0);
 	// return 0.8 * cast((Ray){p,ray.dir+2*nap});
 	return cast((Ray){p,newdir});
 	float brightness = std::max(0.0f, dot(ball.normalAtPoint(ball.intersection(ray)), lightSourceDir));
@@ -104,14 +114,36 @@ int main(int argc, char* argv[])
 			}
 			res *= 0.25;
 			*/
-			for (int i=0; i<64; ++i)
+			int nSample = 256;
+			for (int i=0; i<nSample; ++i)
 			{
 				vec3 tar(0, 2.0-4.0*(y+(float)rand()/RAND_MAX)/imageHeight,
 						 -2.0+4.0*(x+(float)rand()/RAND_MAX)/imageWidth);
 				Ray ray = {camera, normalize(tar - camera)};
+
+				// manualy rotate camera
+				float theta = -0.4;
+				float x = ray.origin.x * cos(theta) - ray.origin.y * (-sin(theta));
+				float y = ray.origin.y * cos(theta) + ray.origin.x * sin(theta);
+				ray.origin.x = x;
+				ray.origin.y = y;
+				x = ray.dir.x * cos(theta) - ray.dir.y * sin(theta);
+				y = ray.dir.y * cos(theta) + ray.dir.x * sin(theta);
+				ray.dir.x = x;
+				ray.dir.y = y;
+
+				theta = -0.2;
+				x = ray.origin.x * cos(theta) - ray.origin.z * (-sin(theta));
+				float z = ray.origin.z * cos(theta) + ray.origin.x * sin(theta);
+				ray.origin.x = x;
+				ray.origin.z = z;
+				x = ray.dir.x * cos(theta) - ray.dir.z * sin(theta);
+				z = ray.dir.z * cos(theta) + ray.dir.x * sin(theta);
+				ray.dir.x = x;
+				ray.dir.z = z;
 				res += cast(ray);
 			}
-			res *= 1.0/64;
+			res *= 1.0/nSample;
 			pixels[byteCnt++] = res.x * 255;
 			pixels[byteCnt++] = res.y * 255;
 			pixels[byteCnt++] = res.z * 255;

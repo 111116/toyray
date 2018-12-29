@@ -38,10 +38,17 @@ struct Sphere
 		// fprintf(stderr, "%f %f %f %f %f %f\n", ray.origin.x, ray.origin.y, ray.origin.z, ray.dir.x,ray.dir.y,ray.dir.z);
 		float l = norm(origin - ray.origin);
 		float lcos = dot(ray.dir, origin - ray.origin);
-		float a=abs(lcos), b=sqrt(lcos*lcos + radius*radius - l*l);
+		float tmp = lcos*lcos + radius*radius - l*l;
+		assert(tmp > -3e-5);
+		if (tmp < 0) tmp = 0;
+		float a=lcos, b=sqrt(tmp);
 		float resl = a<b? a+b: a-b;
 		// fprintf(stderr, "l=%f\n", l);
+		// fprintf(stderr, "lcos=%f\n", lcos);
+		// fprintf(stderr, "l??=%f\n", lcos*lcos + radius*radius - l*l);
 		// fprintf(stderr, "resl=%f\n", resl);
+		vec3 tar = ray.origin + ray.dir * resl - origin;
+		// fprintf(stderr, "%f %f %f %f\n", tar.x, tar.y, tar.z, norm(tar));
 #ifdef DEBUG
 		assert(abs(norm(ray.origin + ray.dir * resl - origin) - radius) < 1e-4);
 #endif
