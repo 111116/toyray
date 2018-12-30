@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <cstring>
+#include <iostream>
 
 
 
@@ -13,6 +14,12 @@ struct vec3
 	vec3(): x(0), y(0), z(0) {}
 	vec3(float px, float py, float pz): x(px), y(py), z(pz) {}
 };
+
+
+std::ostream& operator << (std::ostream& os, vec3 v)
+{
+	return os << '(' << v.x << ',' << v.y << ',' << v.z << ')';
+}
 
 
 vec3& operator += (vec3& a, vec3 b)

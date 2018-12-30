@@ -21,4 +21,6 @@ int main()
 	Ray r = {{2,3,3}, {0,1,0}};
 	point p = t.intersection(r);
 	std::cout << p << std::endl;
+
+	std::cout << t.interpolatedNormal(vec3(0,0.2,0.2)) << std::endl;
 }

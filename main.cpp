@@ -2,29 +2,99 @@
 #include "writebmp.h"
 #include "geometry.h"
 
+#define DEBUG
+
+
+triangle t;
+vec3 lightSourceDir = normalize(vec3(-0.4,0.8,1.0));
+Sphere ball(vec3(0,0,0), 1);
+
+
+struct face
+{
+	enum {SPHERE, TRIANGLE} type;
+	union {Sphere sph; triangle tri;} shape;
+	vec3 diffuseColor;
+};
 
 
 void loadShapes()
 {
+	t.v1 = vec3(2,-1,0);
+	t.v2 = vec3(2,1,0);
+	t.v3 = vec3(2,-1,2);
+	t.vn1 = vec3(-1,0,0);
+	t.vn2 = vec3(-1,0,0);
+	t.vn3 = vec3(-1,0,0);
+	t.preprocess();
 	
 }
 
 void loadSAS()
 {
-	
 }
 
 
-int nRay = 0;
+long long nRay = 0;
 
 vec3 cast(Ray ray)
 {
+	// count number of ray casted
+	nRay++;
+	// prevent ray intersecting its source surface
 	ray.origin += 1e-5 * ray.dir;
 	// printf("%f %f %f %f %f %f\n",ray.origin.x,ray.origin.y,ray.origin.z,ray.dir.x,ray.dir.y,ray.dir.z);
 	// if (rand()%100==0) return vec3(1,0,0);
-	nRay++;
-	vec3 lightSourceDir = normalize(vec3(-0.4,0.8,1.0));
-	Sphere ball(vec3(0,0,0), 1);
+#ifdef DEBUG
+	assert(abs(norm(ray.dir) - 1) < 1e-5);
+#endif
+
+	Sphere origin(vec3(0,-2+0.5,0), 0.5);
+	if (origin.hasIntersection(ray))
+	{
+		point p = origin.intersection(ray);
+		vec3 N = origin.normalAtPoint(p);
+		if (p.y >= -2)
+		{
+			vec3 newdir = ray.dir - 2 * N * dot(N, ray.dir);
+			return cast((Ray){p, newdir});
+		}
+		// return vec3(0.4,0.8,1.0) * std::max(0.0f, dot(lightSourceDir, N));
+	}
+	// triangle intersection test
+	if (t.hasIntersection(ray))
+	{
+		point p = t.intersection(ray);
+		vec3 N = t.interpolatedNormal(p);
+		vec3 newdir = ray.dir - 2 * N * dot(N, ray.dir);
+		return cast((Ray){p, newdir});
+		// return vec3(0.4,0.8,1.0) * std::max(0.0f, dot(lightSourceDir, N));
+	}
+
+
+		// plane background
+		if (ray.dir.y < 0)
+		{
+			float y0 = -2;
+			float k = (y0 - ray.origin.y) / ray.dir.y;
+			float x0 = ray.origin.x + k * ray.dir.x;
+			float z0 = ray.origin.z + k * ray.dir.z;
+			if ((int(floor(x0)) + int(floor(z0))) % 2 == 0)
+				return vec3(0,0,0);
+			else
+			{
+				float k = exp(-norm(vec3(x0,y0,z0))/100);
+				if (x0>=2 && z0>=0) return vec3(0.4,0.8,1.0)*k;
+				if (x0<=2 && z0<=0) return vec3(0.8,0.3,1.0)*k;
+				if (x0<=2 && z0>=0) return vec3(1.0,0.7,0.2)*k;
+				if (x0>=2 && z0<=0) return vec3(0.2,0.9,0.5)*k;
+				return vec3(0.4*(x0<0),0.8,0.4*(z0<0));
+			}
+		}
+		return vec3(0,0,0);
+
+
+
 	if (!ball.hasIntersection(ray))
 	{
 		if (ray.dir.y < 0)
@@ -50,8 +120,16 @@ vec3 cast(Ray ray)
 	point p = ball.intersection(ray);
 	vec3 nap = ball.normalAtPoint(p);
 	vec3 newdir;
-	// return vec3(0.4,0.8,1.0);
+
+
+	// testing perfect reflection
+
+	newdir = ray.dir - 2 * nap * dot(nap, ray.dir);
+	return cast((Ray){p, newdir});
+
+	// invalidates following code
 	float kk = 1.6;
+	
 	if (dot(nap, ray.dir) < 0)
 	{
 		float theta = acos(dot(-nap, ray.dir));
@@ -88,8 +166,8 @@ vec3 cast(Ray ray)
 }
 
 
-const int imageWidth = 512;
-const int imageHeight = 512;
+const int imageWidth = 2048;
+const int imageHeight = imageWidth;
 char pixels[imageWidth * imageHeight * 3];
 
 int main(int argc, char* argv[])
@@ -114,7 +192,7 @@ int main(int argc, char* argv[])
 			}
 			res *= 0.25;
 			*/
-			int nSample = 256;
+			int nSample = 4;
 			for (int i=0; i<nSample; ++i)
 			{
 				vec3 tar(0, 2.0-4.0*(y+(float)rand()/RAND_MAX)/imageHeight,
@@ -149,5 +227,5 @@ int main(int argc, char* argv[])
 			pixels[byteCnt++] = res.z * 255;
 		}
 	writeBMP("output.bmp", pixels, imageWidth, imageHeight);
-	fprintf(stderr, "%d rays casted \n", nRay);
+	fprintf(stderr, "%lld rays casted \n", nRay);
 }
