@@ -7,8 +7,8 @@
 #define DEBUG
 
 
-vec3 lightSourceDir = normalize(vec3(-0.4,0.8,1.0));
 Sphere ball(vec3(0,0,0), 1);
+point source(0,1.989,0);
 
 
 struct face
@@ -54,6 +54,8 @@ void loadShapes()
 			vec3 color(x,y,z);
 			objects.push_back((face){t,color});
 		}
+		if (type == "exit")
+			return;
 	}
 }
 
@@ -66,20 +68,10 @@ void loadSAS()
 long long nRay = 0;
 
 
-vec3 cast(Ray ray)
+face* hitAnything(Ray ray)
 {
-	// count number of ray casted
-	nRay++;
-	// prevent ray intersecting its source surface
 	ray.origin += 1e-5 * ray.dir;
 
-	// printf("%f %f %f %f %f %f\n",ray.origin.x,ray.origin.y,ray.origin.z,ray.dir.x,ray.dir.y,ray.dir.z);
-
-#ifdef DEBUG
-	assert(abs(norm(ray.dir) - 1) < 1e-5);
-#endif
-
-	// bruteforcing checking against every primitive
 	face* hit = NULL;
 	float dist;
 	for (face& shape: objects)
@@ -94,37 +86,72 @@ vec3 cast(Ray ray)
 			}
 		}
 	}
-	if (hit != NULL)
+	return hit;
+}
+
+
+vec3 cast(Ray ray)
+{
+	// count number of ray casted
+	nRay++;
+	// prevent ray intersecting its source surface
+
+	// printf("%f %f %f %f %f %f\n",ray.origin.x,ray.origin.y,ray.origin.z,ray.dir.x,ray.dir.y,ray.dir.z);
+
+#ifdef DEBUG
+	assert(abs(norm(ray.dir) - 1) < 1e-5);
+#endif
+
+	face* hit = hitAnything(ray);
+	// bruteforcing checking against every primitive
+	if (hit == NULL)
+		return vec3(0,0,0);
+
+	point p;
+	hit->shape->intersect(ray, &p);
+	vec3 lightSourceDir = normalize(source - p);
+	
+	Ray shadowRay {p, normalize(source - p)};
+	face* block = hitAnything(shadowRay);
+	bool blocked = false;
+	if (block != NULL)
 	{
-		return hit->diffuseColor * dot(lightSourceDir, hit->shape->normalAtPoint(ray.origin + dist * ray.dir));
+		point pb;
+		block->shape->intersect(shadowRay, &pb);
+		if (norm(pb - p) < norm(source - p))
+			blocked = true;
 	}
-	return vec3(0,0,0);
+	vec3 res(0,0,0);
+	if (!blocked)
+		//return vec3(0,0,1);
+		res = hit->diffuseColor * std::max(0.0f,dot(lightSourceDir, hit->shape->normalAtPoint(p))) * 1.5 * pow(norm(source - p), -2);
+	
+	if (res.x > 1) res.x = 1;
+	if (res.y > 1) res.y = 1;
+	if (res.z > 1) res.z = 1;
+	return res;
 
 	// reflection
-
 		// point p = origin.intersection(ray);
 		// vec3 N = origin.normalAtPoint(p);
 		// vec3 newdir = ray.dir - 2 * N * dot(N, ray.dir);
 		// return cast((Ray){p, newdir});
 
-
 	// refraction
-
-	// float kk = 1.6;
-	// if (dot(N, ray.dir) < 0)
-	// {
-	// 	float theta = acos(dot(-N, ray.dir));
-	// 	newdir = normalize(tan(asin(sin(theta)/kk)) * normalize(ray.dir + N * dot(-N, ray.dir)) + normalize(-N));
-	// }
-	// else
-	// {
-	// 	float theta = acos(dot(N, ray.dir));
-	// 	if (sin(theta)*kk >= 1)
-	// 		newdir = ray.dir - 2 * N * dot(N, ray.dir);
-	// 	else
-	// 		newdir = normalize(tan(asin(sin(theta)*kk)) * normalize(ray.dir - nap * dot(nap, ray.dir)) + normalize(nap));
-	// }
-
+		// float kk = 1.6;
+		// if (dot(N, ray.dir) < 0)
+		// {
+		// 	float theta = acos(dot(-N, ray.dir));
+		// 	newdir = normalize(tan(asin(sin(theta)/kk)) * normalize(ray.dir + N * dot(-N, ray.dir)) + normalize(-N));
+		// }
+		// else
+		// {
+		// 	float theta = acos(dot(N, ray.dir));
+		// 	if (sin(theta)*kk >= 1)
+		// 		newdir = ray.dir - 2 * N * dot(N, ray.dir);
+		// 	else
+		// 		newdir = normalize(tan(asin(sin(theta)*kk)) * normalize(ray.dir - nap * dot(nap, ray.dir)) + normalize(nap));
+		// }
 }
 
 
@@ -140,17 +167,18 @@ int main(int argc, char* argv[])
 	for (int y=0; y<imageHeight; ++y)
 		for (int x=0; x<imageWidth; ++x)
 		{
-			vec3 camera(-8,0,0);
+			vec3 camera(0,1,3.7);
 			vec3 res(0,0,0);
 
-			int nSample = 4;
+			int nSample = 64;
 			for (int i=0; i<nSample; ++i)
 			{
-				vec3 tar(0, 2.0-4.0*(y+(float)rand()/RAND_MAX)/imageHeight,
-						 -2.0+4.0*(x+(float)rand()/RAND_MAX)/imageWidth);
+				float w = 3;
+				vec3 tar(-w/2 + w*(x+(float)rand()/RAND_MAX)/imageWidth, 1.0+w/2-w*(y+(float)rand()/RAND_MAX)/imageHeight, 0);
 				Ray ray = {camera, normalize(tar - camera)};
 
 				// manualy rotate camera
+				/*
 				float theta = -0.4;
 				float x = ray.origin.x * cos(theta) - ray.origin.y * (-sin(theta));
 				float y = ray.origin.y * cos(theta) + ray.origin.x * sin(theta);
@@ -170,6 +198,9 @@ int main(int argc, char* argv[])
 				z = ray.dir.z * cos(theta) + ray.dir.x * sin(theta);
 				ray.dir.x = x;
 				ray.dir.z = z;
+				*/
+				source.z = (float)rand()/RAND_MAX/2-0.25;
+				source.x = (float)rand()/RAND_MAX/2-0.25;
 				res += cast(ray);
 			}
 			res *= 1.0/nSample;
