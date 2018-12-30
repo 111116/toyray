@@ -1,41 +1,70 @@
 #include <algorithm>
+#include <vector>
+#include <fstream>
 #include "writebmp.h"
 #include "geometry.h"
 
 #define DEBUG
 
 
-triangle t;
 vec3 lightSourceDir = normalize(vec3(-0.4,0.8,1.0));
 Sphere ball(vec3(0,0,0), 1);
 
 
 struct face
 {
-	enum {SPHERE, TRIANGLE} type;
-	union {Sphere sph; triangle tri;} shape;
+	Primitive* shape;
 	vec3 diffuseColor;
 };
+
+std::vector<face> objects;
 
 
 void loadShapes()
 {
-	t.v1 = vec3(2,-1,0);
-	t.v2 = vec3(2,1,0);
-	t.v3 = vec3(2,-1,2);
-	t.vn1 = vec3(-1,0,0);
-	t.vn2 = vec3(-1,0,0);
-	t.vn3 = vec3(-1,0,0);
-	t.preprocess();
-	
+	std::ifstream fin("mesh");
+	std::string type;
+	while (fin >> type)
+	{
+		if (type == "triangle")
+		{
+			float x,y,z;
+			Triangle* t = new(Triangle);
+			fin >> x >> y >> z;
+			t->v1 = vec3(x,y,z);
+			fin >> x >> y >> z;
+			t->v2 = vec3(x,y,z);
+			fin >> x >> y >> z;
+			t->v3 = vec3(x,y,z);
+			fin >> x >> y >> z;
+			t->vn1 = vec3(x,y,z);
+			t->vn2 = vec3(x,y,z);
+			t->vn3 = vec3(x,y,z);
+			t->preprocess();
+			fin >> x >> y >> z;
+			vec3 color(x,y,z);
+			objects.push_back((face){t,color});
+		}
+		if (type == "sphere")
+		{
+			float x,y,z,r;
+			std::cin >> x >> y >> z >> r;
+			Sphere* t = new(Sphere)(vec3(x,y,z),r);
+			fin >> x >> y >> z;
+			vec3 color(x,y,z);
+			objects.push_back((face){t,color});
+		}
+	}
 }
 
 void loadSAS()
 {
+	// testing brute force. no acceleration structure
 }
 
 
 long long nRay = 0;
+
 
 vec3 cast(Ray ray)
 {
@@ -43,130 +72,63 @@ vec3 cast(Ray ray)
 	nRay++;
 	// prevent ray intersecting its source surface
 	ray.origin += 1e-5 * ray.dir;
+
 	// printf("%f %f %f %f %f %f\n",ray.origin.x,ray.origin.y,ray.origin.z,ray.dir.x,ray.dir.y,ray.dir.z);
-	// if (rand()%100==0) return vec3(1,0,0);
+
 #ifdef DEBUG
 	assert(abs(norm(ray.dir) - 1) < 1e-5);
 #endif
 
-	Sphere origin(vec3(0,-2+0.5,0), 0.5);
-	if (origin.hasIntersection(ray))
+	// bruteforcing checking against every primitive
+	face* hit = NULL;
+	float dist;
+	for (face& shape: objects)
 	{
-		point p = origin.intersection(ray);
-		vec3 N = origin.normalAtPoint(p);
-		if (p.y >= -2)
+		point res;
+		if (shape.shape->intersect(ray, &res))
 		{
-			vec3 newdir = ray.dir - 2 * N * dot(N, ray.dir);
-			return cast((Ray){p, newdir});
-		}
-		// return vec3(0.4,0.8,1.0) * std::max(0.0f, dot(lightSourceDir, N));
-	}
-	// triangle intersection test
-	if (t.hasIntersection(ray))
-	{
-		point p = t.intersection(ray);
-		vec3 N = t.interpolatedNormal(p);
-		vec3 newdir = ray.dir - 2 * N * dot(N, ray.dir);
-		return cast((Ray){p, newdir});
-		// return vec3(0.4,0.8,1.0) * std::max(0.0f, dot(lightSourceDir, N));
-	}
-
-
-		// plane background
-		if (ray.dir.y < 0)
-		{
-			float y0 = -2;
-			float k = (y0 - ray.origin.y) / ray.dir.y;
-			float x0 = ray.origin.x + k * ray.dir.x;
-			float z0 = ray.origin.z + k * ray.dir.z;
-			if ((int(floor(x0)) + int(floor(z0))) % 2 == 0)
-				return vec3(0,0,0);
-			else
+			if (hit == NULL || dist > norm(res - ray.origin))
 			{
-				float k = exp(-norm(vec3(x0,y0,z0))/100);
-				if (x0>=2 && z0>=0) return vec3(0.4,0.8,1.0)*k;
-				if (x0<=2 && z0<=0) return vec3(0.8,0.3,1.0)*k;
-				if (x0<=2 && z0>=0) return vec3(1.0,0.7,0.2)*k;
-				if (x0>=2 && z0<=0) return vec3(0.2,0.9,0.5)*k;
-				return vec3(0.4*(x0<0),0.8,0.4*(z0<0));
+				hit = &shape;
+				dist = norm(res - ray.origin);
 			}
 		}
-		return vec3(0,0,0);
-
-
-
-	if (!ball.hasIntersection(ray))
-	{
-		if (ray.dir.y < 0)
-		{
-			float y0 = -2;
-			float k = (y0 - ray.origin.y) / ray.dir.y;
-			float x0 = ray.origin.x + k * ray.dir.x;
-			float z0 = ray.origin.z + k * ray.dir.z;
-			if ((int(floor(x0)) + int(floor(z0))) % 2 == 0)
-				return vec3(0,0,0);
-			else
-			{
-				float k = exp(-norm(vec3(x0,y0,z0))/100);
-				if (x0>=2 && z0>=0) return vec3(0.4,0.8,1.0)*k;
-				if (x0<=2 && z0<=0) return vec3(0.8,0.3,1.0)*k;
-				if (x0<=2 && z0>=0) return vec3(1.0,0.7,0.2)*k;
-				if (x0>=2 && z0<=0) return vec3(0.2,0.9,0.5)*k;
-				return vec3(0.4*(x0<0),0.8,0.4*(z0<0));
-			}
-		}
-		return vec3(0,0,0);
 	}
-	point p = ball.intersection(ray);
-	vec3 nap = ball.normalAtPoint(p);
-	vec3 newdir;
-
-
-	// testing perfect reflection
-
-	newdir = ray.dir - 2 * nap * dot(nap, ray.dir);
-	return cast((Ray){p, newdir});
-
-	// invalidates following code
-	float kk = 1.6;
-	
-	if (dot(nap, ray.dir) < 0)
+	if (hit != NULL)
 	{
-		float theta = acos(dot(-nap, ray.dir));
-		// newdir = ray.dir;
-		newdir = normalize(tan(asin(sin(theta)/kk)) * normalize(ray.dir + nap * dot(-nap, ray.dir)) + normalize(-nap));
-		
+		return hit->diffuseColor * dot(lightSourceDir, hit->shape->normalAtPoint(ray.origin + dist * ray.dir));
 	}
-	else
-	{
-		float theta = acos(dot(nap, ray.dir));
-		if (sin(theta)*kk >= 1)
-		{
-			// return vec3(0.4,0.8,1.0);
-			newdir = ray.dir - 2 * nap * dot(nap, ray.dir);
-		}
-		else
-			// newdir = ray.dir;
-			newdir = normalize(tan(asin(sin(theta)*kk)) * normalize(ray.dir - nap * dot(nap, ray.dir)) + normalize(nap));
-	}
-	bool black = 0;
-	if (rand()%100 < 5.5)
-		black = 1;
-	if (dot(nap, ray.dir) < 0 && (float)rand()/RAND_MAX < 0.3 * pow(norm(cross(ray.dir, nap)), 50))
-		newdir = ray.dir - 2 * nap * dot(nap, ray.dir), black = 0;
-	if (rand()%100 < 10)
-		newdir = ray.dir - 2 * nap * dot(nap, ray.dir), black = 0;
-	if (black)
-		return vec3(0,0,0);
-	// return 0.8 * cast((Ray){p,ray.dir+2*nap});
-	return cast((Ray){p,newdir});
-	float brightness = std::max(0.0f, dot(ball.normalAtPoint(ball.intersection(ray)), lightSourceDir));
-	vec3 color(0.4,0.8,1.0);
-	return brightness * color;
+	return vec3(0,0,0);
+
+	// reflection
+
+		// point p = origin.intersection(ray);
+		// vec3 N = origin.normalAtPoint(p);
+		// vec3 newdir = ray.dir - 2 * N * dot(N, ray.dir);
+		// return cast((Ray){p, newdir});
+
+
+	// refraction
+
+	// float kk = 1.6;
+	// if (dot(N, ray.dir) < 0)
+	// {
+	// 	float theta = acos(dot(-N, ray.dir));
+	// 	newdir = normalize(tan(asin(sin(theta)/kk)) * normalize(ray.dir + N * dot(-N, ray.dir)) + normalize(-N));
+	// }
+	// else
+	// {
+	// 	float theta = acos(dot(N, ray.dir));
+	// 	if (sin(theta)*kk >= 1)
+	// 		newdir = ray.dir - 2 * N * dot(N, ray.dir);
+	// 	else
+	// 		newdir = normalize(tan(asin(sin(theta)*kk)) * normalize(ray.dir - nap * dot(nap, ray.dir)) + normalize(nap));
+	// }
+
 }
 
 
-const int imageWidth = 2048;
+const int imageWidth = 512;
 const int imageHeight = imageWidth;
 char pixels[imageWidth * imageHeight * 3];
 
@@ -180,18 +142,7 @@ int main(int argc, char* argv[])
 		{
 			vec3 camera(-8,0,0);
 			vec3 res(0,0,0);
-			/*
-			float offsetx[] = {0.4, 0.8, 0.2, 0.6};
-			float offsety[] = {0.2, 0.4, 0.6, 0.8};
-			for (int i=0; i<4; ++i)
-			{
-				vec3 tar(0, 2.0-4.0*(y+offsety[i])/imageHeight,
-						 -2.0+4.0*(x+offsetx[i])/imageWidth);
-				Ray ray = {camera, normalize(tar - camera)};
-				res += cast(ray);
-			}
-			res *= 0.25;
-			*/
+
 			int nSample = 4;
 			for (int i=0; i<nSample; ++i)
 			{

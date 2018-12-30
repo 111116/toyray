@@ -19,26 +19,35 @@ struct Ray
 };
 
 
-struct Sphere
+class Primitive
 {
+public:
+	virtual bool intersect(Ray ray, point* result = NULL) = 0;
+	virtual vec3 normalAtPoint(point p) = 0;
+};
+
+
+class Sphere: public Primitive
+{
+private:
 	point origin;
 	float radius;
+
+public:
 	Sphere(point p, float r): origin(p), radius(r) {}
 
-	bool hasIntersection(Ray ray)
+	bool intersect(Ray ray, point* result = NULL)
 	{
 		float l = norm(origin - ray.origin);
-		// DEBUG!!!
 		if (dot(ray.dir, origin - ray.origin) < 1e-4) return false;
-		return norm(cross(ray.dir, origin - ray.origin)) < radius;
-	}
-	
-	point intersection(Ray ray)
-	{
-		float l = norm(origin - ray.origin);
+		if (norm(cross(ray.dir, origin - ray.origin)) >= radius) return false;
+		if (result == NULL) return true;
+
 		float lcos = dot(ray.dir, origin - ray.origin);
 		float tmp = lcos*lcos + radius*radius - l*l;
+#ifdef DEBUG
 		assert(abs(norm(ray.dir)-1) < 3e-6);
+#endif
 		// if (tmp <= -3e-5)
 		// {
 		// 	fprintf(stderr, "%f %f %f %f %f %f\n", ray.origin.x, ray.origin.y, ray.origin.z, ray.dir.x,ray.dir.y,ray.dir.z);
@@ -57,7 +66,8 @@ struct Sphere
 #ifdef DEBUG
 		assert(abs(norm(ray.origin + ray.dir * resl - origin) - radius) < 1e-4);
 #endif
-		return ray.origin + ray.dir * resl;
+		*result = ray.origin + ray.dir * resl;
+		return true;
 	}
 
 	vec3 normalAtPoint(point p)
@@ -70,13 +80,15 @@ struct Sphere
 };
 
 
+
 struct Volume
 {
 };
 
 
-struct triangle
+class Triangle: public Primitive
 {
+public:
 	vec3 v1,v2,v3;
 	vec3 vn1, vn2, vn3;
 
@@ -101,7 +113,7 @@ struct triangle
 		interpMatrix = mat3(vn1,vn2,vn3) * inverse(mat3(v1,v2,v3));
 	}
 
-	bool hasIntersection(Ray r)
+	bool intersect(Ray r, point* result = NULL)
 	{
 		// TODO temporarily using a slow method.
 		// applying matrix transformation should be faster
@@ -122,26 +134,19 @@ struct triangle
 		if (nvd1 > 1e-5 && nvd2 > 1e-5 && dot(vd1,vd2) < 0) return false;
 		if (nvd1 > 1e-5 && nvd3 > 1e-5 && dot(vd1,vd3) < 0) return false;
 		if (nvd3 > 1e-5 && nvd2 > 1e-5 && dot(vd3,vd2) < 0) return false;
+		if (result != NULL)
+			*result = p;
 		return true;
 	}
 
-	point intersection(Ray r)
-	{
-		float c1 = det(mat3(r.dir, v2-v1, v3-v1));
-		float c0 = det(mat3(r.origin - v1, v2-v1, v3-v1));
-		// c1=0: ray parallel to / coincide with plane
-		return r.origin + (-c0/c1) * r.dir;
-		// TODO WARNING: possibly returnval contains NAN / INF
-	}
-
-	vec3 interpolatedNormal(point p)
+	vec3 normalAtPoint(point p)
 	{
 #ifdef DEBUG
 		assert(abs(dot(p-v1, planeNormal)) < 1e-5);
 #endif
 		// simulate flat shading
 		return planeNormal;
-		// real interpolated normal:
+		// interpolated normal:
 		// return interpMatrix * p;
 	}
 };
