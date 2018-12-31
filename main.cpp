@@ -7,18 +7,6 @@
 #define DEBUG
 
 
-float randf()
-{
-	return (float)rand()/RAND_MAX;
-}
-
-vec3 operator * (vec3 a, vec3 b)
-{
-	// used for color manipulation (approximated)
-	return vec3(a.x*b.x, a.y*b.y, a.z*b.z);
-}
-
-
 struct face
 {
 	enum attrtype
@@ -86,8 +74,7 @@ vec3 outDiffuse(vec3 Normal)
 
 
 long long nRay = 0;
-long long nLDtrace = 0;
-long long nLDhit = 0;
+long long nShadow = 0;
 
 
 face* hitAnything(Ray ray, std::vector<face>& objects)
@@ -123,7 +110,7 @@ vec3 cast(Ray ray, int bounces, face::attrtype lastType)
 	vec3 color = hit->color;
 
 	if (hit->attr == face::LIGHT)
-		return (bounces>0 && lastType == face::DIFFUSE)? vec3(): color;
+		return (lastType == face::DIFFUSE)? vec3(): color;
 	// separate Light->Diffuse path
 
 	point p;
@@ -132,29 +119,30 @@ vec3 cast(Ray ray, int bounces, face::attrtype lastType)
 
 	if (hit->attr == face::DIFFUSE)
 	{
-		// sample direct illumination
+		// sample direct illumination (assuming diffuse light source)
+		++nShadow;
 		vec3 res;
-		const int nDirectSample = 40;
-		for (int i=0; i<nDirectSample; ++i)
-		{
-			++nLDtrace;
-			Ray shadowRay{p, outDiffuse(N)};
-			shadowRay.origin += 1e-5 * shadowRay.dir;
-			face* light = hitAnything(shadowRay, lights);
-			if (light != NULL)
-			{
-				++nLDhit;
-				face* blk = hitAnything(shadowRay, objects);
-				point pb,pl;
-				blk->shape->intersect(shadowRay, &pb);
-				light->shape->intersect(shadowRay, &pl);
-				if (blk->attr == face::LIGHT) // not blocked
-					res += light->color * color;
-			}
-		}
-		res *= 1.0/nDirectSample;
+		face* light = &lights[rand() % lights.size()];
+		point pl = light->shape->sampleOnSurface();
+		vec3 Nl = light->shape->normalAtPoint(pl);
+		vec3 ldir = normalize(pl - p);
 
-		// TODO
+		Ray shadowRay{p, ldir};
+		shadowRay.origin += 1e-5 * shadowRay.dir;
+		face* blk = hitAnything(shadowRay, objects);
+		bool blocked = 0;
+		if (blk != NULL)
+		{
+			point pb;
+			blk->shape->intersect(shadowRay, &pb);
+			blocked = (norm(pb-p) + 1e-5 <= norm(pl-p));
+		}
+		if (!blocked)
+			res += light->color * color
+				* std::max(0.0f, dot(-ldir, Nl))
+				* std::max(0.0f, dot(ldir, N))
+				* (0.5 / acos(-1) / lights.size())
+				* pow(norm(pl - p), -2);
 
 		// sample indirect illumination
 		float prob = bounces<3? 1: std::max(color.x, std::max(color.y, color.z));
@@ -190,7 +178,7 @@ vec3 cast(Ray ray, int bounces, face::attrtype lastType)
 
 
 const float magn = 16;
-const int nSample = 8;
+const int nSample = 256;
 const int imageWidth = 512;
 const int imageHeight = imageWidth;
 char pixels[imageWidth * imageHeight * 3];
@@ -226,8 +214,7 @@ int main(int argc, char* argv[])
 		}
 	writeBMP("output.bmp", pixels, imageWidth, imageHeight);
 	fprintf(stderr, "%lld rays casted \n", nRay);
-	fprintf(stderr, "%lld light-diffuse traces\n", nLDtrace);
-	fprintf(stderr, "%lld light-diffuse hits\n", nLDhit);
+	fprintf(stderr, "%lld shadow rays\n", nShadow);
 	fprintf(stderr, "%lld primary rays\n", nPrimary);
 	fprintf(stderr, "%lld zero-radiance paths (%.2f%%)\n", nZero, (float)nZero / nPrimary * 100);
 }

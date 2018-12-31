@@ -24,6 +24,7 @@ class Primitive
 public:
 	virtual bool intersect(Ray ray, point* result = NULL) = 0;
 	virtual vec3 normalAtPoint(point p) = 0;
+	virtual point sampleOnSurface() = 0;
 };
 
 
@@ -76,6 +77,11 @@ public:
 		assert(abs(norm(p - origin) - radius) < 1e-4);
 #endif
 		return normalize(p - origin);
+	}
+
+	point sampleOnSurface()
+	{
+		throw "not yet implemented";
 	}
 };
 
@@ -161,6 +167,13 @@ public:
 		return planeNormal;
 		// interpolated normal:
 		// return interpMatrix * p;
+	}
+
+	point sampleOnSurface()
+	{
+		float a=randf(), b=randf();
+		if (a+b>1) a=1-a, b=1-a;
+		return v1 + a*(v2-v1) + b*(v3-v1);
 	}
 };
 

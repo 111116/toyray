@@ -6,6 +6,12 @@
 #include <iostream>
 
 
+float randf()
+{
+	return (float)rand()/RAND_MAX;
+}
+
+
 
 struct vec3
 {
@@ -14,6 +20,13 @@ struct vec3
 	vec3(): x(0), y(0), z(0) {}
 	vec3(float px, float py, float pz): x(px), y(py), z(pz) {}
 };
+
+
+vec3 operator * (vec3 a, vec3 b)
+{
+	// used for color manipulation (approximated)
+	return vec3(a.x*b.x, a.y*b.y, a.z*b.z);
+}
 
 
 std::ostream& operator << (std::ostream& os, vec3 v)
