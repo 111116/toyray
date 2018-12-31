@@ -7,61 +7,75 @@
 #define DEBUG
 
 
-Sphere ball(vec3(0,0,0), 1);
-point source(0,1.989,0);
+float randf()
+{
+	return (float)rand()/RAND_MAX;
+}
+
+
 
 
 struct face
 {
+	enum attrtype
+	{
+		LIGHT, DIFFUSE
+	};
+	attrtype attr;
 	Primitive* shape;
-	vec3 diffuseColor;
+	vec3 color;
 };
 
 std::vector<face> objects;
 
 
+
 void loadShapes()
 {
 	std::ifstream fin("mesh");
-	std::string type;
-	while (fin >> type)
+	std::string type, strattr;
+	while (fin >> type >> strattr)
 	{
+		Primitive* shape;
 		if (type == "triangle")
 		{
-			float x,y,z;
 			Triangle* t = new(Triangle);
-			fin >> x >> y >> z;
-			t->v1 = vec3(x,y,z);
-			fin >> x >> y >> z;
-			t->v2 = vec3(x,y,z);
-			fin >> x >> y >> z;
-			t->v3 = vec3(x,y,z);
-			fin >> x >> y >> z;
-			t->vn1 = vec3(x,y,z);
-			t->vn2 = vec3(x,y,z);
-			t->vn3 = vec3(x,y,z);
+			fin >> t->v1 >> t->v2 >> t->v3 >> t->vn1;
+			t->vn2 = t->vn3 = t->vn1;
 			t->preprocess();
-			fin >> x >> y >> z;
-			vec3 color(x,y,z);
-			objects.push_back((face){t,color});
+			shape = t;
 		}
 		if (type == "sphere")
 		{
-			float x,y,z,r;
-			std::cin >> x >> y >> z >> r;
-			Sphere* t = new(Sphere)(vec3(x,y,z),r);
-			fin >> x >> y >> z;
-			vec3 color(x,y,z);
-			objects.push_back((face){t,color});
+			vec3 origin;
+			float radius;
+			std::cin >> origin >> radius;
+			shape = new(Sphere)(origin, radius);
 		}
-		if (type == "exit")
-			return;
+		face::attrtype attr;
+		if (strattr == "light") attr = face::LIGHT;
+		if (strattr == "diffuse") attr = face::DIFFUSE;
+		vec3 color;
+		fin >> color;
+		objects.push_back((face){attr, shape, color});
 	}
 }
+
+
 
 void loadSAS()
 {
 	// testing brute force. no acceleration structure
+}
+
+
+
+vec3 outDiffuse(vec3 Normal)
+{
+	vec3 res;
+	do res = vec3(randf()*2-1, randf()*2-1, randf()*2-1);
+	while (norm(res) > 1);
+	return normalize(1.00001 * Normal + res);
 }
 
 
@@ -70,31 +84,25 @@ long long nRay = 0;
 
 face* hitAnything(Ray ray)
 {
-	ray.origin += 1e-5 * ray.dir;
-
 	face* hit = NULL;
 	float dist;
+	point res;
+	// bruteforcing checking against every primitive
 	for (face& shape: objects)
-	{
-		point res;
 		if (shape.shape->intersect(ray, &res))
-		{
 			if (hit == NULL || dist > norm(res - ray.origin))
-			{
-				hit = &shape;
+				hit = &shape,
 				dist = norm(res - ray.origin);
-			}
-		}
-	}
 	return hit;
 }
 
 
 vec3 cast(Ray ray)
 {
+	// prevent ray intersecting its source surface
+	ray.origin += 1e-5 * ray.dir;
 	// count number of ray casted
 	nRay++;
-	// prevent ray intersecting its source surface
 
 	// printf("%f %f %f %f %f %f\n",ray.origin.x,ray.origin.y,ray.origin.z,ray.dir.x,ray.dir.y,ray.dir.z);
 
@@ -103,33 +111,23 @@ vec3 cast(Ray ray)
 #endif
 
 	face* hit = hitAnything(ray);
-	// bruteforcing checking against every primitive
 	if (hit == NULL)
 		return vec3(0,0,0);
-
+	if (hit->attr == face::LIGHT)
+		return hit->color;
 	point p;
-	hit->shape->intersect(ray, &p);
-	vec3 lightSourceDir = normalize(source - p);
-	
-	Ray shadowRay {p, normalize(source - p)};
-	face* block = hitAnything(shadowRay);
-	bool blocked = false;
-	if (block != NULL)
+	assert(hit->shape->intersect(ray, &p));
+	vec3 color = hit->color;
+	float prob = std::max(color.x, std::max(color.y, color.z));
+	if (randf() < prob) 
 	{
-		point pb;
-		block->shape->intersect(shadowRay, &pb);
-		if (norm(pb - p) < norm(source - p))
-			blocked = true;
+		vec3 inColor = cast((Ray){p, outDiffuse(hit->shape->normalAtPoint(p))});
+		inColor.x *= color.x;
+		inColor.y *= color.y;
+		inColor.z *= color.z;
+		return 1/prob * inColor;
 	}
-	vec3 res(0,0,0);
-	if (!blocked)
-		//return vec3(0,0,1);
-		res = hit->diffuseColor * std::max(0.0f,dot(lightSourceDir, hit->shape->normalAtPoint(p))) * 1.5 * pow(norm(source - p), -2);
-	
-	if (res.x > 1) res.x = 1;
-	if (res.y > 1) res.y = 1;
-	if (res.z > 1) res.z = 1;
-	return res;
+	return vec3(0,0,0);
 
 	// reflection
 		// point p = origin.intersection(ray);
@@ -142,7 +140,7 @@ vec3 cast(Ray ray)
 		// if (dot(N, ray.dir) < 0)
 		// {
 		// 	float theta = acos(dot(-N, ray.dir));
-		// 	newdir = normalize(tan(asin(sin(theta)/kk)) * normalize(ray.dir + N * dot(-N, ray.dir)) + normalize(-N));
+		// 	newdir = normalize(tan(asin(sin(theta)/kk)) * normalize(ray.dir - N * dot(N, ray.dir)) + normalize(-N));
 		// }
 		// else
 		// {
@@ -155,6 +153,8 @@ vec3 cast(Ray ray)
 }
 
 
+const float magn = 16;
+const int nSample = 1;
 const int imageWidth = 512;
 const int imageHeight = imageWidth;
 char pixels[imageWidth * imageHeight * 3];
@@ -162,51 +162,26 @@ char pixels[imageWidth * imageHeight * 3];
 int main(int argc, char* argv[])
 {
 	loadShapes();
+	fprintf(stderr, "%lu primitives loaded\n", objects.size());
 	loadSAS();
 	int byteCnt = 0;
 	for (int y=0; y<imageHeight; ++y)
 		for (int x=0; x<imageWidth; ++x)
 		{
-			vec3 camera(0,1,3.7);
+			vec3 camera(0,1,4);
 			vec3 res(0,0,0);
 
-			int nSample = 64;
 			for (int i=0; i<nSample; ++i)
 			{
-				float w = 3;
-				vec3 tar(-w/2 + w*(x+(float)rand()/RAND_MAX)/imageWidth, 1.0+w/2-w*(y+(float)rand()/RAND_MAX)/imageHeight, 0);
+				float w = 2.7;
+				vec3 tar(-w/2 + w*(x+randf())/imageWidth, 1.0+w/2-w*(y+randf())/imageHeight, 0);
 				Ray ray = {camera, normalize(tar - camera)};
-
-				// manualy rotate camera
-				/*
-				float theta = -0.4;
-				float x = ray.origin.x * cos(theta) - ray.origin.y * (-sin(theta));
-				float y = ray.origin.y * cos(theta) + ray.origin.x * sin(theta);
-				ray.origin.x = x;
-				ray.origin.y = y;
-				x = ray.dir.x * cos(theta) - ray.dir.y * sin(theta);
-				y = ray.dir.y * cos(theta) + ray.dir.x * sin(theta);
-				ray.dir.x = x;
-				ray.dir.y = y;
-
-				theta = -0.2;
-				x = ray.origin.x * cos(theta) - ray.origin.z * (-sin(theta));
-				float z = ray.origin.z * cos(theta) + ray.origin.x * sin(theta);
-				ray.origin.x = x;
-				ray.origin.z = z;
-				x = ray.dir.x * cos(theta) - ray.dir.z * sin(theta);
-				z = ray.dir.z * cos(theta) + ray.dir.x * sin(theta);
-				ray.dir.x = x;
-				ray.dir.z = z;
-				*/
-				source.z = (float)rand()/RAND_MAX/2-0.25;
-				source.x = (float)rand()/RAND_MAX/2-0.25;
 				res += cast(ray);
 			}
-			res *= 1.0/nSample;
-			pixels[byteCnt++] = res.x * 255;
-			pixels[byteCnt++] = res.y * 255;
-			pixels[byteCnt++] = res.z * 255;
+			res *= magn/nSample;
+			pixels[byteCnt++] = std::min(255.0f, res.x * 255);
+			pixels[byteCnt++] = std::min(255.0f, res.y * 255);
+			pixels[byteCnt++] = std::min(255.0f, res.z * 255);
 		}
 	writeBMP("output.bmp", pixels, imageWidth, imageHeight);
 	fprintf(stderr, "%lld rays casted \n", nRay);

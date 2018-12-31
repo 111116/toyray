@@ -136,6 +136,19 @@ public:
 		if (nvd3 > 1e-5 && nvd2 > 1e-5 && dot(vd3,vd2) < 0) return false;
 		if (result != NULL)
 			*result = p;
+
+
+		// DEBUGGING
+		if (abs(dot(p-v1, planeNormal)) >= 1e-3)
+		{
+			// std::cout << "r=" << r.origin << r.dir << std::endl;
+			std::cout << "p=" << p << std::endl;
+			std::cout << "v1=" << v1 << std::endl;
+			std::cout << "v2=" << v2 << std::endl;
+			std::cout << "v3=" << v3 << std::endl;
+			fprintf(stderr, "%f\n", abs(dot(p-v1, planeNormal)));
+		}
+
 		return true;
 	}
 

@@ -21,6 +21,11 @@ std::ostream& operator << (std::ostream& os, vec3 v)
 	return os << '(' << v.x << ',' << v.y << ',' << v.z << ')';
 }
 
+std::istream& operator >> (std::istream& is, vec3& v)
+{
+	return is >> v.x >> v.y >> v.z;
+}
+
 
 vec3& operator += (vec3& a, vec3 b)
 {
