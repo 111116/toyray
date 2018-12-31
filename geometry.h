@@ -25,6 +25,7 @@ public:
 	virtual bool intersect(Ray ray, point* result = NULL) = 0;
 	virtual vec3 normalAtPoint(point p) = 0;
 	virtual point sampleOnSurface() = 0;
+	virtual float surfaceArea() = 0;
 };
 
 
@@ -80,6 +81,11 @@ public:
 	}
 
 	point sampleOnSurface()
+	{
+		throw "not yet implemented";
+	}
+
+	float surfaceArea()
 	{
 		throw "not yet implemented";
 	}
@@ -174,6 +180,10 @@ public:
 		float a=randf(), b=randf();
 		if (a+b>1) a=1-a, b=1-a;
 		return v1 + a*(v2-v1) + b*(v3-v1);
+	}
+	float surfaceArea()
+	{
+		return norm(cross(v2-v1, v3-v1))/2;
 	}
 };
 

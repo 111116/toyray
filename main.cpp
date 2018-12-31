@@ -141,7 +141,7 @@ vec3 cast(Ray ray, int bounces, face::attrtype lastType)
 			res += light->color * color
 				* std::max(0.0f, dot(-ldir, Nl))
 				* std::max(0.0f, dot(ldir, N))
-				* (0.5 / acos(-1) / lights.size())
+				* (0.5 / acos(-1) / lights.size() / light->shape->surfaceArea())
 				* pow(norm(pl - p), -2);
 
 		// sample indirect illumination
@@ -177,8 +177,8 @@ vec3 cast(Ray ray, int bounces, face::attrtype lastType)
 }
 
 
-const float magn = 16;
-const int nSample = 256;
+const float magn = 4;
+const int nSample = 1;
 const int imageWidth = 512;
 const int imageHeight = imageWidth;
 char pixels[imageWidth * imageHeight * 3];
