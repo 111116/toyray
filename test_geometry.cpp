@@ -2,25 +2,34 @@
 #include <iostream>
 #include "geometry.h"
 
-std::ostream& operator << (std::ostream& os, vec3 v)
+vec3 sampleInUnitSphere()
 {
-	return os << '(' << v.x << ',' << v.y << ',' << v.z << ')';
+	vec3 v;
+	do v = vec3(randf()*2-1, randf()*2-1, randf()*2-1);
+	while (norm(v)>1);
+	return v;
+}
+
+vec3 sampleOverHemisphericalSurface()
+{
+	vec3 v;
+	do v=sampleInUnitSphere();
+	while (norm(v) < 1e-2);
+	if (v.y<0) v.y = -v.y;
+	return normalize(v);
 }
 
 int main()
 {
-	triangle t;
-	t.v1 = vec3(0,0,0);
-	t.v2 = vec3(0,1,0);
-	t.v3 = vec3(0,0,1);
-	t.vn1 = vec3(1,0,0);
-	t.vn2 = vec3(1,0,0);
-	t.vn3 = vec3(1,0,0);
-	t.preprocess();
-	
-	Ray r = {{2,3,3}, {0,1,0}};
-	point p = t.intersection(r);
-	std::cout << p << std::endl;
-
-	std::cout << t.interpolatedNormal(vec3(0,0.2,0.2)) << std::endl;
+	double s = 0;
+	int n = 1000000;
+	for (int i=0; i<n; ++i)
+	{
+		vec3 v = sampleOverHemisphericalSurface();
+		s += dot(vec3(0,1,0), v);
+	}
+	std::cout << s/n << std::endl;
+	// result should be hemispherical integral / hemispherical surface area
+	// = integral / (2pi)
+	// = 0.5
 }
