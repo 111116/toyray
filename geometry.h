@@ -95,6 +95,30 @@ public:
 
 struct Volume
 {
+	float x1,x2,y1,y2,z1,z2;
+	bool intersect(Ray r)
+	{
+		float tmin, tmax;
+		if (r.dir.x > 0)
+			tmin = (x1 - r.origin.x) / r.dir.x,
+			tmax = (x2 - r.origin.x) / r.dir.x;
+		else
+			tmin = (x2 - r.origin.x) / r.dir.x,
+			tmax = (x1 - r.origin.x) / r.dir.x;
+		if (r.dir.y > 0)
+			tmin = std::max(tmin, (y1 - r.origin.y) / r.dir.y),
+			tmax = std::min(tmax, (y2 - r.origin.y) / r.dir.y);
+		else
+			tmin = std::max(tmin, (y2 - r.origin.y) / r.dir.y),
+			tmax = std::min(tmax, (y1 - r.origin.y) / r.dir.y);
+		if (r.dir.z > 0)
+			tmin = std::max(tmin, (z1 - r.origin.z) / r.dir.z),
+			tmax = std::min(tmax, (z2 - r.origin.z) / r.dir.z);
+		else
+			tmin = std::max(tmin, (z2 - r.origin.z) / r.dir.z),
+			tmax = std::min(tmax, (z1 - r.origin.z) / r.dir.z);
+		return tmin <= tmax;
+	}
 };
 
 
@@ -105,7 +129,8 @@ public:
 	vec3 vn1, vn2, vn3;
 
 	vec3 planeNormal;
-	mat3 interpMatrix;
+	mat3 interpMatrix, tMatrix;
+	Volume bv;
 
 	void preprocess() 
 	// pre-calculation to accelerate intersection / interpolation computation
@@ -123,45 +148,24 @@ public:
 		if (dot(planeNormal, vn1) < 0)
 			planeNormal *= -1;
 		interpMatrix = mat3(vn1,vn2,vn3) * inverse(mat3(v1,v2,v3));
+		tMatrix = inverse(mat3(v2-v1, v3-v1, cross(v2-v1, normalize(v3-v1))));
+		bv = boundingVolume();
 	}
 
 	bool intersect(Ray r, point* result = NULL)
 	{
-		// TODO temporarily using a slow method.
-		// applying matrix transformation should be faster
-		float c1 = det(mat3(r.dir, v2-v1, v3-v1));
-		if (c1 == 0) return false;
-		float c0 = det(mat3(r.origin - v1, v2-v1, v3-v1));
-		float k = -c0 / c1;
-		if (k <= 0) return false;
-		// NOTE: be careful to prevent a surface emits ray hitting itself
-		// TODO this is SUPER SLOW!
-		point p = r.origin + (-c0/c1) * r.dir;
-		vec3 vd1 = cross(p-v1, v2-v1);
-		vec3 vd2 = cross(p-v2, v3-v2);
-		vec3 vd3 = cross(p-v3, v1-v3);
-		float nvd1 = norm(vd1);
-		float nvd2 = norm(vd2);
-		float nvd3 = norm(vd3);
-		if (nvd1 > 1e-5 && nvd2 > 1e-5 && dot(vd1,vd2) < 0) return false;
-		if (nvd1 > 1e-5 && nvd3 > 1e-5 && dot(vd1,vd3) < 0) return false;
-		if (nvd3 > 1e-5 && nvd2 > 1e-5 && dot(vd3,vd2) < 0) return false;
-		if (result != NULL)
-			*result = p;
-
-
-		// DEBUGGING
-		if (abs(dot(p-v1, planeNormal)) >= 1e-3)
+		if (!bv.intersect(r)) return false;
+		vec3 o = tMatrix * (r.origin - v1);
+		vec3 dir = tMatrix * r.dir;
+		if (o.z>0 ^ dir.z<0) return false;
+		float t = o.z / dir.z;
+		vec3 p = o - dir * t;
+		if (p.x >= 0 && p.y >= 0 && p.x + p.y <= 1)
 		{
-			// std::cout << "r=" << r.origin << r.dir << std::endl;
-			std::cout << "p=" << p << std::endl;
-			std::cout << "v1=" << v1 << std::endl;
-			std::cout << "v2=" << v2 << std::endl;
-			std::cout << "v3=" << v3 << std::endl;
-			fprintf(stderr, "%f\n", abs(dot(p-v1, planeNormal)));
+			*result = v1 + p.x * (v2-v1) + p.y * (v3-v1);
+			return true;
 		}
-
-		return true;
+		else return false;
 	}
 
 	vec3 normalAtPoint(point p)
@@ -184,6 +188,18 @@ public:
 	float surfaceArea()
 	{
 		return norm(cross(v2-v1, v3-v1))/2;
+	}
+
+	Volume boundingVolume()
+	{
+		Volume v;
+		v.x1 = std::min(v1.x, std::min(v2.x, v3.x));
+		v.x2 = std::max(v1.x, std::max(v2.x, v3.x));
+		v.y1 = std::min(v1.y, std::min(v2.y, v3.y));
+		v.y2 = std::max(v1.y, std::max(v2.y, v3.y));
+		v.z1 = std::min(v1.z, std::min(v2.z, v3.z));
+		v.z2 = std::max(v1.z, std::max(v2.z, v3.z));
+		return v;
 	}
 };
 

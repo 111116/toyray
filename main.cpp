@@ -121,6 +121,7 @@ vec3 cast(Ray ray, int bounces, face::attrtype lastType)
 
 	if (hit->attr == face::LIGHT)
 		return (lastType == face::DIFFUSE)? vec3(): color;
+	// return color*0.02;
 	// separate Light->Diffuse path
 
 	point p;
@@ -223,6 +224,7 @@ const int imageWidth = 512;
 const int imageHeight = imageWidth;
 char filename[] = "output.bmp";
 char pixels[imageWidth * imageHeight * 3];
+
 
 int main(int argc, char* argv[])
 {
