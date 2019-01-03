@@ -78,7 +78,7 @@ vec3 sampleSphere(vec3 N)
 {
 	vec3 v;
 	do v = vec3(randf()*2-1, randf()*2-1, randf()*2-1);
-	while (norm(v)>1 || norm(v)<1e-4 || norm(v+N)==0);
+	while (norm(v)>1 || norm(v)<1e-4);
 	v = normalize(v);
 	return normalize(v+N);
 }
@@ -101,7 +101,7 @@ vec3 cast(Ray ray, int bounces, face::attrtype lastType)
 
 	vec3 color = hit->color;
 	if (hit->attr == face::LIGHT)
-		return (bounces<=1)? vec3(): color;
+		return dot(hit->shape->normalAtPoint(hit->shape->sampleOnSurface()), ray.dir)<0? color: vec3();
 
 	point p;
 	assert(hit->shape->intersect(ray, &p));

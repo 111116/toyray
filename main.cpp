@@ -1,3 +1,13 @@
+// This is a naive path tracing implementation,
+// using a simple sample strategy,
+// with no threading and no spatial acceleration structure,
+// supporting only perfect diffuse / reflective surfaces and glass,
+// with area diffuse light sources.
+
+// reads scene from file "mesh"
+// camera & exposure settings are hard-coded
+// nspp can be specified as argument
+
 #include <algorithm>
 #include <vector>
 #include <fstream>
@@ -11,7 +21,7 @@ struct face
 {
 	enum attrtype
 	{
-		LIGHT, DIFFUSE, REFLECT, EYE
+		LIGHT, DIFFUSE, REFLECT, REFRACT, EYE
 	};
 	attrtype attr;
 	Primitive* shape;
@@ -48,6 +58,7 @@ void loadShapes()
 		if (strattr == "light") attr = face::LIGHT;
 		if (strattr == "diffuse") attr = face::DIFFUSE;
 		if (strattr == "reflect") attr = face::REFLECT;
+		if (strattr == "refract") attr = face::REFRACT;
 		vec3 color;
 		fin >> color;
 		objects.push_back((face){attr, shape, color});
@@ -58,24 +69,22 @@ void loadShapes()
 
 
 
-void loadSAS()
+vec3 sampleSphere(vec3 N)
 {
-	fprintf(stderr, "Testing brute force. No acceleration structure.\n");
-}
-
-
-
-vec3 outDiffuse(vec3 Normal)
-{
-	vec3 res;
-	do res = vec3(randf()*2-1, randf()*2-1, randf()*2-1);
-	while (norm(res) > 1);
-	return normalize(1.00001 * Normal + res);
+	vec3 v;
+	while (norm(v) < 1e-5)
+	{
+		do v = vec3(randf()*2-1, randf()*2-1, randf()*2-1);
+		while (norm(v)>1 || norm(v)<1e-4);
+		v = normalize(v) + N;
+	}
+	return normalize(v);
 }
 
 
 long long nRay = 0;
-long long nShadow = 0;
+long long nShadowRay = 0;
+long long nIntersectTest = 0;
 
 
 face* hitAnything(Ray ray, std::vector<face>& objects)
@@ -84,6 +93,7 @@ face* hitAnything(Ray ray, std::vector<face>& objects)
 	float dist;
 	point res;
 	// bruteforcing checking against every primitive
+	nIntersectTest += objects.size();
 	for (face& shape: objects)
 		if (shape.shape->intersect(ray, &res))
 			if (hit == NULL || dist > norm(res - ray.origin))
@@ -101,7 +111,6 @@ vec3 cast(Ray ray, int bounces, face::attrtype lastType)
 	nRay++;
 
 #ifdef DEBUG
-	// printf("%f %f %f %f %f %f\n",ray.origin.x,ray.origin.y,ray.origin.z,ray.dir.x,ray.dir.y,ray.dir.z);
 	assert(abs(norm(ray.dir) - 1) < 1e-5);
 #endif 
 
@@ -115,19 +124,22 @@ vec3 cast(Ray ray, int bounces, face::attrtype lastType)
 	// separate Light->Diffuse path
 
 	point p;
+	++nIntersectTest;
 	assert(hit->shape->intersect(ray, &p));
 	vec3 N = hit->shape->normalAtPoint(p);
 
-	if (hit->attr == face::DIFFUSE)
+	if (hit->attr == face::DIFFUSE) // assuming lambertian
 	{
 		// sample direct illumination (assuming diffuse light source)
-		++nShadow;
+		// Note: this method works well for light sources covering a small solid angle,
+		// but may increase variance otherwise
 		vec3 res;
 		face* light = &lights[rand() % lights.size()];
 		point pl = light->shape->sampleOnSurface();
 		vec3 Nl = light->shape->normalAtPoint(pl);
 		vec3 ldir = normalize(pl - p);
 
+		++nShadowRay;
 		Ray shadowRay{p, ldir};
 		shadowRay.origin += 1e-5 * ldir;
 		face* blk = hitAnything(shadowRay, objects);
@@ -135,6 +147,7 @@ vec3 cast(Ray ray, int bounces, face::attrtype lastType)
 		if (blk != NULL)
 		{
 			point pb;
+			++nIntersectTest;
 			blk->shape->intersect(shadowRay, &pb);
 			blocked = (norm(pb-p) + 1e-5 <= norm(pl-p));
 		}
@@ -142,61 +155,88 @@ vec3 cast(Ray ray, int bounces, face::attrtype lastType)
 			res += light->color * color
 				* std::max(0.0f, dot(-ldir, Nl))
 				* std::max(0.0f, dot(ldir, N))
-				* (2 / acos(-1)) * lights.size()
+				* (lights.size() / acosf(-1))
 				* light->shape->surfaceArea()
 				* pow(norm(pl - p), -2);
-				// this is hemispherical integral f*cos(N,v) dS / (2pi)
-				// actual radiance should be: 2/pi * int(f cos(N,v) dS
 
 		// sample indirect illumination
 		float prob = bounces<3? 1: std::max(color.x, std::max(color.y, color.z));
 		// possibly terminating path
 		if (randf() < prob) 
 		{
-			vec3 inColor = cast((Ray){p, outDiffuse(N)}, bounces+1, face::DIFFUSE);
+			vec3 inColor = cast((Ray){p, sampleSphere(N)}, bounces+1, face::DIFFUSE);
+			// split for shadowed area
+			if (bounces<1 && res.x==0 && res.y==0 && res.z==0)
+			{
+				inColor += cast((Ray){p, sampleSphere(N)}, bounces+1, face::DIFFUSE);
+				inColor *= 0.5;
+			}
 			res += 1/prob * color * inColor;
-			// expectancy of spherical estimator should be exact radiance
 		}
 		return res;
 	}
 
-	if (hit->attr == face::REFLECT)
-		return cast((Ray){p, ray.dir - 2 * N * dot(N, ray.dir)}, bounces+1, face::REFLECT);
+	if (hit->attr == face::REFLECT) // assuming perfect mirror
+		return cast((Ray){p, normalize(ray.dir - 2 * N * dot(N, ray.dir))}, bounces+1, face::REFLECT);
 
-	// refraction
-		// float rI = 1.6;
-		// if (dot(N, ray.dir) < 0)
-		// {
-		// 	float theta = acos(dot(-N, ray.dir));
-		// 	newdir = normalize(tan(asin(sin(theta)/rI)) * normalize(ray.dir - N * dot(N, ray.dir)) + normalize(-N));
-		// }
-		// else
-		// {
-		// 	float theta = acos(dot(N, ray.dir));
-		// 	if (sin(theta)*rI >= 1)
-		// 		newdir = ray.dir - 2 * N * dot(N, ray.dir);
-		// 	else
-		// 		newdir = normalize(tan(asin(sin(theta)*rI)) * normalize(ray.dir - nap * dot(nap, ray.dir)) + normalize(nap));
-		// }
+	if (hit->attr == face::REFRACT) // hard coded as glass texture, with refraction index 1.7
+	{
+		float reflectance = 0.1;
+		float rI = 1.7;
+		float fresnel = reflectance + (1.0f - reflectance) * pow(1-abs(dot(N, ray.dir)), 5);
+		// fresnel reflection. Thanks to Edward Liu's article on texture rendering
+		vec3 newdir;
+		float sint = sin(acos(dot(N, ray.dir)));
+		if (randf() < fresnel)
+			newdir = normalize(ray.dir - 2 * N * dot(N, ray.dir));
+		else
+		{
+			if (dot(N, ray.dir) < 0)
+			{
+				newdir = normalize(tan(asin(sint/rI)) * normalize(ray.dir - N * dot(N, ray.dir)) + normalize(-N));
+			}
+			else
+			{
+				if (sint*rI >= 1)
+					newdir = normalize(ray.dir - 2 * N * dot(N, ray.dir));
+				else
+					newdir = normalize(tan(asin(sint*rI)) * normalize(ray.dir - N * dot(N, ray.dir)) + normalize(N));
+			}
+		}
+		// deal with NANs. I don't know what happened. so just ignore them...
+		if (std::isnan(newdir.x)  || std::isnan(newdir.y) || std::isnan(newdir.z))
+		{
+			fprintf(stderr, "ERROR: ray direction NAN. Skipping...\n");
+			return vec3();
+		}
+		return randf()<0.95? cast((Ray){p, newdir}, bounces+1, face::REFRACT): vec3();
+	}
+#ifdef DEBUG
+	assert(false);
+#endif
 }
 
 
-const float magn = 64;
-int nSample = 16;
+int nSample = 16; // default number of samples per pixel, may be overrided in parameters
+const float magn = 50; // exposure magnification
 const int imageWidth = 512;
 const int imageHeight = imageWidth;
+char filename[] = "output.bmp";
 char pixels[imageWidth * imageHeight * 3];
 
 int main(int argc, char* argv[])
 {
+#ifdef DEBUG
+	fprintf(stderr, "WARNING: running in debug mode.\n");
+#endif
 	if (argc>1) nSample = atoi(argv[1]);
 	loadShapes();
-	fprintf(stderr, "%lu primitives loaded\n", objects.size());
-	loadSAS();
+	fprintf(stderr, "INFO: %lu primitives loaded\n", objects.size());
 	int byteCnt = 0;
 	long long nZero = 0, nPrimary = 0;
-	fprintf(stderr, "rendering at %d x %d, %d spp\n", imageWidth, imageHeight, nSample);
+	fprintf(stderr, "INFO: rendering at %d x %d, %d spp\n", imageWidth, imageHeight, nSample);
 	for (int y=0; y<imageHeight; ++y)
+	{
 		for (int x=0; x<imageWidth; ++x)
 		{
 			vec3 camera(0,1,4), res;
@@ -215,9 +255,13 @@ int main(int argc, char* argv[])
 			pixels[byteCnt++] = std::min(255.0f, res.y * 255);
 			pixels[byteCnt++] = std::min(255.0f, res.z * 255);
 		}
-	writeBMP("output.bmp", pixels, imageWidth, imageHeight);
-	fprintf(stderr, "%lld rays casted \n", nRay);
-	fprintf(stderr, "%lld shadow rays\n", nShadow);
-	fprintf(stderr, "%lld primary rays\n", nPrimary);
-	fprintf(stderr, "%lld zero-radiance paths (%.2f%%)\n", nZero, (float)nZero / nPrimary * 100);
+		fprintf(stderr, "\r%.1f%%", 100.0f*(y+1)/imageHeight);
+	}
+	fprintf(stderr, "\rINFO: %lld rays casted \n", nRay);
+	fprintf(stderr, "INFO: %lld shadow rays\n", nShadowRay);
+	fprintf(stderr, "INFO: %lld intersection tests\n", nIntersectTest);
+	fprintf(stderr, "INFO: %lld primary rays\n", nPrimary);
+	fprintf(stderr, "INFO: %lld zero-radiance paths (%.2f%%)\n", nZero, (float)nZero / nPrimary * 100);
+	fprintf(stderr, "INFO: Writing result to %s\n", filename);
+	writeBMP(filename, pixels, imageWidth, imageHeight);
 }

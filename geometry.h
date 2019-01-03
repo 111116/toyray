@@ -178,7 +178,7 @@ public:
 	point sampleOnSurface()
 	{
 		float a=randf(), b=randf();
-		if (a+b>1) a=1-a, b=1-a;
+		if (a+b>1) a=1-a, b=1-b;
 		return v1 + a*(v2-v1) + b*(v3-v1);
 	}
 	float surfaceArea()
