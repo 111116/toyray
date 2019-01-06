@@ -1,7 +1,7 @@
-// This is a naive path tracing implementation,
-// using a simple sample strategy,
+// This is a naive path tracing implementation
+// using a simple sample strategy
 // with no threading and no spatial acceleration structure,
-// supporting only perfect diffuse / reflective surfaces and glass,
+// supporting only perfect diffuse / reflective surfaces and glass (not physically based),
 // with area diffuse light sources.
 
 // reads scene from file "mesh"
@@ -29,7 +29,7 @@ struct face
 };
 
 std::vector<face> objects, lights;
-// lights specifically for LD path optimization
+// lights specifically for Light-Diffuse path optimization
 
 
 void loadShapes()
@@ -214,6 +214,8 @@ vec3 cast(Ray ray, int bounces, bool allowLight = true)
 			return vec3();
 		}
 		return randf()<0.96? cast((Ray){p, newdir}, bounces+1): vec3();
+		// this might be problematic
+		// light absorption should be relavent to distance traveled
 	}
 }
 
@@ -244,6 +246,7 @@ int main(int argc, char* argv[])
 			vec3 camera(0,1,4), res;
 			for (int i=0; i<nSample; ++i)
 			{
+				// manual camera setup
 				float w = 2.7;
 				vec3 tar(-w/2 + w*(x+randf())/imageWidth, 1.0+w/2-w*(y+randf())/imageHeight, 0);
 				Ray ray = {camera, normalize(tar - camera)};
