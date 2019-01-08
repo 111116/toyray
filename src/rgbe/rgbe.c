@@ -99,10 +99,10 @@ rgbe2float(float *red, float *green, float *blue, unsigned char rgbe[4])
   float f;
 
   if (rgbe[3]) {   /*nonzero pixel*/
-    f = ldexp(1.0,rgbe[3]-(int)(128+8));
-    *red = rgbe[0] * f;
-    *green = rgbe[1] * f;
-    *blue = rgbe[2] * f;
+    // f = ldexp(col,rgbe[3]-(int)(128+8));
+    *red = ldexp(rgbe[0]+0.5, rgbe[3]-(int)(128+8));
+    *green = ldexp(rgbe[1]+0.5, rgbe[3]-(int)(128+8));
+    *blue = ldexp(rgbe[2]+0.5, rgbe[3]-(int)(128+8));
   }
   else
     *red = *green = *blue = 0.0;

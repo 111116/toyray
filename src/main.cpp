@@ -13,6 +13,7 @@
 #include <fstream>
 #include "writebmp.h"
 #include "geometry.h"
+#include "envmap.h"
 
 #define DEBUG
 
@@ -103,6 +104,7 @@ face* hitAnything(Ray ray, std::vector<face>& objects)
 	return hit;
 }
 
+Envmap env("res/grace-new.hdr");
 
 
 vec3 cast(Ray ray, int bounces, bool allowLight = true)
@@ -118,8 +120,9 @@ vec3 cast(Ray ray, int bounces, bool allowLight = true)
 	face* hit = hitAnything(ray, objects);
 	if (hit == NULL)
 	{
-		++nZero;
-		return vec3();
+		// ++nZero;
+		return env.envlight(ray.dir);
+		// return vec3();
 	}
 	vec3 color = hit->color;
 	if (hit->attr == face::LIGHT)
@@ -136,30 +139,33 @@ vec3 cast(Ray ray, int bounces, bool allowLight = true)
 		// Note: this method works well for light sources covering a small solid angle,
 		// but may increase variance otherwise
 		vec3 res;
-		face* light = &lights[rand() % lights.size()];
-		point pl = light->shape->sampleOnSurface();
-		vec3 Nl = light->shape->normalAtPoint(pl);
-		vec3 ldir = normalize(pl - p);
-
-		++nShadowRay;
-		Ray shadowRay{p, ldir};
-		shadowRay.origin += 1e-5 * ldir;
-		face* blk = hitAnything(shadowRay, objects);
-		bool blocked = 0;
-		if (blk != NULL)
+		if (!lights.empty())
 		{
-			point pb;
-			++nIntersectTest;
-			blk->shape->intersect(shadowRay, &pb);
-			blocked = (norm(pb-p) + 1e-5 <= norm(pl-p));
+			face* light = &lights[rand() % lights.size()];
+			point pl = light->shape->sampleOnSurface();
+			vec3 Nl = light->shape->normalAtPoint(pl);
+			vec3 ldir = normalize(pl - p);
+
+			++nShadowRay;
+			Ray shadowRay{p, ldir};
+			shadowRay.origin += 1e-5 * ldir;
+			face* blk = hitAnything(shadowRay, objects);
+			bool blocked = 0;
+			if (blk != NULL)
+			{
+				point pb;
+				++nIntersectTest;
+				blk->shape->intersect(shadowRay, &pb);
+				blocked = (norm(pb-p) + 1e-5 <= norm(pl-p));
+			}
+			if (!blocked)
+				res += light->color * color
+					* std::max(0.0f, dot(-ldir, Nl))
+					* std::max(0.0f, dot(ldir, N))
+					* (lights.size() / acosf(-1))
+					* light->shape->surfaceArea()
+					* pow(norm(pl - p), -2);
 		}
-		if (!blocked)
-			res += light->color * color
-				* std::max(0.0f, dot(-ldir, Nl))
-				* std::max(0.0f, dot(ldir, N))
-				* (lights.size() / acosf(-1))
-				* light->shape->surfaceArea()
-				* pow(norm(pl - p), -2);
 
 		// sample indirect illumination
 		float prob = bounces<3? 1: std::max(color.x, std::max(color.y, color.z));
@@ -221,7 +227,7 @@ vec3 cast(Ray ray, int bounces, bool allowLight = true)
 
 
 int nSample = 16; // default number of samples per pixel, may be overrided in parameters
-const float magn = 50; // exposure magnification
+const float magn = 4; // exposure magnification
 const int imageWidth = 1024;
 const int imageHeight = imageWidth;
 char filename[] = "output.bmp";
@@ -243,12 +249,12 @@ int main(int argc, char* argv[])
 	{
 		for (int x=0; x<imageWidth; ++x)
 		{
-			vec3 camera(0,1,4), res;
+			vec3 camera(0,-0.3,4), res;
 			for (int i=0; i<nSample; ++i)
 			{
 				// manual camera setup
-				float w = 2.7;
-				vec3 tar(-w/2 + w*(x+randf())/imageWidth, 1.0+w/2-w*(y+randf())/imageHeight, 0);
+				float w = 4;
+				vec3 tar(-w/2 + w*(x+randf())/imageWidth, 0.5+w/2-w*(y+randf())/imageHeight, 0);
 				Ray ray = {camera, normalize(tar - camera)};
 				res += cast(ray, 0);
 				nPrimary += 1;
