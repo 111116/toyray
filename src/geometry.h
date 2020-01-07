@@ -26,6 +26,7 @@ public:
 	virtual vec3 normalAtPoint(point p) = 0;
 	virtual point sampleOnSurface() = 0;
 	virtual float surfaceArea() = 0;
+	// virtual AABox boundingVolume() = 0;
 };
 
 
@@ -88,11 +89,23 @@ public:
 	{
 		throw "not yet implemented";
 	}
+
+	// AABox boundingVolume()
+	// {
+	// 	Volume v;
+	// 	v.x1 = origin.x - radius;
+	// 	v.x2 = origin.x + radius;
+	// 	v.y1 = origin.y - radius;
+	// 	v.y2 = origin.y + radius;
+	// 	v.z1 = origin.z - radius;
+	// 	v.z2 = origin.z + radius;
+	// 	return v;
+	// }
 };
 
 
 
-struct Volume
+struct AABox
 {
 	float x1,x2,y1,y2,z1,z2;
 	bool intersect(Ray r)
@@ -129,7 +142,7 @@ public:
 
 	vec3 planeNormal;
 	mat3 interpMatrix, tMatrix;
-	Volume bv;
+	// AABox bv;
 
 	void preprocess() 
 	// pre-calculation to accelerate intersection / interpolation computation
@@ -148,12 +161,12 @@ public:
 			planeNormal *= -1;
 		interpMatrix = mat3(vn1,vn2,vn3) * inverse(mat3(v1,v2,v3));
 		tMatrix = inverse(mat3(v2-v1, v3-v1, cross(v2-v1, normalize(v3-v1))));
-		bv = boundingVolume();
+		// bv = boundingVolume();
 	}
 
 	bool intersect(Ray r, point* result)
 	{
-		if (!bv.intersect(r)) return false;
+		// if (!bv.intersect(r)) return false;
 		vec3 o = tMatrix * (r.origin - v1);
 		vec3 dir = tMatrix * r.dir;
 		if (o.z>0 ^ dir.z<0) return false;
@@ -189,17 +202,17 @@ public:
 		return norm(cross(v2-v1, v3-v1))/2;
 	}
 
-	Volume boundingVolume()
-	{
-		Volume v;
-		v.x1 = std::min(v1.x, std::min(v2.x, v3.x));
-		v.x2 = std::max(v1.x, std::max(v2.x, v3.x));
-		v.y1 = std::min(v1.y, std::min(v2.y, v3.y));
-		v.y2 = std::max(v1.y, std::max(v2.y, v3.y));
-		v.z1 = std::min(v1.z, std::min(v2.z, v3.z));
-		v.z2 = std::max(v1.z, std::max(v2.z, v3.z));
-		return v;
-	}
+	// AABox boundingVolume()
+	// {
+	// 	Volume v;
+	// 	v.x1 = std::min(v1.x, std::min(v2.x, v3.x));
+	// 	v.x2 = std::max(v1.x, std::max(v2.x, v3.x));
+	// 	v.y1 = std::min(v1.y, std::min(v2.y, v3.y));
+	// 	v.y2 = std::max(v1.y, std::max(v2.y, v3.y));
+	// 	v.z1 = std::min(v1.z, std::min(v2.z, v3.z));
+	// 	v.z2 = std::max(v1.z, std::max(v2.z, v3.z));
+	// 	return v;
+	// }
 };
 
 

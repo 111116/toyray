@@ -25,4 +25,13 @@ void writeBMP(const char* filename, char* data, int W, int H)
 	fclose(fout);
 }
 
+void writeBMP(const char* filename, float* data, int W, int H)
+// data: RGB, top left -> bottom right, no padding
+{
+	char bytedata[W*H*3];
+	for (int i=0; i<W*H*3; ++i)
+		bytedata[i] = (data[i]>1? 1: data[i]) *255;
+	return writeBMP(filename, bytedata, W, H);
+}
+
 #endif

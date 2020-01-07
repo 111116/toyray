@@ -4,16 +4,14 @@
 // supporting only perfect diffuse / reflective surfaces and glass (not physically based),
 // with area diffuse light sources.
 
-// reads scene from file "mesh"
-// camera & exposure settings are hard-coded
-// nspp can be specified as argument
 
 #include <algorithm>
 #include <vector>
 #include <fstream>
-#include "writebmp.h"
 #include "geometry.h"
 #include "envmap.h"
+// #include "writebmp.h"
+#include "saveexr.h"
 
 #define DEBUG
 
@@ -32,10 +30,13 @@ struct face
 std::vector<face> objects, lights;
 // lights specifically for Light-Diffuse path optimization
 
+char infilename[] = "../cbox_specular";
+char outfilename[] = "output.exr";
+char hdrfilename[] = "res/uffizi.hdr";
 
 void loadShapes()
 {
-	std::ifstream fin("mesh");
+	std::ifstream fin(infilename);
 	std::string type, strattr;
 	while (fin >> type >> strattr)
 	{
@@ -104,11 +105,18 @@ face* hitAnything(Ray ray, std::vector<face>& objects)
 	return hit;
 }
 
-Envmap env("res/grace-new.hdr");
+Envmap env(hdrfilename);
+
+
 
 
 vec3 cast(Ray ray, int bounces, bool allowLight = true)
 {
+	if (bounces > 1000)
+	{
+		fprintf(stderr, "WARNING: bounces > 1000. Skipping...\n");
+		return vec3();
+	}
 	// prevent ray intersecting its source surface
 	ray.origin += 1e-5 * ray.dir;
 	nRay++;
@@ -226,12 +234,16 @@ vec3 cast(Ray ray, int bounces, bool allowLight = true)
 }
 
 
-int nSample = 16; // default number of samples per pixel, may be overrided in parameters
-const float magn = 4; // exposure magnification
-const int imageWidth = 1024;
+int nspp = 4; // default number of samples per pixel, may be overrided in parameters
+const float magn = 1; // exposure magnification
+const int imageWidth = 512;
 const int imageHeight = imageWidth;
-char filename[] = "output.bmp";
-char pixels[imageWidth * imageHeight * 3];
+vec3 camera(0,1,4);
+float cropx = 0.27, cropw = 0.25;
+float cropy = 0.55, croph = 0.25;
+float pixels[imageWidth * imageHeight * 3];
+
+// note: ./test 64 SEGMENTATION FAULT! DO NOT CHANGE CODE!
 
 
 int main(int argc, char* argv[])
@@ -239,30 +251,32 @@ int main(int argc, char* argv[])
 #ifdef DEBUG
 	fprintf(stderr, "WARNING: running in debug mode.\n");
 #endif
-	if (argc>1) nSample = atoi(argv[1]);
+	if (argc>1) nspp = atoi(argv[1]);
 	loadShapes();
 	fprintf(stderr, "INFO: %lu primitives loaded\n", objects.size());
 	int byteCnt = 0;
 	long long nPrimary = 0;
-	fprintf(stderr, "INFO: rendering at %d x %d, %d spp\n", imageWidth, imageHeight, nSample);
+	fprintf(stderr, "INFO: rendering at %d x %d, %d spp\n", imageWidth, imageHeight, nspp);
+	
 	for (int y=0; y<imageHeight; ++y)
 	{
 		for (int x=0; x<imageWidth; ++x)
 		{
-			vec3 camera(0,-0.3,4), res;
-			for (int i=0; i<nSample; ++i)
+			vec3 res;
+			for (int i=0; i<nspp; ++i)
 			{
 				// manual camera setup
 				float w = 4;
-				vec3 tar(-w/2 + w*(x+randf())/imageWidth, 0.5+w/2-w*(y+randf())/imageHeight, 0);
+				vec3 tar(-w/2 + w*(cropx + cropw * (x+randf())/imageWidth),
+					1+w/2 - w*(cropy + croph * (y+randf())/imageHeight) , 0);
 				Ray ray = {camera, normalize(tar - camera)};
 				res += cast(ray, 0);
 				nPrimary += 1;
 			}
-			res *= magn / nSample;
-			pixels[byteCnt++] = std::min(255.0f, res.x * 255);
-			pixels[byteCnt++] = std::min(255.0f, res.y * 255);
-			pixels[byteCnt++] = std::min(255.0f, res.z * 255);
+			res *= magn / nspp;
+			pixels[byteCnt++] = res.x;
+			pixels[byteCnt++] = res.y;
+			pixels[byteCnt++] = res.z;
 		}
 		fprintf(stderr, "\r%.1f%%", 100.0f*(y+1)/imageHeight);
 	}
@@ -271,6 +285,7 @@ int main(int argc, char* argv[])
 	fprintf(stderr, "INFO: %lld intersection tests\n", nIntersectTest);
 	fprintf(stderr, "INFO: %lld primary rays\n", nPrimary);
 	fprintf(stderr, "INFO: %lld zero-radiance paths (%.2f%%)\n", nZero, (float)nZero / nPrimary * 100);
-	fprintf(stderr, "INFO: Writing result to %s\n", filename);
-	writeBMP(filename, pixels, imageWidth, imageHeight);
+	fprintf(stderr, "INFO: Writing result to %s\n", outfilename);
+	SaveEXR(pixels, imageWidth, imageHeight, outfilename);
+	// writeBMP("output.bmp", pixels, imageWidth, imageHeight);
 }
