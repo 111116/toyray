@@ -1,6 +1,7 @@
-test: main.cpp geometry.h la.h writebmp.h envmap.h saveexr.o
+
+test: main.cpp *.h *.hpp saveexr.o lib/json.hpp
 	gcc rgbe/rgbe.c -c -o rgbe.o
-	g++ main.cpp rgbe.o saveexr.o -o test -O2 -std=c++14
+	g++ main.cpp rgbe.o saveexr.o -o test -g -std=c++14
 	rm rgbe.o
 
 saveexr.o: saveexr.h saveexr.cpp lib/tinyexr.h

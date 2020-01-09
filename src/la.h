@@ -5,10 +5,24 @@
 #include <cstring>
 #include <iostream>
 
+const float PI = acos(-1);
 
 float randf()
 {
 	return (float)rand()/RAND_MAX;
+}
+
+
+struct vec2
+{
+	float x,y;
+	vec2(): x(0), y(0) {}
+	vec2(float px, float py): x(px), y(py) {}
+};
+
+std::istream& operator >> (std::istream& is, vec2& v)
+{
+	return is >> v.x >> v.y;
 }
 
 
