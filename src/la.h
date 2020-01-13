@@ -33,6 +33,9 @@ struct vec3
 
 	vec3(): x(0), y(0), z(0) {}
 	vec3(float px, float py, float pz): x(px), y(py), z(pz) {}
+	bool nonzero() {
+		return x || y || z;
+	}
 };
 
 
@@ -245,4 +248,12 @@ mat3 inverse(mat3 a)
 			res[j][i] = (a[(i+1)%3][(j+1)%3] * a[(i+2)%3][(j+2)%3] - a[(i+2)%3][(j+1)%3] * a[(i+1)%3][(j+2)%3]) * invdet;
 	return res;	
 }
+
+vec3 randunitvec3() {
+	vec3 v;
+	do v = vec3(randf()*2-1, randf()*2-1, randf()*2-1);
+	while (norm(v)>1 || norm(v)<1e-3);
+	return normalize(v);
+}
+
 #endif

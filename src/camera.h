@@ -27,14 +27,11 @@ struct Camera
 		ray_central = look_at - position;
 		uphalf = norm(ray_central) * resolution_y / resolution_x * tan(fov/2) * up;
 		lefthalf = cross(up, ray_central) * tan(fov/2);
-		std::cout << ray_central << std::endl;
-		std::cout << uphalf << std::endl;
-		std::cout << lefthalf << std::endl;
 	}
 	// u: 0..1 left-right
 	// v: 0..1 up-down
 	Ray sampleray(float u, float v) {
 		// return Ray(position, vec3(0,0,1)+(0.5-u)*vec3(1,0,0)+(0.5-v)*vec3(0,1,0));
-		return Ray(position, vec3(ray_central + (1-u*2) * lefthalf + (1-v*2) * uphalf));
+		return Ray(position, normalize(ray_central + (1-u*2) * lefthalf + (1-v*2) * uphalf));
 	}
 };

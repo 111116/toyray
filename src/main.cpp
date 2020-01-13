@@ -13,6 +13,7 @@
 #include "object.hpp"
 #include "camera.h"
 #include "bruteforce.hpp"
+// #include <omp.h>
 
 #define DEBUG
 
@@ -27,17 +28,27 @@ std::string outfilename;
 int max_bounces;
 
 vec3 cast_albedo(Ray ray, int depth) {
-	std::pair<Primitive*, Object*> hit = acc->hit(ray);
-	if (hit.first == NULL) {
+	HitInfo hit = acc->hit(ray);
+	if (!hit) {
 		return vec3();
 	}
 	// return hit.second->bsdf->albedo;
-	point p;
-	hit.first->intersect(ray, &p);
-	return vec3(0.5,0.5,0.5)+0.5*hit.first->Ns(p);
+	return vec3(0.5,0.5,0.5) + 0.5 * hit.primitive->Ns(hit.p);
 }
+
+// sample radiance using PT, without light sampling
 vec3 cast(Ray ray, int depth) {
-	return cast_albedo(ray, 0);
+	if (depth > max_bounces)
+		return vec3();
+	ray.origin += 1e-3 * ray.dir;
+	HitInfo hit = acc->hit(ray);
+	if (!hit)
+		return vec3();
+	if (hit.object->emission)
+		return hit.object->emission->radiance(ray);
+	Ray r = {hit.p, randunitvec3()};
+	auto Ns = hit.primitive->Ns(hit.p);
+	return hit.object->bsdf->fr(-ray.dir, r.dir, Ns) * abs(dot(Ns, r.dir)) * 4*PI * cast(r, depth+1);
 }
 
 int main(int argc, char* argv[])
@@ -45,6 +56,7 @@ int main(int argc, char* argv[])
 #ifdef DEBUG
 	fprintf(stderr, "WARNING: running in debug mode.\n");
 #endif
+	// std::cerr << omp_get_thread_num() << " THREADS" << std::endl;
 	if (argc<=1) {
 		std::cerr << "Usage: " << argv[0] << " conf.json"<< std::endl;
 		return 1;

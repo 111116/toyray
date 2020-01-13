@@ -54,7 +54,13 @@ struct BVH {
 			cur = cur + list[i].boundingVolume();
 			suffix_area[i] = cur.surfaceArea();
 		}
-		
+		int best = 0;
+		for (int i=0; i<list.size()-1; ++i) {
+			if (prefix_area[i] + suffix_area[i+1] < prefix_area[best] + suffix_area[best+1])
+				best = i;
+		}
+		build(std::vector<Primitive*>(list.begin(), list.begin()+best+1), cur->lc);
+		build(std::vector<Primitive*>(list.begin()+best+1, list.end()), cur->rc);
 	}
 
 	std::vector<std::pair<Primitive*, Object*>> list;
