@@ -7,12 +7,12 @@
 #include "geometry.h"
 #include "envmap.h"
 // #include "writebmp.h"
-#include "saveexr.h"
+#include "lib/saveexr.h"
 #include "jsonutil.hpp"
 #include "env.hpp" // model directory
 #include "object.hpp"
 #include "camera.h"
-#include "bruteforce.hpp"
+#include "accelarator/bruteforce.hpp"
 // #include <omp.h>
 
 #define DEBUG
@@ -22,7 +22,7 @@ float* pixels;
 int nspp = 4; // default number of samples per pixel, may be overrided in parameters
 
 std::vector<Object*> objects;
-Bruteforce* acc;
+Accelarator* acc;
 std::unordered_map<std::string, BsDF*> bsdf;
 std::string outfilename;
 int max_bounces;
@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
 		objects.push_back(new Object(o, bsdf[o["bsdf"]]));
 	}
 	acc = new Bruteforce(objects);
-	Camera* camera = new Camera(conf["camera"]);
+	Camera* camera = new PinholeCamera(conf["camera"]);
 	assert(conf["integrator"]["type"] == "path_tracer");
 	assert(conf["integrator"]["enable_light_sampling"] == true);
 	max_bounces = conf["integrator"]["max_bounces"];

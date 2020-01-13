@@ -4,8 +4,8 @@ test: main.cpp *.h *.hpp saveexr.o lib/json.hpp
 	g++ main.cpp rgbe.o saveexr.o -o test -g -std=c++14
 	rm rgbe.o
 
-saveexr.o: saveexr.h saveexr.cpp lib/tinyexr.h
-	g++ saveexr.cpp -O2 -c -o saveexr.o
+saveexr.o: lib/saveexr.h lib/saveexr.cpp lib/tinyexr.h
+	g++ lib/saveexr.cpp -O2 -c -o saveexr.o
 
 clean:
 	rm test
