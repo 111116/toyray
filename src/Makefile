@@ -8,7 +8,7 @@ saveexr.o: lib/saveexr.h lib/saveexr.cpp lib/tinyexr.h
 	g++ lib/saveexr.cpp -O2 -c -o saveexr.o
 
 clean:
-	rm test
+	rm test *.o
 
 legacy: legacy.cpp *.h *.hpp saveexr.o lib/json.hpp
 	gcc rgbe/rgbe.c -c -o rgbe.o
