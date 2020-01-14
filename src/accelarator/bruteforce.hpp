@@ -13,7 +13,7 @@ struct Bruteforce : public Accelarator {
 
 	HitInfo hit(const Ray& ray)
 	{
-		HitInfo hit = {NULL, NULL};
+		HitInfo hit;
 		float dist;
 		point res;
 		// bruteforcing checking against every primitive

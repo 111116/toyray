@@ -1,91 +1,170 @@
 #pragma once
 
-#include "object.hpp"
-#include "geometry.h"
+#include "accelarator.hpp"
 
-struct BVH {
-
-	struct node {
-		node* lc = NULL;
-		node* rc = NULL;
+struct BVH : public Accelarator {
+private:
+	struct treenode {
+		treenode* lc = NULL;
+		treenode* rc = NULL;
 		Primitive* shape = NULL;
+		Object* object = NULL;
 		AABox bound;
 	};
+	struct flatnode {
+		Primitive* shape = NULL;
+		Object* object = NULL;
+		AABox bound;
+		int loffset;
+		int roffset;
+	};
+	int nnode = 0;
+	treenode* root = NULL;
 
-	void build(std::vector<Primitive*> list, node*& cur)
+	void build(std::vector<std::pair<Primitive*, Object*>> list, treenode*& cur)
 	{
-		if (!cur) cur = new node();
+		// create tree node
+		if (!cur) {
+			++nnode;
+			cur = new treenode();
+		}
+		// bind shape to leaf nodes
 		if (list.size() == 1)
 		{
-			cur->shape = list[0];
-			cur->bound = list[0]->boundingVolume();
+			cur->shape = list[0].first;
+			cur->object = list[0].second;
+			cur->bound = list[0].first->boundingVolume();
 			return;
 		}
+		// compute bounding box
 		AABox& bound = cur->bound;
-		bound = list[0]->boundingVolume();
+		bound = list[0].first->boundingVolume();
 		for (int i=1; i<list.size(); ++i) {
-			bound = bound + list[i]->boundingVolume();
+			bound = bound + list[i].first->boundingVolume();
 		}
-		auto cmp = +[](const Primitive* a, const Primitive* b) {
-			return a->boundingVolume().x1 < b->boundingVolume().x1;
+		// sort in sparsest dimension
+		auto cmp = +[](const std::pair<Primitive*, Object*>& a, const std::pair<Primitive*, Object*>& b) {
+			return a.first->boundingVolume().x1 < b.first->boundingVolume().x1;
 		};
 		if (bound.y2 - bound.y1 > bound.x2 - bound.x1) {
-			cmp = +[](const Primitive* a, const Primitive* b) {
-				return a->boundingVolume().y1 < b->boundingVolume().y1;
+			cmp = +[](const std::pair<Primitive*, Object*>& a, const std::pair<Primitive*, Object*>& b) {
+				return a.first->boundingVolume().y1 < b.first->boundingVolume().y1;
 			};
 		}
 		if (bound.z2 - bound.z1 > bound.x2 - bound.x1 &&
 			bound.z2 - bound.z1 > bound.y2 - bound.y1) {
-			cmp = +[](const Primitive* a, const Primitive* b) {
-				return a->boundingVolume().z1 < b->boundingVolume().z1;
+			cmp = +[](const std::pair<Primitive*, Object*>& a, const std::pair<Primitive*, Object*>& b) {
+				return a.first->boundingVolume().z1 < b.first->boundingVolume().z1;
 			};
 		}
 		std::sort(list.begin(), list.end(), cmp);
+		// determine split position to minimize sum of surface area of bounding boxes
 		std::vector<float> prefix_area, suffix_area;
 		prefix_area.resize(list.size());
 		suffix_area.resize(list.size());
-		AABox cur = list[0].boundingVolume();
+		AABox accu = list[0].first->boundingVolume();
 		for (int i=0; i<list.size(); ++i) {
-			cur = cur + list[i].boundingVolume();
-			prefix_area[i] = cur.surfaceArea();
+			accu = accu + list[i].first->boundingVolume();
+			prefix_area[i] = accu.surfaceArea();
 		}
-		cur = list[list.size()-1].boundingVolume();
+		accu = list[list.size()-1].first->boundingVolume();
 		for (int i=list.size()-1; i>=0; --i) {
-			cur = cur + list[i].boundingVolume();
-			suffix_area[i] = cur.surfaceArea();
+			accu = accu + list[i].first->boundingVolume();
+			suffix_area[i] = accu.surfaceArea();
 		}
-		int best = 0;
-		for (int i=0; i<list.size()-1; ++i) {
+		int rangemin = round(list.size()*0.1);
+		int rangemax = round(list.size()*0.9)-1;
+		// limit split point from being too close to side
+		int best = rangemin;
+		for (int i=rangemin; i<rangemax; ++i) {
 			if (prefix_area[i] + suffix_area[i+1] < prefix_area[best] + suffix_area[best+1])
 				best = i;
 		}
-		build(std::vector<Primitive*>(list.begin(), list.begin()+best+1), cur->lc);
-		build(std::vector<Primitive*>(list.begin()+best+1, list.end()), cur->rc);
+		// recursive partition
+		build(std::vector<std::pair<Primitive*, Object*>>(list.begin(), list.begin()+best+1), cur->lc);
+		build(std::vector<std::pair<Primitive*, Object*>>(list.begin()+best+1, list.end()), cur->rc);
+	}
+
+	flatnode* nodes;
+	flatnode* ptr;
+
+	void flatten(treenode* cur) {
+		if (cur == NULL) return;
+		flatnode* p = ptr++;
+		p->shape = cur->shape;
+		p->object = cur->object;
+		p->bound = cur->bound;
+		p->loffset = cur->lc? ptr - nodes: -1;
+		flatten(cur->lc);
+		p->roffset = cur->rc? ptr - nodes: -1;
+		flatten(cur->rc);
 	}
 
 	std::vector<std::pair<Primitive*, Object*>> list;
+
+	HitInfo treehit(const Ray& ray, treenode* node) {
+		if (node == NULL) return HitInfo();
+		if (!node->bound.intersect(ray)) return HitInfo();
+		if (node->shape != NULL) {
+			HitInfo hit;
+			point res;
+			if (node->shape->intersect(ray, &res)) {
+				hit = {node->shape, node->object, res};
+			}
+			return hit;
+		}
+		HitInfo resl = treehit(ray, node->lc);
+		if (!resl) return treehit(ray, node->rc);
+		HitInfo resr = treehit(ray, node->rc);
+		return (!resr || norm(resl.p - ray.origin) < norm(resr.p - ray.origin))? resl: resr;
+	}
+
+	HitInfo flathit(const Ray& ray, int offset) {
+		if (offset < 0) return HitInfo();
+		flatnode* node = nodes + offset;
+		if (!node->bound.intersect(ray)) return HitInfo();
+		if (node->shape != NULL) {
+			HitInfo hit;
+			point res;
+			if (node->shape->intersect(ray, &res)) {
+				hit = {node->shape, node->object, res};
+			}
+			return hit;
+		}
+		HitInfo resl = flathit(ray, node->loffset);
+		if (!resl) return flathit(ray, node->roffset);
+		HitInfo resr = flathit(ray, node->roffset);
+		return (!resr || norm(resl.p - ray.origin) < norm(resr.p - ray.origin))? resl: resr;
+	}
+
+	void printSA(treenode* node, int depth = 0) {
+		if (node == NULL) return;
+		for (int i=0; i<depth; ++i)
+			std::cout << "| ";
+		std::cout << node->bound.surfaceArea() << std::endl;
+		printSA(node->lc, depth+1);
+		printSA(node->rc, depth+1);
+		delete node;
+	}
+
+public:
 	BVH(const std::vector<Object*>& list) {
+		std::cout << "building accelarator of " << list.size() << " objects" << std::endl;
 		for (Object* o: list) {
 			for (Primitive* p: o->mesh->faces)
 				this->list.push_back({p, o});
 		}
+		std::cout << this->list.size() << " faces" << std::endl;
+		build(this->list, root);
+		ptr = nodes = new flatnode[nnode];
+		flatten(root);
+		root = NULL;
+		// printSA(root);
 	}
 
-	std::pair<Primitive*, Object*> hit(const Ray& ray)
+	HitInfo hit(const Ray& ray)
 	{
-		std::pair<Primitive*, Object*> hit = {NULL, NULL};
-		float dist;
-		point res;
-		// bruteforcing checking against every primitive
-		for (auto o: list) {
-			if (o.first->intersect(ray, &res)) {
-				if (hit.first == NULL || dist > norm(res - ray.origin)) {
-					hit = o;
-					dist = norm(res - ray.origin);
-				}
-			}
-		}
-		return hit;
+		return flathit(ray, 0);
 	}
 
 };

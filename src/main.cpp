@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <vector>
 #include <fstream>
+#include <ctime>
 #include "geometry.h"
 #include "envmap.h"
 // #include "writebmp.h"
@@ -13,6 +14,7 @@
 #include "object.hpp"
 #include "camera.h"
 #include "accelarator/bruteforce.hpp"
+#include "accelarator/bvhsah.hpp"
 #ifdef THREADED
 #include <omp.h>
 #endif
@@ -82,7 +84,7 @@ int main(int argc, char* argv[])
 	for (auto o: conf["primitives"]) {
 		objects.push_back(new Object(o, bsdf[o["bsdf"]]));
 	}
-	acc = new Bruteforce(objects);
+	acc = new BVH(objects);
 	Camera* camera = new PinholeCamera(conf["camera"]);
 	assert(conf["integrator"]["type"] == "path_tracer");
 	assert(conf["integrator"]["enable_light_sampling"] == true);
@@ -95,6 +97,7 @@ int main(int argc, char* argv[])
 	fprintf(stderr, "INFO: rendering at %d x %d x %d spp\n", camera->resolution_x, camera->resolution_y, nspp);
 	// start rendering
 	int line_finished = 0;
+	auto start = std::chrono::system_clock::now();
 	#pragma omp parallel for schedule(dynamic)
 	for (int y=0; y<camera->resolution_y; ++y)
 	{
@@ -108,7 +111,7 @@ int main(int argc, char* argv[])
 				float u = (x+randf()) / camera->resolution_x;
 				float v = (y+randf()) / camera->resolution_y;
 				Ray ray = camera->sampleray(u,v);
-				res += cast(ray, 0);
+				res += cast_albedo(ray, 0);
 			}
 			res *= 1.0/nspp;
 			int pxid = y*camera->resolution_x + x;
@@ -120,6 +123,9 @@ int main(int argc, char* argv[])
 		fprintf(stderr, "\r%.1f%%", 100.0f*(++line_finished)/camera->resolution_y);
 	
 	}
+	auto end = std::chrono::system_clock::now();
+	std::chrono::duration<double> elapsed_seconds = end-start;
+	std::cout << "rendered in: " << elapsed_seconds.count() << "s\n";
 	fprintf(stderr, "INFO: Writing result to %s\n", outfilename.c_str());
 	SaveEXR(pixels, camera->resolution_x, camera->resolution_y, outfilename.c_str());
 }
