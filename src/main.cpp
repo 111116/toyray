@@ -13,7 +13,7 @@
 #include "object.hpp"
 #include "camera.h"
 #include "accelarator/bruteforce.hpp"
-// #include <omp.h>
+#include <omp.h>
 
 #define DEBUG
 
@@ -56,7 +56,11 @@ int main(int argc, char* argv[])
 #ifdef DEBUG
 	fprintf(stderr, "WARNING: running in debug mode.\n");
 #endif
-	// std::cerr << omp_get_thread_num() << " THREADS" << std::endl;
+#pragma omp parallel
+	{
+	#pragma omp single
+		std::cerr << omp_get_num_threads() << " THREADS" << std::endl;
+	}
 	if (argc<=1) {
 		std::cerr << "Usage: " << argv[0] << " conf.json"<< std::endl;
 		return 1;
@@ -84,7 +88,9 @@ int main(int argc, char* argv[])
 	pixels = new float[camera->resolution_x * camera->resolution_y * 3];
 	fprintf(stderr, "INFO: rendering at %d x %d x %d spp\n", camera->resolution_x, camera->resolution_y, nspp);
 	// start rendering
-	for (int y=0, byteCnt=0; y<camera->resolution_y; ++y)
+	int line_finished = 0;
+	#pragma omp parallel for schedule(dynamic)
+	for (int y=0; y<camera->resolution_y; ++y)
 	{
 		for (int x=0; x<camera->resolution_x; ++x)
 		{
@@ -99,11 +105,14 @@ int main(int argc, char* argv[])
 				res += cast(ray, 0);
 			}
 			res *= 1.0/nspp;
-			pixels[byteCnt++] = res.x;
-			pixels[byteCnt++] = res.y;
-			pixels[byteCnt++] = res.z;
+			int pxid = y*camera->resolution_x + x;
+			pixels[3*pxid+0] = res.x;
+			pixels[3*pxid+1] = res.y;
+			pixels[3*pxid+2] = res.z;
 		}
-		fprintf(stderr, "\r%.1f%%", 100.0f*(y+1)/camera->resolution_y);
+		#pragma omp critical
+		fprintf(stderr, "\r%.1f%%", 100.0f*(++line_finished)/camera->resolution_y);
+	
 	}
 	fprintf(stderr, "INFO: Writing result to %s\n", outfilename.c_str());
 	SaveEXR(pixels, camera->resolution_x, camera->resolution_y, outfilename.c_str());
