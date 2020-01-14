@@ -48,7 +48,7 @@ vec3 cast(Ray ray, int depth) {
 		return hit.object->emission->radiance(ray);
 	Ray r = {hit.p, randunitvec3()};
 	auto Ns = hit.primitive->Ns(hit.p);
-	return hit.object->bsdf->fr(-ray.dir, r.dir, Ns) * abs(dot(Ns, r.dir)) * 4*PI * cast(r, depth+1);
+	return hit.object->bsdf->fr(-ray.dir, r.dir, Ns) * fabs(dot(Ns, r.dir)) * 4*PI * cast(r, depth+1);
 }
 
 int main(int argc, char* argv[])
