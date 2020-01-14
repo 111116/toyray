@@ -1,7 +1,7 @@
 #define TINYEXR_IMPLEMENTATION
 #include "tinyexr.h"
 // See `examples/rgbe2exr/` for more details.
-bool SaveEXR(const float* rgb, int width, int height, const char* outfilename) {
+int SaveEXR(const float* rgb, int width, int height, const char* outfilename) {
 
   EXRHeader header;
   InitEXRHeader(&header);
@@ -61,4 +61,5 @@ bool SaveEXR(const float* rgb, int width, int height, const char* outfilename) {
   free(header.pixel_types);
   free(header.requested_pixel_types);
 
+  return TINYEXR_SUCCESS;
 }

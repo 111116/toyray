@@ -38,7 +38,7 @@ vec3 cast_albedo(Ray ray, int depth) {
 	return vec3(0.5,0.5,0.5) + 0.5 * hit.primitive->Ns(hit.p);
 }
 
-// sample radiance using PT, without light sampling
+// sample radiance using PT, without light/importance sampling
 vec3 cast(Ray ray, int depth) {
 	if (depth > max_bounces)
 		return vec3();
