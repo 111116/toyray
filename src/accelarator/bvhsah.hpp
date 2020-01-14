@@ -18,14 +18,12 @@ private:
 		int loffset;
 		int roffset;
 	};
-	int nnode = 0;
 	treenode* root = NULL;
 
 	void build(std::vector<std::pair<Primitive*, Object*>> list, treenode*& cur)
 	{
 		// create tree node
 		if (!cur) {
-			++nnode;
 			cur = new treenode();
 		}
 		// bind shape to leaf nodes
@@ -85,21 +83,6 @@ private:
 		build(std::vector<std::pair<Primitive*, Object*>>(list.begin()+best+1, list.end()), cur->rc);
 	}
 
-	flatnode* nodes;
-	flatnode* ptr;
-
-	void flatten(treenode* cur) {
-		if (cur == NULL) return;
-		flatnode* p = ptr++;
-		p->shape = cur->shape;
-		p->object = cur->object;
-		p->bound = cur->bound;
-		p->loffset = cur->lc? ptr - nodes: -1;
-		flatten(cur->lc);
-		p->roffset = cur->rc? ptr - nodes: -1;
-		flatten(cur->rc);
-	}
-
 	std::vector<std::pair<Primitive*, Object*>> list;
 
 	HitInfo treehit(const Ray& ray, treenode* node) {
@@ -116,24 +99,6 @@ private:
 		HitInfo resl = treehit(ray, node->lc);
 		if (!resl) return treehit(ray, node->rc);
 		HitInfo resr = treehit(ray, node->rc);
-		return (!resr || norm(resl.p - ray.origin) < norm(resr.p - ray.origin))? resl: resr;
-	}
-
-	HitInfo flathit(const Ray& ray, int offset) {
-		if (offset < 0) return HitInfo();
-		flatnode* node = nodes + offset;
-		if (!node->bound.intersect(ray)) return HitInfo();
-		if (node->shape != NULL) {
-			HitInfo hit;
-			point res;
-			if (node->shape->intersect(ray, &res)) {
-				hit = {node->shape, node->object, res};
-			}
-			return hit;
-		}
-		HitInfo resl = flathit(ray, node->loffset);
-		if (!resl) return flathit(ray, node->roffset);
-		HitInfo resr = flathit(ray, node->roffset);
 		return (!resr || norm(resl.p - ray.origin) < norm(resr.p - ray.origin))? resl: resr;
 	}
 
@@ -156,15 +121,12 @@ public:
 		}
 		std::cout << this->list.size() << " faces" << std::endl;
 		build(this->list, root);
-		ptr = nodes = new flatnode[nnode];
-		flatten(root);
-		root = NULL;
 		// printSA(root);
 	}
 
 	HitInfo hit(const Ray& ray)
 	{
-		return flathit(ray, 0);
+		return treehit(ray, root);
 	}
 
 };
