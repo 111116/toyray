@@ -13,7 +13,9 @@
 #include "object.hpp"
 #include "camera.h"
 #include "accelarator/bruteforce.hpp"
+#ifdef THREADED
 #include <omp.h>
+#endif
 
 #define DEBUG
 
@@ -56,11 +58,15 @@ int main(int argc, char* argv[])
 #ifdef DEBUG
 	fprintf(stderr, "WARNING: running in debug mode.\n");
 #endif
+#ifdef THREADED
 #pragma omp parallel
 	{
 	#pragma omp single
 		std::cerr << omp_get_num_threads() << " THREADS" << std::endl;
 	}
+#else
+	std::cerr << "Threading disabled" << std::endl;
+#endif
 	if (argc<=1) {
 		std::cerr << "Usage: " << argv[0] << " conf.json"<< std::endl;
 		return 1;
