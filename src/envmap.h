@@ -1,7 +1,7 @@
 #ifndef ENVMAP_H
 #define ENVMAP_H
 
-#include "rgbe/rgbe.h"
+#include "lib/rgbe/rgbe.h"
 
 class Envmap
 {
