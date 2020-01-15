@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 OPT_FOPENMP = $(shell gcc -x c++ - -c -o /dev/null -fopenmp &> /dev/null && echo '-fopenmp')
 ifeq ($(OPT_FOPENMP), -fopenmp)
 $(info OpenMP is enabled)

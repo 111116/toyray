@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
 	}
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end-start;
-	std::cout << "rendered in: " << elapsed_seconds.count() << "s\n";
+	std::cout << "  " << elapsed_seconds.count() << "s\n";
 	fprintf(stderr, "INFO: Writing result to %s\n", outfilename.c_str());
 	SaveEXR(pixels, camera->resolution_x, camera->resolution_y, outfilename.c_str());
 }
