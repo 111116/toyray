@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 				float u = (x+randf()) / camera->resolution_x;
 				float v = (y+randf()) / camera->resolution_y;
 				Ray ray = camera->sampleray(u,v);
-				res += cast_albedo(ray, 0);
+				res += cast(ray, 0);
 			}
 			res *= 1.0/nspp;
 			int pxid = y*camera->resolution_x + x;
