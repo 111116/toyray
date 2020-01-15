@@ -15,6 +15,7 @@ struct Object {
 	Object(const Json& conf, BsDF* bsdf) {
 		assert(conf["type"] == "mesh");
 		this->mesh = new Mesh();
+#pragma omp critical
 		std::cout << "Loading model: " << modelpath + std::string(conf["file"]) << std::endl;
 		this->mesh->loadFromFile((modelpath + std::string(conf["file"])).c_str());
 		this->bsdf = bsdf;

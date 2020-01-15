@@ -82,8 +82,11 @@ int main(int argc, char* argv[])
 	for (auto o: conf["bsdfs"]) {
 		bsdf[o["name"]] = new BsDF(o);
 	}
+#pragma omp parallel for schedule(dynamic)
 	for (auto o: conf["primitives"]) {
-		objects.push_back(new Object(o, bsdf[o["bsdf"]]));
+		Object* newobj = new Object(o, bsdf[o["bsdf"]]);
+#pragma omp critical
+		objects.push_back(newobj);
 	}
 	acc = new BVH(objects);
 	Camera* camera = new PinholeCamera(conf["camera"]);
@@ -99,7 +102,7 @@ int main(int argc, char* argv[])
 	// start rendering
 	int line_finished = 0;
 	auto start = std::chrono::system_clock::now();
-	#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic)
 	for (int y=0; y<camera->resolution_y; ++y)
 	{
 		for (int x=0; x<camera->resolution_x; ++x)
