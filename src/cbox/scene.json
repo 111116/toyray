@@ -80,7 +80,7 @@
         "enable_light_sampling": true
     },
     "renderer": {
-        "spp": 256,
+        "spp": 16,
         "hdr_output_file": "cornell-box.exr"
     }
 }

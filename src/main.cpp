@@ -74,11 +74,14 @@ vec3 cast(Ray ray, int depth, bool reject_samplable_light = false) {
 			pdf /= samplable_light_objects.size();
 			vec3 lightN = shape->Ns(lightp);
 			float dw = pow(norm(lightp - hit.p), -2) * fabs(dot(shadowray.dir, lightN));
-			result = hit.object->bsdf->fr(-ray.dir, shadowray.dir, Ns) * fabs(dot(Ns, shadowray.dir)) * light->emission->radiance(shadowray) * (dw / pdf);
+			result = hit.object->bsdf->f(-ray.dir, shadowray.dir, Ns) * fabs(dot(Ns, shadowray.dir)) * light->emission->radiance(shadowray) * (dw / pdf);
 		}
 	}
-	Ray r = {hit.p, randunitvec3()};
-	return result + hit.object->bsdf->fr(-ray.dir, r.dir, Ns) * fabs(dot(Ns, r.dir)) * 4*PI * cast(r, depth+1, true);
+	vec3 wi;
+	float pdf;
+	vec3 f = hit.object->bsdf->sample_f(-ray.dir, wi, Ns, pdf);
+	Ray r = {hit.p, wi};
+	return result + 1/pdf * f * fabs(dot(Ns, r.dir)) * cast(r, depth+1, true);
 }
 
 int main(int argc, char* argv[])
