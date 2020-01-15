@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-OPT_FOPENMP = $(shell cat /etc/null | gcc -x c++ - -c -o /dev/null -fopenmp &> /dev/null && echo '-fopenmp')
+OPT_FOPENMP = $(shell cat /dev/null | gcc -x c++ - -c -o /dev/null -fopenmp &> /dev/null && echo '-fopenmp')
 ifeq ($(OPT_FOPENMP), -fopenmp)
 $(info OpenMP is enabled)
 OPT_FOPENMP += -DTHREADED
