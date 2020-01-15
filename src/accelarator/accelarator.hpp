@@ -10,6 +10,10 @@ struct HitInfo {
 	operator bool() {
 		return primitive!=NULL;
 	}
+	HitInfo(){}
+	HitInfo(Primitive* primitive, Object* object, point p):
+		primitive(primitive), object(object), p(p)
+	{}
 };
 
 struct Accelarator {

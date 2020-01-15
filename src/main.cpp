@@ -5,6 +5,7 @@
 #include <vector>
 #include <fstream>
 #include <ctime>
+#include <chrono>
 #include "geometry.h"
 #include "envmap.h"
 // #include "writebmp.h"

@@ -20,7 +20,7 @@ struct Bruteforce : public Accelarator {
 		for (auto o: list) {
 			if (o.first->intersect(ray, &res)) {
 				if (!hit || dist > norm(res - ray.origin)) {
-					hit = {o.first, o.second, res};
+					hit = HitInfo(o.first, o.second, res);
 					dist = norm(res - ray.origin);
 				}
 			}

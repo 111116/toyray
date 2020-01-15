@@ -92,7 +92,7 @@ private:
 			HitInfo hit;
 			point res;
 			if (node->shape->intersect(ray, &res)) {
-				hit = {node->shape, node->object, res};
+				hit = HitInfo(node->shape, node->object, res);
 			}
 			return hit;
 		}
