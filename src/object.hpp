@@ -23,4 +23,9 @@ struct Object {
 			this->emission = new DiffuseAreaLight(json2vec3(conf["emission"]));
 		}
 	}
+	point sample_point(float& pdf, Primitive*& shape) {
+		shape = mesh->faces[rand() % mesh->faces.size()];
+		pdf = 1.0 / mesh->faces.size() / shape->surfaceArea();
+		return shape->surface_uniform_sample();
+	}
 };

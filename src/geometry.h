@@ -70,7 +70,7 @@ public:
 	virtual bool intersect(Ray ray, point* result) const = 0;
 	virtual vec3 Ns(point p) const = 0; // shader normal (interpolated from vertex normals)
 	virtual vec3 Ng(point p) const = 0; // geometry normal (calculated from vertex positions)
-	virtual point sampleOnSurface() const = 0;
+	virtual point surface_uniform_sample() const = 0;
 	virtual float surfaceArea() const = 0;
 	virtual AABox boundingVolume() const = 0;
 };
@@ -126,7 +126,7 @@ public:
 // 		return normalize(p - origin);
 // 	}
 
-// 	point sampleOnSurface()
+// 	point surface_uniform_sample()
 // 	{
 // 		throw "not yet implemented";
 // 	}
@@ -213,7 +213,7 @@ public:
 		return planeNormal;
 	}
 
-	point sampleOnSurface() const
+	point surface_uniform_sample() const
 	{
 		float a=randf(), b=randf();
 		if (a+b>1) a=1-a, b=1-b;

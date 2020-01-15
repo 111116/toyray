@@ -41,19 +41,44 @@ vec3 cast_albedo(Ray ray, int depth) {
 	return vec3(0.5,0.5,0.5) + 0.5 * hit.primitive->Ns(hit.p);
 }
 
+// pointers to all objects with emission, for light sampling
+std::vector<Object*> samplable_light_objects;
+
 // sample radiance using PT, without light/importance sampling
-vec3 cast(Ray ray, int depth) {
+vec3 cast(Ray ray, int depth, bool reject_samplable_light = false) {
 	if (depth > max_bounces)
 		return vec3();
 	ray.origin += 1e-3 * ray.dir;
 	HitInfo hit = acc->hit(ray);
 	if (!hit)
 		return vec3();
-	if (hit.object->emission)
-		return hit.object->emission->radiance(ray);
-	Ray r = {hit.p, randunitvec3()};
 	auto Ns = hit.primitive->Ns(hit.p);
-	return hit.object->bsdf->fr(-ray.dir, r.dir, Ns) * fabs(dot(Ns, r.dir)) * 4*PI * cast(r, depth+1);
+	if (hit.object->emission) {
+		if (reject_samplable_light) return vec3();
+		return hit.object->emission->radiance(ray);
+	}
+
+	vec3 result;
+	// sample direct light
+	if (!samplable_light_objects.empty())
+	{
+		Object* light = samplable_light_objects[rand() % samplable_light_objects.size()];
+		float pdf;
+		Primitive* shape;
+		point lightp = light->sample_point(pdf, shape);
+		// check if direct light was blocked
+		Ray shadowray = {hit.p, normalize(lightp - hit.p)};
+		shadowray.origin += 1e-3 * shadowray.dir;
+		HitInfo shadowhit = acc->hit(shadowray);
+		if (!shadowhit || norm(shadowhit.p - hit.p) >= norm(lightp - hit.p) - 1e-3) {
+			pdf /= samplable_light_objects.size();
+			vec3 lightN = shape->Ns(lightp);
+			float dw = pow(norm(lightp - hit.p), -2) * fabs(dot(shadowray.dir, lightN));
+			result = hit.object->bsdf->fr(-ray.dir, shadowray.dir, Ns) * fabs(dot(Ns, shadowray.dir)) * light->emission->radiance(shadowray) * (dw / pdf);
+		}
+	}
+	Ray r = {hit.p, randunitvec3()};
+	return result + hit.object->bsdf->fr(-ray.dir, r.dir, Ns) * fabs(dot(Ns, r.dir)) * 4*PI * cast(r, depth+1, true);
 }
 
 int main(int argc, char* argv[])
@@ -88,7 +113,12 @@ int main(int argc, char* argv[])
 #pragma omp critical
 		objects.push_back(newobj);
 	}
+	for (auto o: objects) {
+		if (o->emission)
+			samplable_light_objects.push_back(o);
+	}
 	acc = new BVH(objects);
+
 	Camera* camera = new PinholeCamera(conf["camera"]);
 	assert(conf["integrator"]["type"] == "path_tracer");
 	assert(conf["integrator"]["enable_light_sampling"] == true);
@@ -125,7 +155,6 @@ int main(int argc, char* argv[])
 		}
 		#pragma omp critical
 		fprintf(stderr, "\r%.1f%%", 100.0f*(++line_finished)/camera->resolution_y);
-	
 	}
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end-start;
