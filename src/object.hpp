@@ -12,6 +12,7 @@ struct Object {
 	BsDF* bsdf = NULL;
 	Mesh* mesh = NULL;
 	Light* emission = NULL;
+	bool samplable = true; // flag for light sampling; only valid when emission!=NULL
 	Object(const Json& conf, BsDF* bsdf) {
 		assert(conf["type"] == "mesh");
 		this->mesh = new Mesh();
@@ -21,6 +22,9 @@ struct Object {
 		this->bsdf = bsdf;
 		if (conf.find("emission") != conf.end()) {
 			this->emission = new DiffuseAreaLight(json2vec3(conf["emission"]));
+			if (conf.find("sample") != conf.end()) {
+				samplable = conf["sample"];
+			}
 		}
 	}
 	point sample_point(float& pdf, Primitive*& shape) {

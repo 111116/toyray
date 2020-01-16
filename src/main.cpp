@@ -55,7 +55,7 @@ Color cast(Ray ray, int depth, bool reject_samplable_light = false) {
 		return Color();
 	auto Ns = hit.primitive->Ns(hit.p);
 	if (hit.object->emission) {
-		if (reject_samplable_light) return Color();
+		if (reject_samplable_light && hit.object->samplable) return Color();
 		return hit.object->emission->radiance(ray);
 	}
 
@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
 		objects.push_back(newobj);
 	}
 	for (auto o: objects) {
-		if (o->emission)
+		if (o->emission && o->samplable)
 			samplable_light_objects.push_back(o);
 	}
 	acc = new BVH(objects);
