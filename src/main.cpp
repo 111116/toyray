@@ -6,7 +6,6 @@
 #include <fstream>
 #include <ctime>
 #include <chrono>
-#include "geometry.h"
 #include "envmap.h"
 #include "color.h"
 // #include "writebmp.h"
@@ -14,7 +13,7 @@
 #include "jsonutil.hpp"
 #include "env.hpp" // model directory
 #include "object.hpp"
-#include "camera.h"
+#include "cameras/camera.hpp"
 #include "accelarator/bruteforce.hpp"
 #include "accelarator/bvhsah.hpp"
 #ifdef THREADED
@@ -29,24 +28,31 @@ int nspp = 4; // default number of samples per pixel, may be overrided in parame
 
 std::vector<Object*> objects;
 Accelarator* acc;
-std::unordered_map<std::string, BsDF*> bsdf;
+std::unordered_map<std::string, BSDF*> bsdf;
 std::string outfilename;
 int max_bounces;
 
-Color cast_albedo(Ray ray, int depth) {
+Color albedo(Ray ray) {
 	HitInfo hit = acc->hit(ray);
 	if (!hit) {
 		return Color();
 	}
-	// return hit.second->bsdf->albedo;
+	return hit.object->bsdf->albedo;
+}
+
+Color normal(Ray ray) {
+	HitInfo hit = acc->hit(ray);
+	if (!hit) {
+		return Color();
+	}
 	return Color(0.5,0.5,0.5) + 0.5 * hit.primitive->Ns(hit.p);
 }
 
 // pointers to all objects with emission, for light sampling
 std::vector<Object*> samplable_light_objects;
 
-// sample radiance using PT, without light/importance sampling
-Color cast(Ray ray, int depth, bool reject_samplable_light = false) {
+// sample radiance using PT, with light/importance sampling
+Color brightness(Ray ray, int depth = 0, bool reject_samplable_light = false) {
 	if (depth > max_bounces)
 		return Color();
 	ray.origin += 1e-3 * ray.dir;
@@ -54,6 +60,7 @@ Color cast(Ray ray, int depth, bool reject_samplable_light = false) {
 	if (!hit)
 		return Color();
 	auto Ns = hit.primitive->Ns(hit.p);
+	auto Ng = hit.primitive->Ng(hit.p);
 	if (hit.object->emission) {
 		if (reject_samplable_light && hit.object->samplable) return Color();
 		return hit.object->emission->radiance(ray);
@@ -76,19 +83,20 @@ Color cast(Ray ray, int depth, bool reject_samplable_light = false) {
 				pdf /= samplable_light_objects.size();
 				vec3 lightN = shape->Ns(lightp);
 				float dw = pow(norm(lightp - hit.p), -2) * fabs(dot(shadowray.dir, lightN));
-				result = hit.object->bsdf->f(-ray.dir, shadowray.dir, Ns) * fabs(dot(Ns, shadowray.dir)) * light->emission->radiance(shadowray) * (dw / pdf);
+				result = hit.object->bsdf->f(-ray.dir, shadowray.dir, Ns, Ng) * fabs(dot(Ns, shadowray.dir)) * light->emission->radiance(shadowray) * (dw / pdf);
 			}
 		}
 	}
 	vec3 wi;
 	float pdf;
-	Color f = hit.object->bsdf->sample_f(-ray.dir, wi, Ns, pdf);
+	Color f = hit.object->bsdf->sample_f(-ray.dir, wi, Ns, Ng, pdf);
 	if (pdf > 1e-8) {
 		Ray r = {hit.p, wi};
-		return result + 1/pdf * f * fabs(dot(Ns, r.dir)) * cast(r, depth+1, true);
+		return result + 1/pdf * f * fabs(dot(Ns, r.dir)) * brightness(r, depth+1, true);
 	}
 	return Color();
 }
+
 
 int main(int argc, char* argv[])
 {
@@ -114,7 +122,7 @@ int main(int argc, char* argv[])
 	Json conf;
 	fin >> conf;
 	for (auto o: conf["bsdfs"]) {
-		bsdf[o["name"]] = new BsDF(o);
+		bsdf[o["name"]] = new LambertReflect(o);
 	}
 #pragma omp parallel for schedule(dynamic)
 	for (auto o: conf["primitives"]) {
@@ -154,7 +162,7 @@ int main(int argc, char* argv[])
 				float u = (x+randf()) / camera->resolution_x;
 				float v = (y+randf()) / camera->resolution_y;
 				Ray ray = camera->sampleray(u,v);
-				Color tres = cast(ray, 0);
+				Color tres = brightness(ray);
 				if (norm(tres)<1e8) res += tres;
 			}
 			res *= 1.0/nspp;
