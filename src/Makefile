@@ -14,7 +14,7 @@ else
 $(info OpenMP is disabled)
 endif
 
-test: main.cpp *.h *.hpp saveexr.o lib/*.hpp accelarator/*.hpp
+test: main.cpp *.h *.hpp saveexr.o */*.hpp
 	$(CC) lib/rgbe/rgbe.c -O2 -c -o rgbe.o
 	$(CXX) main.cpp rgbe.o saveexr.o -o test -O2 -std=c++14 $(OPT_FOPENMP)
 

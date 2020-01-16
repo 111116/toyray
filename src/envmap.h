@@ -2,6 +2,8 @@
 #define ENVMAP_H
 
 #include "lib/rgbe/rgbe.h"
+#include "color.h"
+#include "geometry/geometry.hpp"
 
 class Envmap
 {

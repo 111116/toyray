@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../object.hpp"
-#include "../geometry.h"
+#include "../geometry/geometry.hpp"
 
 struct HitInfo {
 	Primitive* primitive = NULL;

@@ -4,7 +4,7 @@
 #include <sstream>
 #include <cstring>
 #include <vector>
-#include "geometry.h"
+#include "geometry/triangle.hpp"
 
 
 struct Mesh {
@@ -80,4 +80,8 @@ struct Mesh {
 		} // end reading obj file
 	}
 
+	void recompute_normals() {
+		for (Triangle* t: faces)
+			t->recompute_normal();
+	}
 };

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "jsonutil.hpp"
-#include "geometry.h"
+#include "../jsonutil.hpp"
+#include "../geometry/geometry.hpp"
 
 struct Camera
 {
@@ -24,7 +24,7 @@ struct Camera
 	}
 	// u: 0..1 left-right
 	// v: 0..1 up-down
-	virtual Ray sampleray(float u, float v) = 0;
+	virtual Ray sampleray(float u, float v) const = 0;
 };
 
 struct PinholeCamera : public Camera
@@ -38,7 +38,7 @@ struct PinholeCamera : public Camera
 		lefthalf = cross(up, ray_central) * tan(fov/2);
 	}
 	
-	Ray sampleray(float u, float v) {
+	Ray sampleray(float u, float v) const {
 		return Ray(position, normalize(ray_central + (1-u*2) * lefthalf + (1-v*2) * uphalf));
 	}
 };
