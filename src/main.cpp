@@ -67,7 +67,7 @@ vec3 cast(Ray ray, int depth, bool reject_samplable_light = false) {
 		Primitive* shape;
 		point lightp = light->sample_point(pdf, shape);
 		// check if direct light was blocked
-		if (pdf > 0) {
+		if (pdf > 1e-8) {
 			Ray shadowray = {hit.p, normalize(lightp - hit.p)};
 			shadowray.origin += 1e-3 * shadowray.dir;
 			HitInfo shadowhit = acc->hit(shadowray);
@@ -82,7 +82,7 @@ vec3 cast(Ray ray, int depth, bool reject_samplable_light = false) {
 	vec3 wi;
 	float pdf;
 	vec3 f = hit.object->bsdf->sample_f(-ray.dir, wi, Ns, pdf);
-	if (pdf > 0) {
+	if (pdf > 1e-8) {
 		Ray r = {hit.p, wi};
 		return result + 1/pdf * f * fabs(dot(Ns, r.dir)) * cast(r, depth+1, true);
 	}
@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
 	std::cerr << "Threading disabled" << std::endl;
 #endif
 	if (argc<=1) {
-		std::cerr << "Usage: " << argv[0] << " conf.json"<< std::endl;
+		std::cerr << "Usage: " << argv[0] << " conf.json [nspp]"<< std::endl;
 		return 1;
 	}
 	std::ifstream fin(argv[1]);
@@ -126,12 +126,12 @@ int main(int argc, char* argv[])
 			samplable_light_objects.push_back(o);
 	}
 	acc = new BVH(objects);
-
 	Camera* camera = new PinholeCamera(conf["camera"]);
 	assert(conf["integrator"]["type"] == "path_tracer");
 	assert(conf["integrator"]["enable_light_sampling"] == true);
 	max_bounces = conf["integrator"]["max_bounces"];
 	nspp = conf["renderer"]["spp"];
+	if (argc>2) nspp = atoi(argv[2]);
 	outfilename = conf["renderer"]["hdr_output_file"];
 
 	// prepare film
@@ -153,7 +153,8 @@ int main(int argc, char* argv[])
 				float u = (x+randf()) / camera->resolution_x;
 				float v = (y+randf()) / camera->resolution_y;
 				Ray ray = camera->sampleray(u,v);
-				res += cast(ray, 0);
+				vec3 tres = cast(ray, 0);
+				if (norm(tres)<1e8) res += tres;
 			}
 			res *= 1.0/nspp;
 			int pxid = y*camera->resolution_x + x;
