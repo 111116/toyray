@@ -23,20 +23,22 @@ public:
 		return 1/PI * albedo;
 	}
 	vec3 sample_f(vec3 wo, vec3& wi, vec3 N, float& pdf) {
-		// vec3 v;
-		// while (norm(v) < 1e-3)
-		// {
-		// 	do v = vec3(randf()*2-1, randf()*2-1, randf()*2-1);
-		// 	while (norm(v)>1 || norm(v)<1e-3);
-		// 	v = normalize(v) + N;
-		// }
-		// wi = normalize(v);
-		// pdf = 
-		wi = randunitvec3();
+		vec3 N1 = cross(N,vec3(0,0,1));
+		if (norm(N1)<0.1) N1 = cross(N,vec3(0,1,0));
+		N1 = normalize(N1);
+		vec3 N2 = cross(N,N1);
+		// orthonormal basis
+		float x,y;
+		do {
+			x = randf()*2-1;
+			y = randf()*2-1;
+		}
+		while (x*x+y*y>1);
+		wi = x*N1 + y*N2 + std::sqrt(std::max(0.0f, 1-x*x-y*y))*N;
 		float t1 = dot(wo, N);
 		float t2 = dot(wi, N);
 		if ((t1<0 && t2>0) || (t1>0 && t2<0)) wi = -wi;
-		pdf = 0.5/PI;
+		pdf = fabs(t2)/PI;
 		return 1/PI * albedo;
 	}
 };
