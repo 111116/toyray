@@ -4,25 +4,25 @@
 
 class BsDF {
 public:
-	vec3 albedo;
+	Color albedo;
 	BsDF(const Json& conf) {
 		assert(conf["type"] == "lambert" || conf["type"] == "null");
 		if (is_number(conf["albedo"])) {
 			float t = conf["albedo"];
-			albedo = vec3(t,t,t);
+			albedo = Color(t,t,t);
 		}
 		else {
 			albedo = json2vec3(conf["albedo"]);
 		}
 	}
 	// wo, wi, N: outward unit vector
-	vec3 f(vec3 wo, vec3 wi, vec3 N) {
+	Color f(vec3 wo, vec3 wi, vec3 N) {
 		float t1 = dot(wo, N);
 		float t2 = dot(wi, N);
-		if ((t1<0 && t2>0) || (t1>0 && t2<0)) return vec3();
+		if ((t1<0 && t2>0) || (t1>0 && t2<0)) return Color();
 		return 1/PI * albedo;
 	}
-	vec3 sample_f(vec3 wo, vec3& wi, vec3 N, float& pdf) {
+	Color sample_f(vec3 wo, vec3& wi, vec3 N, float& pdf) {
 		vec3 N1 = cross(N,vec3(0,0,1));
 		if (norm(N1)<0.1) N1 = cross(N,vec3(0,1,0));
 		N1 = normalize(N1);

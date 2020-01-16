@@ -8,6 +8,7 @@
 #include <chrono>
 #include "geometry.h"
 #include "envmap.h"
+#include "color.h"
 // #include "writebmp.h"
 #include "lib/saveexr.h"
 #include "jsonutil.hpp"
@@ -32,33 +33,33 @@ std::unordered_map<std::string, BsDF*> bsdf;
 std::string outfilename;
 int max_bounces;
 
-vec3 cast_albedo(Ray ray, int depth) {
+Color cast_albedo(Ray ray, int depth) {
 	HitInfo hit = acc->hit(ray);
 	if (!hit) {
-		return vec3();
+		return Color();
 	}
 	// return hit.second->bsdf->albedo;
-	return vec3(0.5,0.5,0.5) + 0.5 * hit.primitive->Ns(hit.p);
+	return Color(0.5,0.5,0.5) + 0.5 * hit.primitive->Ns(hit.p);
 }
 
 // pointers to all objects with emission, for light sampling
 std::vector<Object*> samplable_light_objects;
 
 // sample radiance using PT, without light/importance sampling
-vec3 cast(Ray ray, int depth, bool reject_samplable_light = false) {
+Color cast(Ray ray, int depth, bool reject_samplable_light = false) {
 	if (depth > max_bounces)
-		return vec3();
+		return Color();
 	ray.origin += 1e-3 * ray.dir;
 	HitInfo hit = acc->hit(ray);
 	if (!hit)
-		return vec3();
+		return Color();
 	auto Ns = hit.primitive->Ns(hit.p);
 	if (hit.object->emission) {
-		if (reject_samplable_light) return vec3();
+		if (reject_samplable_light) return Color();
 		return hit.object->emission->radiance(ray);
 	}
 
-	vec3 result;
+	Color result;
 	// sample direct light
 	if (!samplable_light_objects.empty())
 	{
@@ -81,12 +82,12 @@ vec3 cast(Ray ray, int depth, bool reject_samplable_light = false) {
 	}
 	vec3 wi;
 	float pdf;
-	vec3 f = hit.object->bsdf->sample_f(-ray.dir, wi, Ns, pdf);
+	Color f = hit.object->bsdf->sample_f(-ray.dir, wi, Ns, pdf);
 	if (pdf > 1e-8) {
 		Ray r = {hit.p, wi};
 		return result + 1/pdf * f * fabs(dot(Ns, r.dir)) * cast(r, depth+1, true);
 	}
-	return vec3();
+	return Color();
 }
 
 int main(int argc, char* argv[])
@@ -145,7 +146,7 @@ int main(int argc, char* argv[])
 	{
 		for (int x=0; x<camera->resolution_x; ++x)
 		{
-			vec3 res;
+			Color res;
 			for (int i=0; i<nspp; ++i)
 			{
 				// manual camera setup
@@ -153,7 +154,7 @@ int main(int argc, char* argv[])
 				float u = (x+randf()) / camera->resolution_x;
 				float v = (y+randf()) / camera->resolution_y;
 				Ray ray = camera->sampleray(u,v);
-				vec3 tres = cast(ray, 0);
+				Color tres = cast(ray, 0);
 				if (norm(tres)<1e8) res += tres;
 			}
 			res *= 1.0/nspp;

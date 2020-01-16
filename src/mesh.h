@@ -80,5 +80,4 @@ struct Mesh {
 		} // end reading obj file
 	}
 
-	
 };
