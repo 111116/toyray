@@ -67,21 +67,26 @@ vec3 cast(Ray ray, int depth, bool reject_samplable_light = false) {
 		Primitive* shape;
 		point lightp = light->sample_point(pdf, shape);
 		// check if direct light was blocked
-		Ray shadowray = {hit.p, normalize(lightp - hit.p)};
-		shadowray.origin += 1e-3 * shadowray.dir;
-		HitInfo shadowhit = acc->hit(shadowray);
-		if (!shadowhit || norm(shadowhit.p - hit.p) >= norm(lightp - hit.p) - 1e-3) {
-			pdf /= samplable_light_objects.size();
-			vec3 lightN = shape->Ns(lightp);
-			float dw = pow(norm(lightp - hit.p), -2) * fabs(dot(shadowray.dir, lightN));
-			result = hit.object->bsdf->f(-ray.dir, shadowray.dir, Ns) * fabs(dot(Ns, shadowray.dir)) * light->emission->radiance(shadowray) * (dw / pdf);
+		if (pdf > 0) {
+			Ray shadowray = {hit.p, normalize(lightp - hit.p)};
+			shadowray.origin += 1e-3 * shadowray.dir;
+			HitInfo shadowhit = acc->hit(shadowray);
+			if (!shadowhit || norm(shadowhit.p - hit.p) >= norm(lightp - hit.p) - 1e-3) {
+				pdf /= samplable_light_objects.size();
+				vec3 lightN = shape->Ns(lightp);
+				float dw = pow(norm(lightp - hit.p), -2) * fabs(dot(shadowray.dir, lightN));
+				result = hit.object->bsdf->f(-ray.dir, shadowray.dir, Ns) * fabs(dot(Ns, shadowray.dir)) * light->emission->radiance(shadowray) * (dw / pdf);
+			}
 		}
 	}
 	vec3 wi;
 	float pdf;
 	vec3 f = hit.object->bsdf->sample_f(-ray.dir, wi, Ns, pdf);
-	Ray r = {hit.p, wi};
-	return result + 1/pdf * f * fabs(dot(Ns, r.dir)) * cast(r, depth+1, true);
+	if (pdf > 0) {
+		Ray r = {hit.p, wi};
+		return result + 1/pdf * f * fabs(dot(Ns, r.dir)) * cast(r, depth+1, true);
+	}
+	return vec3();
 }
 
 int main(int argc, char* argv[])
