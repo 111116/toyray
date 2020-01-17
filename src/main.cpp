@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
 	Json conf;
 	fin >> conf;
 	for (auto o: conf["bsdfs"]) {
-		bsdf[o["name"]] = new LambertReflect(o);
+		bsdf[o["name"]] = newMaterial(o);
 	}
 #pragma omp parallel for schedule(dynamic)
 	for (auto o: conf["primitives"]) {
