@@ -6,7 +6,7 @@
 #include <fstream>
 #include <ctime>
 #include <chrono>
-#include "envmap.h"
+#include "lightprobe.hpp"
 #include "color.h"
 // #include "writebmp.h"
 #include "lib/saveexr.h"
@@ -50,6 +50,7 @@ Color normal(Ray ray) {
 
 // pointers to all objects with emission, for light sampling
 std::vector<Object*> samplable_light_objects;
+LightProbe* globalLightProbe = NULL;
 
 // sample radiance using PT, with light/importance sampling
 Color brightness(Ray ray, int depth = 0, bool reject_samplable_light = false) {
@@ -57,8 +58,10 @@ Color brightness(Ray ray, int depth = 0, bool reject_samplable_light = false) {
 		return Color();
 	ray.origin += 1e-3 * ray.dir;
 	HitInfo hit = acc->hit(ray);
-	if (!hit)
+	if (!hit) {
+		if (globalLightProbe) return globalLightProbe->radiance(ray.dir);
 		return Color();
+	}
 	auto Ns = hit.primitive->Ns(hit.p);
 	auto Ng = hit.primitive->Ng(hit.p);
 	if (hit.object->emission) {
@@ -126,9 +129,17 @@ int main(int argc, char* argv[])
 	}
 #pragma omp parallel for schedule(dynamic)
 	for (auto o: conf["primitives"]) {
-		Object* newobj = new Object(o, bsdf[o["bsdf"]]);
+		if (o["type"] == "infinite_sphere") {
+			// assume infinite_sphere will only be used for light probes
+			globalLightProbe = new LightProbe(getpath(o["emission"]).c_str());
+			// TODO currently light probes are not samplable
+		}
+		else {
+			Object* newobj;
+			newobj = new Object(o, bsdf[o["bsdf"]]);
 #pragma omp critical
-		objects.push_back(newobj);
+			objects.push_back(newobj);
+		}
 	}
 	for (auto o: objects) {
 		if (o->emission && o->samplable)
