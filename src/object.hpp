@@ -15,10 +15,7 @@ struct Object {
 	bool samplable = true; // flag for light sampling; only valid when emission!=NULL
 	Object(const Json& conf, BSDF* bsdf) {
 		assert(conf["type"] == "mesh");
-		this->mesh = new Mesh();
-#pragma omp critical
-		std::cout << "Loading model: " << modelpath + std::string(conf["file"]) << std::endl;
-		this->mesh->loadFromFile((modelpath + std::string(conf["file"])).c_str());
+		this->mesh = new Mesh(getpath(conf["file"]).c_str());
 		this->bsdf = bsdf;
 		// emission
 		if (conf.find("emission") != conf.end()) {

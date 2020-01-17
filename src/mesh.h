@@ -11,7 +11,9 @@ struct Mesh {
 	std::vector<Triangle*> faces;
 	// load mesh from an ascii Wavefront .obj file
 	// only supports triangle mesh with 2d texture
-	void loadFromFile(const char* filename) {
+	Mesh(const char* filename) {
+	#pragma omp critical
+		std::cout << "Loading mesh: " << filename << std::endl;
 		if (strcmp(filename+strlen(filename)-4, ".obj") != 0)
 			throw "format must be obj";
 		std::ifstream fin(filename);
