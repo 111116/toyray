@@ -56,3 +56,24 @@ public:
 	}
 };
 
+
+class Conductor : public BSDF
+{
+public:
+	Color f(vec3 wo, vec3 wi, vec3 Ns, vec3 Ng) const = 0;
+	Color sample_f(vec3 wo, vec3& wi, vec3 Ns, vec3 Ng, float& pdf) const = 0;
+};
+
+
+class Dielectric : public BSDF
+{
+public:
+	Color f(vec3 wo, vec3 wi, vec3 Ns, vec3 Ng) const
+	{
+
+	}
+	Color sample_f(vec3 wo, vec3& wi, vec3 Ns, vec3 Ng, float& pdf) const
+	{
+
+	}
+};
