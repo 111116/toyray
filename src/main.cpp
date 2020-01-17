@@ -32,13 +32,13 @@ std::unordered_map<std::string, BSDF*> bsdf;
 std::string outfilename;
 int max_bounces;
 
-Color albedo(Ray ray) {
-	HitInfo hit = acc->hit(ray);
-	if (!hit) {
-		return Color();
-	}
-	return hit.object->bsdf->albedo;
-}
+// Color albedo(Ray ray) {
+// 	HitInfo hit = acc->hit(ray);
+// 	if (!hit) {
+// 		return Color();
+// 	}
+// 	return hit.object->bsdf->albedo;
+// }
 
 Color normal(Ray ray) {
 	HitInfo hit = acc->hit(ray);

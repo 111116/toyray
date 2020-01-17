@@ -6,11 +6,7 @@
 
 using Json = nlohmann::json;
 
-vec3 json2vec3(const Json& arr) {
-	std::vector<float> a = arr;
-	assert(a.size()==3);
-	return vec3(a[0], a[1], a[2]);
-}
+
 
 std::ostream& operator<< (std::ostream& out, Json::value_t t) {
 	switch (t) {
@@ -31,4 +27,12 @@ bool is_number(const Json& o) {
 	return (o.type() == Json::value_t::number_integer) ||
 		   (o.type() == Json::value_t::number_unsigned) ||
 		   (o.type() == Json::value_t::number_float);
+}
+
+vec3 json2vec3(const Json& o) {
+	if (is_number(o))
+		return vec3(o);
+	std::vector<float> a = o;
+	assert(a.size()==3);
+	return vec3(a[0], a[1], a[2]);
 }

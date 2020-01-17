@@ -17,6 +17,7 @@ struct vec2
 {
 	float x,y;
 	vec2(): x(0), y(0) {}
+	vec2(float p): x(p), y(p) {}
 	vec2(float px, float py): x(px), y(py) {}
 };
 
@@ -32,6 +33,7 @@ struct vec3
 	float x,y,z;
 
 	vec3(): x(0), y(0), z(0) {}
+	vec3(float p): x(p), y(p), z(p) {}
 	vec3(float px, float py, float pz): x(px), y(py), z(pz) {}
 	bool nonzero() {
 		return x || y || z;
