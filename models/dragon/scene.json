@@ -1,0 +1,253 @@
+{
+    "media": [],
+    "bsdfs": [
+        {
+            "name": "GroundInner",
+            "albedo": 0.456263,
+            "type": "lambert"
+        },
+        {
+            "name": "GroundOuter",
+            "albedo": 0.456263,
+            "type": "lambert"
+        },
+        {
+            "name": "Cloth",
+            "albedo": 0.456263,
+            "type": "lambert"
+        },
+        {
+            "name": "Dragon",
+            "albedo": 0.79311,
+            "type": "lambert"
+        },
+        {
+            "name": "Blade",
+            "albedo": 0.79311,
+            "type": "lambert"
+        },
+        {
+            "name": "Sword",
+            "albedo": 0.79311,
+            "type": "lambert"
+        },
+        {
+            "name": "Deco",
+            "albedo": 0.79311,
+            "type": "lambert"
+        },
+        {
+            "name": "Diamond",
+            "albedo": 0.79311,
+            "type": "lambert"
+        },
+        {
+            "name": "Deco2",
+            "albedo": 0.79311,
+            "type": "lambert"
+        }
+    ],
+    "primitives": [
+        {
+            "transform": {},
+            "type": "mesh",
+            "smooth": true,
+            "backface_culling": false,
+            "recompute_normals": false,
+            "file": "models/Mesh011.obj",
+            "bsdf": "GroundOuter"
+        },
+        {
+            "transform": {},
+            "type": "mesh",
+            "smooth": true,
+            "backface_culling": false,
+            "recompute_normals": false,
+            "file": "models/Mesh010.obj",
+            "bsdf": "Cloth"
+        },
+        {
+            "transform": {},
+            "type": "mesh",
+            "smooth": true,
+            "backface_culling": false,
+            "recompute_normals": false,
+            "file": "models/Mesh005.obj",
+            "bsdf": "GroundOuter"
+        },
+        {
+            "transform": {},
+            "type": "mesh",
+            "smooth": true,
+            "backface_culling": false,
+            "recompute_normals": false,
+            "file": "models/Mesh006.obj",
+            "bsdf": "GroundOuter"
+        },
+        {
+            "transform": {},
+            "type": "mesh",
+            "smooth": true,
+            "backface_culling": false,
+            "recompute_normals": false,
+            "file": "models/Mesh012.obj",
+            "bsdf": "GroundInner"
+        },
+        {
+            "transform": {},
+            "type": "mesh",
+            "smooth": true,
+            "backface_culling": false,
+            "recompute_normals": false,
+            "file": "models/Mesh007.obj",
+            "bsdf": "GroundOuter"
+        },
+        {
+            "transform": {},
+            "type": "mesh",
+            "smooth": true,
+            "backface_culling": false,
+            "recompute_normals": false,
+            "file": "models/Mesh008.obj",
+            "bsdf": "Dragon"
+        },
+        {
+            "transform": {},
+            "type": "mesh",
+            "smooth": true,
+            "backface_culling": false,
+            "recompute_normals": false,
+            "file": "models/Mesh013.obj",
+            "bsdf": "Dragon"
+        },
+        {
+            "transform": {},
+            "type": "mesh",
+            "smooth": true,
+            "backface_culling": false,
+            "recompute_normals": false,
+            "file": "models/Mesh014.obj",
+            "bsdf": "Dragon"
+        },
+        {
+            "transform": {},
+            "type": "mesh",
+            "smooth": true,
+            "backface_culling": false,
+            "recompute_normals": false,
+            "file": "models/Mesh015.obj",
+            "bsdf": "Dragon"
+        },
+        {
+            "transform": {},
+            "type": "mesh",
+            "smooth": true,
+            "backface_culling": false,
+            "recompute_normals": false,
+            "file": "models/Mesh004.obj",
+            "bsdf": "Blade"
+        },
+        {
+            "transform": {},
+            "type": "mesh",
+            "smooth": true,
+            "backface_culling": false,
+            "recompute_normals": false,
+            "file": "models/Mesh009.obj",
+            "bsdf": "Sword"
+        },
+        {
+            "transform": {},
+            "type": "mesh",
+            "smooth": true,
+            "backface_culling": false,
+            "recompute_normals": false,
+            "file": "models/Mesh003.obj",
+            "bsdf": "Deco"
+        },
+        {
+            "transform": {},
+            "type": "mesh",
+            "smooth": true,
+            "backface_culling": false,
+            "recompute_normals": false,
+            "file": "models/Mesh002.obj",
+            "bsdf": "Diamond"
+        },
+        {
+            "transform": {},
+            "type": "mesh",
+            "smooth": true,
+            "backface_culling": false,
+            "recompute_normals": false,
+            "file": "models/Mesh001.obj",
+            "bsdf": "Deco2"
+        },
+        {
+            "transform": {},
+            "type": "mesh",
+            "smooth": true,
+            "backface_culling": false,
+            "recompute_normals": false,
+            "file": "models/Mesh000.obj",
+            "bsdf": "Deco2"
+        },
+		{
+            "type": "mesh",
+			"recompute_normals": true,
+			"file": "models/light.obj",
+			"emission": [100,100,100],
+			"bsdf": "Deco2"
+		}
+    ],
+    "camera": {
+        "tonemap": "filmic",
+        "resolution": [
+            1280,
+            720
+        ],
+        "reconstruction_filter": "tent",
+        "transform": {
+            "position": [
+                58.20600128173828,
+                24.92840003967285,
+                52.950096130371094
+            ],
+            "look_at": [
+                -1.505810022354126,
+                5.869430065155029,
+                -2.1437699794769287
+            ],
+            "up": [
+                0.0,
+                1.0,
+                0.0
+            ]
+        },
+        "type": "pinhole",
+        "fov": 35.0
+    },
+    "integrator": {
+        "min_bounces": 0,
+        "max_bounces": 16,
+        "enable_consistency_checks": false,
+        "enable_two_sided_shading": true,
+        "type": "path_tracer",
+        "enable_light_sampling": true,
+        "enable_volume_light_sampling": true
+    },
+    "renderer": {
+        "overwrite_output_files": true,
+        "adaptive_sampling": true,
+        "enable_resume_render": false,
+        "stratified_sampler": true,
+        "scene_bvh": true,
+        "spp": 16,
+        "spp_step": 16,
+        "checkpoint_interval": "0",
+        "timeout": "0",
+        "output_file": "dragon.png",
+        "resume_render_file": "TungstenRenderState.dat",
+        "hdr_output_file": "dragon.exr"
+    }
+}
