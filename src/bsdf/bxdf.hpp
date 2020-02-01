@@ -1,6 +1,6 @@
 #pragma once
 
-#include "geometry/geometry.hpp"
+#include "../geometry/geometry.hpp"
 
 // BxDF should work on both hemispheres,
 // to allow difference between shading normal & geometry normal.
@@ -70,6 +70,18 @@ public:
 	Color sample_f(const vec3& wo, vec3& wi, float& pdf) const {
 		wi = vec3(-wo.x, -wo.y, wo.z);
 		pdf = 1;
-		return 1 / wo.z * albedo;
+		return 1 / fabs(wo.z) * albedo;
+	}
+};
+
+class InvisibleBTDF : public BTDF {
+public:
+	Color f(const vec3& wo, const vec3& wi) const {
+		return Color(0);
+	}
+	Color sample_f(const vec3& wo, vec3& wi, float& pdf) const {
+		wi = -wo;
+		pdf = 1;
+		return 1 / fabs(wo.z);
 	}
 };

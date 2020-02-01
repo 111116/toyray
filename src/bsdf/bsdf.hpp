@@ -1,7 +1,7 @@
 #pragma once
 
 #include "bxdf.hpp"
-#include "jsonutil.hpp"
+#include "../jsonutil.hpp"
 
 class BSDF {
 public:
@@ -26,7 +26,8 @@ public:
 		if ( through && refract) return refract->f(woL, wiL);
 		return Color(0);
 	}
-	Color sample_f(const vec3& wo, vec3& wi, const vec3& Ns, const vec3& Ng, float& pdf) const {
+	Color sample_f(const vec3& wo, vec3& wi, const vec3& Ns, const vec3& Ng, float& pdf, bool& isspecular) const {
+		isspecular = false;
 		// choose which BxDF to use
 		BxDF* bxdf = reflect? (refract? (rand()%2? reflect: refract): reflect): refract;
 		if (bxdf == NULL) {
@@ -61,6 +62,8 @@ BSDF* newMaterial(const Json& conf) {
 		bsdf->reflect = new LambertBRDF(json2vec3(conf["albedo"]));
 	if (conf["type"] == "mirror")
 		bsdf->reflect = new MirrorBRDF(json2vec3(conf["albedo"]));
+	if (conf["type"] == "invisible")
+		bsdf->refract = new InvisibleBTDF();
 	return bsdf;
 }
 

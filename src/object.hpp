@@ -3,7 +3,7 @@
 #include "lib/json.hpp"
 #include "env.hpp"
 #include "mesh.h"
-#include "bsdf.hpp"
+#include "bsdf/bsdf.hpp"
 #include "light.hpp"
 
 using Json = nlohmann::json;

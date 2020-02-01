@@ -47,6 +47,12 @@ vec3 operator * (vec3 a, vec3 b)
 	return vec3(a.x*b.x, a.y*b.y, a.z*b.z);
 }
 
+vec3& operator *= (vec3& a, const vec3& b) {
+	a.x *= b.x;
+	a.y *= b.y;
+	a.z *= b.z;
+	return a;
+}
 
 std::ostream& operator << (std::ostream& os, vec3 v)
 {

@@ -53,51 +53,55 @@ std::vector<Object*> samplable_light_objects;
 LightProbe* globalLightProbe = NULL;
 
 // sample radiance using PT, with light/importance sampling
-Color brightness(Ray ray, int depth = 0, bool reject_samplable_light = false) {
-	if (depth > max_bounces)
-		return Color();
-	ray.origin += 1e-3 * ray.dir;
-	HitInfo hit = acc->hit(ray);
-	if (!hit) {
-		if (globalLightProbe) return globalLightProbe->radiance(ray.dir);
-		return Color();
-	}
-	auto Ns = hit.primitive->Ns(hit.p);
-	auto Ng = hit.primitive->Ng(hit.p);
-	if (hit.object->emission) {
-		if (reject_samplable_light && hit.object->samplable) return Color();
-		return hit.object->emission->radiance(ray);
-	}
-
+Color brightness(Ray ray) {
 	Color result;
-	// sample direct light
-	if (!samplable_light_objects.empty())
-	{
-		Object* light = samplable_light_objects[rand() % samplable_light_objects.size()];
-		float pdf;
-		Primitive* shape;
-		point lightp = light->sample_point(pdf, shape);
-		// check if direct light was blocked
-		if (pdf > 1e-8) {
-			Ray shadowray = {hit.p, normalize(lightp - hit.p)};
-			shadowray.origin += 1e-3 * shadowray.dir;
-			HitInfo shadowhit = acc->hit(shadowray);
-			if (!shadowhit || norm(shadowhit.p - hit.p) >= norm(lightp - hit.p) - 1e-3) {
-				pdf /= samplable_light_objects.size();
-				vec3 lightN = shape->Ns(lightp);
-				float dw = pow(norm(lightp - hit.p), -2) * fabs(dot(shadowray.dir, lightN));
-				result = hit.object->bsdf->f(-ray.dir, shadowray.dir, Ns, Ng) * fabs(dot(Ns, shadowray.dir)) * light->emission->radiance(shadowray) * (dw / pdf);
+	Color lambda = 1;
+	bool lastSpecular = true;
+
+	for (int n_bounce = 0; n_bounce < max_bounces; ++n_bounce) {
+		ray.origin += 1e-3 * ray.dir;
+		HitInfo hit = acc->hit(ray);
+		if (!hit) {
+			if (globalLightProbe) result += lambda * globalLightProbe->radiance(ray.dir);
+			break;
+		}
+		auto Ns = hit.primitive->Ns(hit.p);
+		auto Ng = hit.primitive->Ng(hit.p);
+		if (hit.object->emission) {
+			if (!hit.object->samplable || lastSpecular)
+				result += lambda * hit.object->emission->radiance(ray);
+		}
+		BSDF* bsdf = hit.object->bsdf;
+		if (!bsdf) break;
+		// direct light
+		if (!samplable_light_objects.empty())
+		{
+			Object* light = samplable_light_objects[rand() % samplable_light_objects.size()];
+			float pdf;
+			Primitive* shape;
+			point lightp = light->sample_point(pdf, shape);
+			// check if direct light was blocked
+			if (pdf > 1e-8) {
+				Ray shadowray = {hit.p, normalize(lightp - hit.p)};
+				shadowray.origin += 1e-3 * shadowray.dir;
+				HitInfo shadowhit = acc->hit(shadowray);
+				if (!shadowhit || norm(shadowhit.p - hit.p) >= norm(lightp - hit.p) - 1e-3) {
+					pdf /= samplable_light_objects.size();
+					vec3 lightN = shape->Ns(lightp);
+					float dw = pow(norm(lightp - hit.p), -2) * fabs(dot(shadowray.dir, lightN));
+					result += lambda * bsdf->f(-ray.dir, shadowray.dir, Ns, Ng) * fabs(dot(Ns, shadowray.dir)) * light->emission->radiance(shadowray) * (dw / pdf);
+				}
 			}
 		}
+		// indirect light
+		vec3 wi;
+		float pdf;
+		Color f = bsdf->sample_f(-ray.dir, wi, Ns, Ng, pdf, lastSpecular);
+		if (pdf < 1e-8) break;
+		ray = {hit.p, wi};
+		lambda *= (1/pdf) * f * fabs(dot(Ns, wi));
 	}
-	vec3 wi;
-	float pdf;
-	Color f = hit.object->bsdf->sample_f(-ray.dir, wi, Ns, Ng, pdf);
-	if (pdf > 1e-8) {
-		Ray r = {hit.p, wi};
-		return result + 1/pdf * f * fabs(dot(Ns, r.dir)) * brightness(r, depth+1, true);
-	}
-	return Color();
+	return result;
 }
 
 
