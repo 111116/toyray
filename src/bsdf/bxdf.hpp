@@ -5,8 +5,22 @@
 // BxDF should work on both hemispheres,
 // to allow difference between shading normal & geometry normal.
 
+enum BxDFType {
+	SPECULAR_REFLECT = 1,
+	DIFFUSE_REFLECT = 2,
+	SPECULAR_TRANSMIT = 4,
+	DIFFUSE_TRANSMIT = 8,
+	SPECULAR_ALL = SPECULAR_REFLECT | SPECULAR_TRANSMIT,
+	DIFFUSE_ALL = DIFFUSE_REFLECT | DIFFUSE_TRANSMIT,
+	ALL_REFLECT = SPECULAR_REFLECT | DIFFUSE_REFLECT,
+	ALL_TRANSMIT = SPECULAR_TRANSMIT | DIFFUSE_TRANSMIT,
+	ALL = SPECULAR_ALL | DIFFUSE_ALL
+	// A type contains B type <==> (A&B)==B <==> (A|B)==A
+};
+
 class BxDF {
 public:
+	BxDFType type;
 	// assuming normal N = (0,0,1)
 	virtual Color f(const vec3& wo, const vec3& wi) const = 0;
 	virtual Color sample_f(const vec3& wo, vec3& wi, float& pdf) const = 0;

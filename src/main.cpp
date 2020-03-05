@@ -73,7 +73,7 @@ Color brightness(Ray ray) {
 		}
 		BSDF* bsdf = hit.object->bsdf;
 		if (!bsdf) break;
-		// direct light
+		// direct light (on non-specular component of bsdf)
 		if (!samplable_light_objects.empty())
 		{
 			Object* light = samplable_light_objects[rand() % samplable_light_objects.size()];
