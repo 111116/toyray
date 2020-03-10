@@ -1,19 +1,20 @@
 #pragma once
 
 #include "geometry.hpp"
+#include "../math/matfloat.hpp"
 
 class Triangle: public Primitive
 {
-	vec3 v1,v2,v3;
-	vec3 vn1, vn2, vn3;
-	vec2 vt1, vt2, vt3;
+	vec3f v1,v2,v3;
+	vec3f vn1, vn2, vn3;
+	vec2f vt1, vt2, vt3;
 
-	mat3 tMatrix;
-	vec3 planeNormal;
+	mat3f tMatrix;
+	vec3f planeNormal;
 	float one_by_2S;
 public:
 
-	Triangle(vec3 v1, vec3 v2, vec3 v3, vec2 vt1, vec2 vt2, vec2 vt3, vec3 vn1, vec3 vn2, vec3 vn3):
+	Triangle(vec3f v1, vec3f v2, vec3f v3, vec2f vt1, vec2f vt2, vec2f vt3, vec3f vn1, vec3f vn2, vec3f vn3):
 		v1(v1), v2(v2), v3(v3), vn1(vn1), vn2(vn2), vn3(vn3), vt1(vt1), vt2(vt2), vt3(vt3)
 	// pre-calculation to accelerate intersection / interpolation computation
 	{
@@ -22,22 +23,22 @@ public:
 		assert(norm(v1-v2)>0);
 		assert(norm(v1-v3)>0);
 		assert(norm(v2-v3)>0);
-		assert(norm(cross(normalize(v2-v1), normalize(v3-v1))) > 1e-5);
+		assert(norm(cross(normalized(v2-v1), normalized(v3-v1))) > 1e-5);
 #endif
-		planeNormal = normalize(cross(v2-v1, v3-v1));
+		planeNormal = normalized(cross(v2-v1, v3-v1));
 		// make sure plane normal points outward
 		if (dot(planeNormal, vn1) < 0)
 			planeNormal *= -1;
 		one_by_2S = 1 / norm(cross(v3-v1, v2-v1));
-		tMatrix = inverse(mat3(v2-v1, v3-v1, cross(v2-v1, normalize(v3-v1))));
+		tMatrix = inverse(mat3f(v2-v1, v3-v1, cross(v2-v1, normalized(v3-v1))));
 	}
 
 	bool intersect(const Ray& ray, point* result) const
 	{
-		vec3 o = tMatrix * (ray.origin - v1);
-		vec3 dir = tMatrix * ray.dir;
+		vec3f o = tMatrix * (ray.origin - v1);
+		vec3f dir = tMatrix * ray.dir;
 		float t = o.z / dir.z;
-		vec3 p = o - dir * t;
+		vec3f p = o - dir * t;
 		if (t>0 && p.x >= 0 && p.y >= 0 && p.x + p.y <= 1)
 		{
 			*result = v1 + p.x * (v2-v1) + p.y * (v3-v1);
@@ -46,14 +47,14 @@ public:
 		return false;
 	}
 
-	vec3 Ns(const point& p) const
+	vec3f Ns(const point& p) const
 	{
-		return normalize(
+		return normalized(
 			vn1 + (vn3-vn1) * norm(cross(p-v1, v2-v1)) * one_by_2S
 				+ (vn2-vn1) * norm(cross(p-v1, v3-v1)) * one_by_2S); // TO OPTIMIZE
 	}
 
-	vec3 Ng(const point& p) const
+	vec3f Ng(const point& p) const
 	{
 		return planeNormal;
 	}

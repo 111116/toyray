@@ -5,6 +5,8 @@
 #include <cstring>
 #include <vector>
 #include "triangle.hpp"
+#include "../jsonutil.hpp"
+#include "../env.hpp"
 
 struct PrimitiveContainer {
 public:
@@ -41,8 +43,8 @@ private:
 		if (!fin)
 			throw "Can't open file";
 
-		std::vector<vec3> v,vn;
-		std::vector<vec2> vt;
+		std::vector<vec3f> v,vn;
+		std::vector<vec2f> vt;
 		std::string line;
 		// reading file line by line
 		while (std::getline(fin, line)) {
@@ -51,23 +53,23 @@ private:
 				std::string cmd;
 				in >> cmd;
 				if (cmd == "v") { // vertex coordinate
-					vec3 t;
+					vec3f t;
 					in >> t;
 					v.push_back(t);
 				}
 				if (cmd == "vt") { // texture coordinate
-					vec2 t;
+					vec2f t;
 					in >> t;
 					vt.push_back(t);
 				}
 				if (cmd == "vn") { // normal vector
-					vec3 t;
+					vec3f t;
 					in >> t;
 					vn.push_back(t);
 				}
 				if (cmd == "f") { // polygon face
-					std::vector<vec3> vv, vvn;
-					std::vector<vec2> vvt;
+					std::vector<vec3f> vv, vvn;
+					std::vector<vec2f> vvt;
 					while (!in.fail() && !in.eof()) {					
 						// code from tungsten ObjLoader::loadFace
 						int indices[] = {0, 0, 0};
@@ -89,8 +91,8 @@ private:
 				        if (ivn < 0) ivn += vn.size()+1;
 				    	vv.push_back(v[iv-1]);
 				    	// std::cout << "vv " << iv << " " << v[iv-1] << std::endl;
-				    	vvt.push_back(ivt? vt[ivt-1]: vec2());
-				    	vvn.push_back(ivn? vn[ivn-1]: vec3(0,1,0));
+				    	vvt.push_back(ivt? vt[ivt-1]: vec2f());
+				    	vvn.push_back(ivn? vn[ivn-1]: vec3f(0,1,0));
 				    }
 				    if (vv.size() == 3) {
 				    	faces.push_back(new Triangle(vv[0], vv[1], vv[2], vvt[0], vvt[1], vvt[2], vvn[0], vvn[1], vvn[2]));

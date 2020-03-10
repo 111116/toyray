@@ -32,20 +32,20 @@ public:
         return false;
 	}
 
-	vec3 Ns(const point& p) const
+	vec3f Ns(const point& p) const
 	{
 #ifdef DEBUG
 		assert(abs(norm(p - center) - radius) < 1e-2);
 #endif
-		return normalize(p - center);
+		return normalized(p - center);
 	}
 
-	vec3 Ng(const point& p) const
+	vec3f Ng(const point& p) const
 	{
 #ifdef DEBUG
 		assert(abs(norm(p - center) - radius) < 1e-2);
 #endif
-		return normalize(p - center);
+		return normalized(p - center);
 	}
 
 	// point surface_uniform_sample() const
