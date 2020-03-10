@@ -32,7 +32,6 @@ struct PinholeCamera : public Camera
 	vec3 ray_central, uphalf, lefthalf;
 
 	PinholeCamera(const Json& conf): Camera(conf) {
-		assert(conf["type"] == "pinhole");
 		ray_central = look_at - position;
 		uphalf = norm(ray_central) * resolution_y / resolution_x * tan(fov/2) * up;
 		lefthalf = cross(up, ray_central) * tan(fov/2);
@@ -42,3 +41,9 @@ struct PinholeCamera : public Camera
 		return Ray(position, normalize(ray_central + (1-u*2) * lefthalf + (1-v*2) * uphalf));
 	}
 };
+
+Camera* newCamera(const Json& conf) {
+	if (conf["type"] == "pinhole")
+		return new PinholeCamera(conf);
+	throw "unrecognized camera type";
+}

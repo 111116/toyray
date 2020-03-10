@@ -66,7 +66,7 @@
         }
     ],
     "camera": {
-        "resolution": [ 512, 512 ],
+        "resolution": [ 1024, 1024 ],
         "transform": {
             "position": [ 278, 273, -800 ],
             "look_at": [ 278, 273, 0 ],
@@ -81,7 +81,7 @@
         "enable_light_sampling": true
     },
     "renderer": {
-        "spp": 16,
+        "spp": 64,
         "hdr_output_file": "cornell-box.exr"
     }
 }
