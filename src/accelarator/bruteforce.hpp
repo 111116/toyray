@@ -6,8 +6,13 @@ struct Bruteforce : public Accelarator {
 	std::vector<std::pair<Primitive*, Object*>> list;
 	Bruteforce(const std::vector<Object*>& list) {
 		for (Object* o: list) {
-			for (Primitive* p: o->mesh->faces)
-				this->list.push_back({p, o});
+			if (o->container) {
+				for (Primitive* p: o->container->faces)
+					this->list.push_back({p, o});
+			}
+			else {
+				this->list.push_back({o->primitive, o});
+			}
 		}
 	}
 

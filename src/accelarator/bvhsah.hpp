@@ -116,8 +116,13 @@ public:
 	BVH(const std::vector<Object*>& list) {
 		std::cout << "building accelarator of " << list.size() << " objects" << std::endl;
 		for (Object* o: list) {
-			for (Primitive* p: o->mesh->faces)
-				this->list.push_back({p, o});
+			if (o->container) {
+				for (Primitive* p: o->container->faces)
+					this->list.push_back({p, o});
+			}
+			else {
+				this->list.push_back({o->primitive, o});
+			}
 		}
 		std::cout << this->list.size() << " faces" << std::endl;
 		build(this->list, root);
