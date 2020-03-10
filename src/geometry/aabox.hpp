@@ -4,6 +4,7 @@
 
 struct AABox
 {
+	// order matters!
 	float x1,x2,y1,y2,z1,z2;
 	bool intersect(const Ray& r)
 	{
@@ -34,12 +35,20 @@ struct AABox
 		float dz = z2 - z1;
 		return 2 * (dx*dy + dx*dz + dy*dz);
 	}
-	bool isinfinite() {
-		throw 1;
+	bool finite(const float U = 1e20) {
+		return x2<U && y2<U && z2<U && x1>-U && y1>-U && z1>-U;
 	}
+	static const AABox infAAB;
 };
 
-static const AABox infAAB = ...;
+const AABox AABox::infAAB {
+	-std::numeric_limits<float>::infinity(),
+	 std::numeric_limits<float>::infinity(),
+	-std::numeric_limits<float>::infinity(),
+	 std::numeric_limits<float>::infinity(),
+	-std::numeric_limits<float>::infinity(),
+	 std::numeric_limits<float>::infinity()
+};
 
 // AABB of union geometry
 AABox operator+ (const AABox& a, const AABox& b) {
