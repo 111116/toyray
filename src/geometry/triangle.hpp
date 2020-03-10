@@ -8,8 +8,8 @@ class Triangle: public Primitive
 	vec3 vn1, vn2, vn3;
 	vec2 vt1, vt2, vt3;
 
-	vec3 planeNormal;
 	mat3 tMatrix;
+	vec3 planeNormal;
 	float one_by_2S;
 public:
 
@@ -28,18 +28,17 @@ public:
 		// make sure plane normal points outward
 		if (dot(planeNormal, vn1) < 0)
 			planeNormal *= -1;
-		tMatrix = inverse(mat3(v2-v1, v3-v1, cross(v2-v1, normalize(v3-v1))));
 		one_by_2S = 1 / norm(cross(v3-v1, v2-v1));
+		tMatrix = inverse(mat3(v2-v1, v3-v1, cross(v2-v1, normalize(v3-v1))));
 	}
 
-	bool intersect(Ray r, point* result) const
+	bool intersect(const Ray& ray, point* result) const
 	{
-		vec3 o = tMatrix * (r.origin - v1);
-		vec3 dir = tMatrix * r.dir;
-		if (o.z>0 ^ dir.z<0) return false;
+		vec3 o = tMatrix * (ray.origin - v1);
+		vec3 dir = tMatrix * ray.dir;
 		float t = o.z / dir.z;
 		vec3 p = o - dir * t;
-		if (p.x >= 0 && p.y >= 0 && p.x + p.y <= 1)
+		if (t>0 && p.x >= 0 && p.y >= 0 && p.x + p.y <= 1)
 		{
 			*result = v1 + p.x * (v2-v1) + p.y * (v3-v1);
 			return true;
@@ -47,28 +46,28 @@ public:
 		return false;
 	}
 
-	vec3 Ns(point p) const
+	vec3 Ns(const point& p) const
 	{
 		return normalize(
 			vn1 + (vn3-vn1) * norm(cross(p-v1, v2-v1)) * one_by_2S
 				+ (vn2-vn1) * norm(cross(p-v1, v3-v1)) * one_by_2S); // TO OPTIMIZE
 	}
 
-	vec3 Ng(point p) const
+	vec3 Ng(const point& p) const
 	{
 		return planeNormal;
 	}
 
-	point surface_uniform_sample() const
-	{
-		float a=randf(), b=randf();
-		if (a+b>1) a=1-a, b=1-b;
-		return v1 + a*(v2-v1) + b*(v3-v1);
-	}
-	float surfaceArea() const
-	{
-		return norm(cross(v2-v1, v3-v1))/2;
-	}
+	// point surface_uniform_sample() const
+	// {
+	// 	float a=randf(), b=randf();
+	// 	if (a+b>1) a=1-a, b=1-b;
+	// 	return v1 + a*(v2-v1) + b*(v3-v1);
+	// }
+	// float surfaceArea() const
+	// {
+	// 	return norm(cross(v2-v1, v3-v1))/2;
+	// }
 
 	AABox boundingVolume() const
 	{
