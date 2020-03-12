@@ -91,9 +91,7 @@ Color brightness(Ray ray) {
 }
 
 
-float* pixels;
-int nspp = 4; // default number of samples per pixel, may be overrided in parameters
-std::string outfilename;
+int nspp = 1; // may be overriden in conf
 
 
 int main(int argc, char* argv[])
@@ -144,14 +142,13 @@ int main(int argc, char* argv[])
 	acc = new Bruteforce(objects);
 	Camera* camera = newCamera(conf["camera"]);
 	nspp = conf["renderer"]["spp"];
-	outfilename = conf["renderer"]["hdr_output_file"];
 
 	// prepare film
 	Film film(camera->resx, camera->resy);
 	fprintf(stderr, "INFO: rendering at %d x %d x %d spp\n", camera->resx, camera->resy, nspp);
 	// start rendering
-	int line_finished = 0;
 	auto start = std::chrono::system_clock::now();
+	int line_finished = 0;
 #pragma omp parallel for schedule(dynamic)
 	for (int y=0; y<camera->resy; ++y)
 	{
@@ -166,14 +163,19 @@ int main(int argc, char* argv[])
 				Color tres = brightness(ray);
 				if (norm(tres)<1e8) res += tres;
 			}
+			res = vec3f(1.0*x/camera->resx);
 			film.setPixel(x, y, res/nspp);
 		}
 		#pragma omp critical
 		fprintf(stderr, "\r%.1f%%", 100.0f*(++line_finished)/camera->resy);
 	}
+	// end timing
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end-start;
 	std::cout << "  " << elapsed_seconds.count() << "s\n";
-	fprintf(stderr, "INFO: Writing result to %s\n", outfilename.c_str());
-	SaveEXR(pixels, camera->resx, camera->resy, outfilename.c_str());
+	// save files
+	for (std::string filename : conf["renderer"]["output_files"]) {
+		std::cerr << "INFO: Writing result to " << filename << "\n";
+		film.saveFile(filename);
+	}
 }

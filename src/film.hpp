@@ -1,6 +1,9 @@
 #pragma once
 
+#include <iostream>
 #include "color.h"
+#include "lib/saveexr.h"
+#include "lib/writebmp.h"
 
 class Film
 {
@@ -15,5 +18,26 @@ public:
 		pixels[3*pxid+0] = val.x;
 		pixels[3*pxid+1] = val.y;
 		pixels[3*pxid+2] = val.z;
+	}
+	// supported suffix: bmp, exr
+	int saveFile(const std::string& filename) const
+	{
+		int dotpos = filename.rfind(".");
+		if (dotpos == std::string::npos) {
+			std::cerr << "saveFile: unrecognized format\n";
+			return -1;
+		}
+		auto suffix = filename.substr(dotpos+1);
+
+		if (suffix == "exr") {
+			SaveEXR(pixels, w, h, filename.c_str());
+			return 0;
+		}
+		if (suffix == "bmp") {
+			writeBMP(filename.c_str(), pixels, w, h);
+			return 0;
+		}
+		std::cerr << "saveFile: unrecognized format\n";
+		return -1;
 	}
 };
