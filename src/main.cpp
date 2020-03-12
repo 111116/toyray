@@ -108,6 +108,7 @@ int main(int argc, char* argv[])
 #else
 	std::cerr << "Threading disabled" << std::endl;
 #endif
+	// parse commandline args
 	if (argc<=1) {
 		std::cerr << "Usage: " << argv[0] << " <json file>"<< std::endl;
 		return 1;
@@ -144,37 +145,37 @@ int main(int argc, char* argv[])
 	outfilename = conf["renderer"]["hdr_output_file"];
 
 	// prepare film
-	pixels = new float[camera->resolution_x * camera->resolution_y * 3];
-	fprintf(stderr, "INFO: rendering at %d x %d x %d spp\n", camera->resolution_x, camera->resolution_y, nspp);
+	Film film(camera->resx, camera->resy);
+	fprintf(stderr, "INFO: rendering at %d x %d x %d spp\n", camera->resx, camera->resy, nspp);
 	// start rendering
 	int line_finished = 0;
 	auto start = std::chrono::system_clock::now();
 #pragma omp parallel for schedule(dynamic)
-	for (int y=0; y<camera->resolution_y; ++y)
+	for (int y=0; y<camera->resy; ++y)
 	{
-		for (int x=0; x<camera->resolution_x; ++x)
+		for (int x=0; x<camera->resx; ++x)
 		{
 			Color res;
 			for (int i=0; i<nspp; ++i)
 			{
-				float u = (x+randf()) / camera->resolution_x;
-				float v = (y+randf()) / camera->resolution_y;
-				Ray ray = camera->sampleray(u,v);
+				Sampler* sampler = new RandomSampler();
+				vec2f uv = (vec2f(x,y) + sampler->get2f()) * vec2f(1.0/camera->resx, 1.0/camera->resy);
+				Ray ray = camera->sampleray(uv);
 				Color tres = brightness(ray);
 				if (norm(tres)<1e8) res += tres;
 			}
 			res *= 1.0/nspp;
-			int pxid = y*camera->resolution_x + x;
+			int pxid = y*camera->resx + x;
 			pixels[3*pxid+0] = res.x;
 			pixels[3*pxid+1] = res.y;
 			pixels[3*pxid+2] = res.z;
 		}
 		#pragma omp critical
-		fprintf(stderr, "\r%.1f%%", 100.0f*(++line_finished)/camera->resolution_y);
+		fprintf(stderr, "\r%.1f%%", 100.0f*(++line_finished)/camera->resy);
 	}
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end-start;
 	std::cout << "  " << elapsed_seconds.count() << "s\n";
 	fprintf(stderr, "INFO: Writing result to %s\n", outfilename.c_str());
-	SaveEXR(pixels, camera->resolution_x, camera->resolution_y, outfilename.c_str());
+	SaveEXR(pixels, camera->resx, camera->resy, outfilename.c_str());
 }

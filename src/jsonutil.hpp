@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include "lib/json.hpp"
-#include "la.h"
+#include "math/vecfloat.hpp"
 
 using Json = nlohmann::json;
 
@@ -29,10 +29,10 @@ bool is_number(const Json& o) {
 		   (o.type() == Json::value_t::number_float);
 }
 
-vec3 json2vec3(const Json& o) {
+vec3f json2vec3f(const Json& o) {
 	if (is_number(o))
-		return vec3(o);
+		return vec3f(o);
 	std::vector<float> a = o;
 	assert(a.size()==3);
-	return vec3(a[0], a[1], a[2]);
+	return vec3f(a[0], a[1], a[2]);
 }

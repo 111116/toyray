@@ -25,14 +25,14 @@ struct Object
 			container = new TriangleMesh(conf);
 		}
 		if (conf["type"] == "sphere") {
-			primitive = new Sphere(json2vec3(conf["origin"]), (double)conf["radius"]);
+			primitive = new Sphere(json2vec3f(conf["origin"]), (double)conf["radius"]);
 		}
 		if (!container && !primitive)
 			throw "unrecognized geometric primitive type";
 		this->bsdf = bsdf;
 		// emission
 		if (conf.find("emission") != conf.end()) {
-			this->emission = new DiffuseAreaLight(json2vec3(conf["emission"]));
+			this->emission = new DiffuseAreaLight(json2vec3f(conf["emission"]));
 			if (conf.find("sample") != conf.end()) {
 				samplable = conf["sample"];
 			}
