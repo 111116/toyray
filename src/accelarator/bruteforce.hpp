@@ -5,7 +5,7 @@
 struct Bruteforce : public Accelarator {
 	std::vector<std::pair<Primitive*, Object*>> list;
 	Bruteforce(const std::vector<Object*>& list) {
-		std::cout << "building accelarator of " << list.size() << " objects" << std::endl;
+		std::cout << "building Bruteforce of " << list.size() << " objects" << std::endl;
 		for (Object* o: list) {
 			if (o->container) {
 				for (Primitive* p: o->container->faces)

@@ -7,6 +7,7 @@
 #include "triangle.hpp"
 #include "../jsonutil.hpp"
 #include "../env.hpp"
+#include "container.hpp"
 
 struct PrimitiveContainer {
 public:

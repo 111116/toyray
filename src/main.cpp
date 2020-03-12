@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
 		if (o->emission && o->samplable)
 			samplable_light_objects.push_back(o);
 	}
-	acc = new Bruteforce(objects);
+	acc = new BVH(objects);
 	Camera* camera = newCamera(conf["camera"]);
 	nspp = conf["renderer"]["spp"];
 

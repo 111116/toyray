@@ -114,7 +114,7 @@ private:
 
 public:
 	BVH(const std::vector<Object*>& list) {
-		std::cout << "building accelarator of " << list.size() << " objects" << std::endl;
+		std::cout << "building BVH of " << list.size() << " objects" << std::endl;
 		for (Object* o: list) {
 			if (o->container) {
 				for (Primitive* p: o->container->faces)
