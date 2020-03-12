@@ -4,12 +4,14 @@
 #include "geometry.hpp"
 #include "../accelarator/bvh.hpp"
 
-struct FiniteContainer: public Primitive
+class FiniteContainer: public Primitive
 {
 	RawBVHSAH* bvh;
 	AABox bound;
+protected:
+	std::vector<Primitive*> list;
 public:
-	FiniteContainer(const std::vector<Primitive*>& list)
+	FiniteContainer(const std::vector<Primitive*>& list): list(list)
 	{
 		bvh = new RawBVHSAH(list);
 		bound = list[0]->boundingVolume();
@@ -25,12 +27,12 @@ public:
 		return h;
 	}
 	 
-	vec3f Ns(point p) const
+	vec3f Ns(const point& p) const
 	{
 		assert(false);
 	}
 
-	vec3f Ng(point p) const
+	vec3f Ng(const point& p) const
 	{
 		assert(false);
 	}

@@ -15,19 +15,18 @@ struct Object
 	bool samplable = true; // flag for light sampling; only valid when emission!=NULL
 	// an object can contain either a primitive or a container of primitives
 	Primitive* primitive = NULL;
-	PrimitiveContainer* container = NULL;
 
 	Object(const Json& conf, BSDF* bsdf)
 	{
 		// transform parsed here
 		// pretransform if triangle / mesh TODO
 		if (conf["type"] == "mesh") {
-			container = new TriangleMesh(conf);
+			primitive = new TriangleMesh(conf);
 		}
 		if (conf["type"] == "sphere") {
 			primitive = new Sphere(json2vec3f(conf["origin"]), (double)conf["radius"]);
 		}
-		if (!container && !primitive)
+		if (!primitive)
 			throw "unrecognized geometric primitive type";
 		this->bsdf = bsdf;
 		// emission

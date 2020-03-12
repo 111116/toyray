@@ -9,24 +9,17 @@
 #include "../env.hpp"
 #include "container.hpp"
 
-struct PrimitiveContainer {
-public:
-	std::vector<Primitive*> faces;
-};
 
-struct TriangleMesh: public PrimitiveContainer {
+class TriangleMesh: public FiniteContainer {
 public:
-	TriangleMesh(const Json& conf) {
-		assert(conf["type"] == "mesh");
-		// load file
-		loadfromfile(getpath(conf["file"]).c_str());
+	TriangleMesh(const Json& conf): FiniteContainer(loadfromfile(getpath(conf["file"]).c_str())) {
 		// recompute normal
 		bool recompute_normals = true;
 		if (conf.find("recompute_normals") != conf.end()) {
 			recompute_normals = conf["recompute_normals"];
 		}
 		if (recompute_normals) {
-			for (Primitive* t: faces) {
+			for (Primitive* t: list) {
 				Triangle* o = dynamic_cast<Triangle*>(t);
 				o->recompute_normal();
 			}
@@ -35,15 +28,15 @@ public:
 private:
 	// load mesh from an ascii Wavefront .obj file
 	// only supports triangle mesh with 2d texture
-	void loadfromfile(const char* filename) {
-	#pragma omp critical
+	std::vector<Primitive*> loadfromfile(const char* filename) {
+#pragma omp critical
 		std::cout << "Loading mesh: " << filename << std::endl;
 		if (strcmp(filename+strlen(filename)-4, ".obj") != 0)
 			throw "format must be obj";
 		std::ifstream fin(filename);
 		if (!fin)
 			throw "Can't open file";
-
+		std::vector<Primitive*> faces;
 		std::vector<vec3f> v,vn;
 		std::vector<vec2f> vt;
 		std::string line;
@@ -103,6 +96,7 @@ private:
 				    }
 				} // end reading face
 			}
-		} // end reading obj file
+		}
+		return faces;
 	}
 };
