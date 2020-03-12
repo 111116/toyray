@@ -2,7 +2,7 @@
 
 #include "geometry.hpp"
 
-class Sphere: public Primitive
+class Sphere: public BasicPrimitive
 {
 private:
 	point center;
@@ -10,7 +10,6 @@ private:
 
 public:
 	Sphere(point p, float r): center(p), radius(r) {}
-
 	bool intersect(const Ray& ray, point* result) const
 	{
         vec3f OC = center - ray.origin;

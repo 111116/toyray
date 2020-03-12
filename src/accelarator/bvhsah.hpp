@@ -90,16 +90,16 @@ private:
 		if (!node->bound.intersect(ray)) return HitInfo();
 		if (node->shape != NULL) {
 			HitInfo hit;
-			point res;
-			if (node->shape->intersect(ray, &res)) {
-				hit = HitInfo(node->shape, node->object, res);
+			Primitive::Hit h;
+			if (node->shape->intersect(ray, &h)) {
+				hit = HitInfo(h.primitive, node->object, h.p);
 			}
 			return hit;
 		}
 		HitInfo resl = treehit(ray, node->lc);
 		if (!resl) return treehit(ray, node->rc);
 		HitInfo resr = treehit(ray, node->rc);
-		return (!resr || norm(resl.p - ray.origin) < norm(resr.p - ray.origin))? resl: resr;
+		return (!resr || sqrlen(resl.p - ray.origin) < sqrlen(resr.p - ray.origin))? resl: resr;
 	}
 
 	void printSA(treenode* node, int depth = 0) {

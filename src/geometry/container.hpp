@@ -20,23 +20,11 @@ public:
 		}
 	}
 
-	bool intersect(const Ray& ray, point* result) const
+	bool intersect(const Ray& ray, Hit* result) const
 	{
-		auto h = bvh->hit(ray);
-		if (h) *result = h.p;
-		return h;
+		return *result = bvh->hit(ray);
 	}
 	 
-	vec3f Ns(const point& p) const
-	{
-		assert(false);
-	}
-
-	vec3f Ng(const point& p) const
-	{
-		assert(false);
-	}
-
 	AABox boundingVolume() const
 	{
 		return bound;

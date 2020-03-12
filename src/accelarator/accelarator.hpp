@@ -4,14 +4,14 @@
 #include "../geometry/geometry.hpp"
 
 struct HitInfo {
-	Primitive* primitive = NULL;
+	BasicPrimitive const* primitive = NULL;
 	Object* object = NULL;
 	point p;
 	operator bool() {
 		return primitive!=NULL;
 	}
 	HitInfo(){}
-	HitInfo(Primitive* primitive, Object* object, point p):
+	HitInfo(BasicPrimitive const* primitive, Object* object, point p):
 		primitive(primitive), object(object), p(p)
 	{}
 };

@@ -3,7 +3,7 @@
 #include "geometry.hpp"
 #include "../math/matfloat.hpp"
 
-class Triangle: public Primitive
+class Triangle: public BasicPrimitive
 {
 	vec3f v1,v2,v3;
 	vec3f vn1, vn2, vn3;
@@ -12,19 +12,19 @@ class Triangle: public Primitive
 	mat3f tMatrix;
 	vec3f planeNormal;
 	float one_by_2S;
+
 public:
 
 	Triangle(vec3f v1, vec3f v2, vec3f v3, vec2f vt1, vec2f vt2, vec2f vt3, vec3f vn1, vec3f vn2, vec3f vn3):
 		v1(v1), v2(v2), v3(v3), vn1(vn1), vn2(vn2), vn3(vn3), vt1(vt1), vt2(vt2), vt3(vt3)
 	// pre-calculation to accelerate intersection / interpolation computation
 	{
-#ifdef DEBUG
 		// NOTE: be careful when dealing with tiny triangles!
 		assert(norm(v1-v2)>0);
 		assert(norm(v1-v3)>0);
 		assert(norm(v2-v3)>0);
 		assert(norm(cross(normalized(v2-v1), normalized(v3-v1))) > 1e-5);
-#endif
+
 		planeNormal = normalized(cross(v2-v1, v3-v1));
 		// make sure plane normal points outward
 		if (dot(planeNormal, vn1) < 0)
@@ -49,6 +49,7 @@ public:
 
 	vec3f Ns(const point& p) const
 	{
+		assert(onsurface(p));
 		return normalized(
 			vn1 + (vn3-vn1) * norm(cross(p-v1, v2-v1)) * one_by_2S
 				+ (vn2-vn1) * norm(cross(p-v1, v3-v1)) * one_by_2S); // TO OPTIMIZE
@@ -84,5 +85,9 @@ public:
 
 	void recompute_normal() {
 		vn1 = vn2 = vn3 = planeNormal;
+	}
+private:
+	bool onsurface(const point& p) {
+		
 	}
 };

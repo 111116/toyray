@@ -16,13 +16,13 @@ struct Bruteforce : public Accelarator {
 	{
 		HitInfo hit;
 		float sqrdist;
-		point res;
+		Primitive::Hit res;
 		// bruteforcing checking against every primitive
 		for (auto o: list) {
 			if (o.first->intersect(ray, &res)) {
-				if (!hit || sqrdist > sqrlen(res - ray.origin)) {
-					hit = HitInfo(o.first, o.second, res);
-					sqrdist = sqrlen(res - ray.origin);
+				if (!hit || sqrdist > sqrlen(res.p - ray.origin)) {
+					sqrdist = sqrlen(res.p - ray.origin);
+					hit = HitInfo(res.primitive, o.second, res.p);
 				}
 			}
 		}

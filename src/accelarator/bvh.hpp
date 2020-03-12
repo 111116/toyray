@@ -3,17 +3,6 @@
 #include <vector>
 #include "../geometry/geometry.hpp"
 
-struct RawHitInfo {
-	Primitive* primitive = NULL;
-	point p;
-	operator bool() {
-		return primitive!=NULL;
-	}
-	RawHitInfo(){}
-	RawHitInfo(Primitive* primitive, point p):
-		primitive(primitive), p(p)
-	{}
-};
 
 struct RawBVHSAH {
 private:
@@ -89,20 +78,17 @@ private:
 
 	std::vector<Primitive*> list;
 
-	RawHitInfo treehit(const Ray& ray, treenode* node) {
-		if (node == NULL) return RawHitInfo();
-		if (!node->bound.intersect(ray)) return RawHitInfo();
+	Primitive::Hit treehit(const Ray& ray, treenode* node) {
+		if (node == NULL) return Primitive::Hit();
+		if (!node->bound.intersect(ray)) return Primitive::Hit();
 		if (node->shape != NULL) {
-			RawHitInfo hit;
-			point res;
-			if (node->shape->intersect(ray, &res)) {
-				hit = RawHitInfo(node->shape, res);
-			}
+			Primitive::Hit hit;
+			node->shape->intersect(ray, &hit);
 			return hit;
 		}
-		RawHitInfo resl = treehit(ray, node->lc);
+		Primitive::Hit resl = treehit(ray, node->lc);
 		if (!resl) return treehit(ray, node->rc);
-		RawHitInfo resr = treehit(ray, node->rc);
+		Primitive::Hit resr = treehit(ray, node->rc);
 		return (!resr || sqrlen(resl.p - ray.origin) < sqrlen(resr.p - ray.origin))? resl: resr;
 	}
 
@@ -112,7 +98,7 @@ public:
 		build(list, root);
 	}
 
-	RawHitInfo hit(const Ray& ray)
+	Primitive::Hit hit(const Ray& ray)
 	{
 		return treehit(ray, root);
 	}
