@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../geometry/geometry.hpp"
+#include "../color.h"
 
 // BxDF should work on both hemispheres
 
