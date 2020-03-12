@@ -35,7 +35,7 @@ public:
 	bool intersect(const Ray& ray, Hit* result) const final {
 		point p;
 		bool t = intersect(ray, &p);
-		*result = Hit(this, p);
+		*result = Hit(t?this:NULL, p);
 		return t;
 	}
 	// normals can be of either sign; should be determined during shading
