@@ -13,11 +13,9 @@ public:
 
 
 class Phong : public BxDF {
-private:
-	Color Kd, Ks;
-	double exp = 0;
 public:
-	Color Ka;
+	Color Ka, Kd, Ks;
+	double exp = 0;
 	Phong(const Json& conf) {
 		if (conf.find("Ka") != conf.end()) Ka = json2vec3f(conf["Ka"]);
 		if (conf.find("Kd") != conf.end()) Kd = json2vec3f(conf["Kd"]);

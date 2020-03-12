@@ -71,22 +71,22 @@ Color brightness(Ray ray) {
 	// 	point lightp = light->sample_point(pdf, shape);
 	// 	// check if direct light was blocked
 	// 	if (pdf > 1e-8) {
-	// 		Ray shadowray = {hit.p, normalize(lightp - hit.p)};
+	// 		Ray shadowray = {hit.p, normalized(lightp - hit.p)};
 	// 		shadowray.origin += 1e-3 * shadowray.dir;
 	// 		pdf /= samplable_light_objects.size();
-	// 		vec3 lightN = shape->Ns(lightp);
+	// 		vec3f lightN = shape->Ns(lightp);
 	// 		float dw = pow(norm(lightp - hit.p), -2) * fabs(dot(shadowray.dir, lightN));
 	// 		result += bsdf->f(-ray.dir, shadowray.dir, Ns, Ng) * fabs(dot(Ns, shadowray.dir)) * light->emission->radiance(shadowray) * (dw / pdf);
 	// 	}
 	// }
-	// // patch for Phong ambient
-	// if (bsdf->component)
-	// {
-	// 	Phong* phong = dynamic_cast<Phong*>(bsdf->component);
-	// 	if (phong != NULL) {
-	// 		result += phong->Ka;
-	// 	}
-	// }
+	// patch for Phong ambient
+	if (bsdf->component)
+	{
+		Phong* phong = dynamic_cast<Phong*>(bsdf->component);
+		if (phong != NULL) {
+			result += phong->Kd * dot(Ns, vec3f(0,1,0));
+		}
+	}
 	return result;
 }
 
@@ -163,7 +163,6 @@ int main(int argc, char* argv[])
 				Color tres = brightness(ray);
 				if (norm(tres)<1e8) res += tres;
 			}
-			res = vec3f(1.0*x/camera->resx);
 			film.setPixel(x, y, res/nspp);
 		}
 		#pragma omp critical
