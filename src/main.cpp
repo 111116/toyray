@@ -21,6 +21,8 @@
 #include "cameras/camera.hpp"
 #include "accelarator/bvhsah.hpp"
 #include "accelarator/bruteforce.hpp"
+#include "samplers/randomsampler.hpp"
+#include "film.hpp"
 
 #ifdef THREADED
 #include <omp.h>
@@ -164,11 +166,7 @@ int main(int argc, char* argv[])
 				Color tres = brightness(ray);
 				if (norm(tres)<1e8) res += tres;
 			}
-			res *= 1.0/nspp;
-			int pxid = y*camera->resx + x;
-			pixels[3*pxid+0] = res.x;
-			pixels[3*pxid+1] = res.y;
-			pixels[3*pxid+2] = res.z;
+			film.setPixel(x, y, res/nspp);
 		}
 		#pragma omp critical
 		fprintf(stderr, "\r%.1f%%", 100.0f*(++line_finished)/camera->resy);

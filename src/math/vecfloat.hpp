@@ -77,17 +77,28 @@ vec2f operator * (float k, const vec2f& v) {
 vec2f operator * (const vec2f& v, float k) {
 	return vec2f(k*v.x, k*v.y);
 }
+vec2f operator / (const vec2f& v, float k) {
+	return vec2f(v.x/k, v.y/k);
+}
+
 vec3f operator * (float k, const vec3f& v) {
 	return vec3f(k*v.x, k*v.y, k*v.z);
 }
 vec3f operator * (const vec3f& v, float k) {
 	return vec3f(k*v.x, k*v.y, k*v.z);
 }
+vec3f operator / (const vec3f& v, float k) {
+	return vec3f(v.x/k, v.y/k, v.z/k);
+}
+
 vec4f operator * (float k, const vec4f& v) {
 	return vec4f(k*v.x, k*v.y, k*v.z, k*v.w);
 }
 vec4f operator * (const vec4f& v, float k) {
 	return vec4f(k*v.x, k*v.y, k*v.z, k*v.w);
+}
+vec4f operator / (const vec4f& v, float k) {
+	return vec4f(v.x/k, v.y/k, v.z/k, v.w/k);
 }
 
 vec2f& operator *= (vec2f& a, float k)
