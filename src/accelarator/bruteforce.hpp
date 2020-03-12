@@ -5,6 +5,7 @@
 struct Bruteforce : public Accelarator {
 	std::vector<std::pair<Primitive*, Object*>> list;
 	Bruteforce(const std::vector<Object*>& list) {
+		std::cout << "building accelarator of " << list.size() << " objects" << std::endl;
 		for (Object* o: list) {
 			if (o->container) {
 				for (Primitive* p: o->container->faces)
@@ -14,19 +15,20 @@ struct Bruteforce : public Accelarator {
 				this->list.push_back({o->primitive, o});
 			}
 		}
+		std::cout << this->list.size() << " faces" << std::endl;
 	}
 
 	HitInfo hit(const Ray& ray)
 	{
 		HitInfo hit;
-		float dist;
+		float sqrdist;
 		point res;
 		// bruteforcing checking against every primitive
 		for (auto o: list) {
 			if (o.first->intersect(ray, &res)) {
-				if (!hit || dist > norm(res - ray.origin)) {
+				if (!hit || sqrdist > sqrlen(res - ray.origin)) {
 					hit = HitInfo(o.first, o.second, res);
-					dist = norm(res - ray.origin);
+					sqrdist = sqrlen(res - ray.origin);
 				}
 			}
 		}
