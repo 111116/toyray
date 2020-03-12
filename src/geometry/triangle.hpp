@@ -39,7 +39,7 @@ public:
 		vec3f dir = tMatrix * ray.dir;
 		float t = o.z / dir.z;
 		vec3f p = o - dir * t;
-		if (t>0 && p.x >= 0 && p.y >= 0 && p.x + p.y <= 1)
+		if (t<0 && p.x >= 0 && p.y >= 0 && p.x + p.y <= 1)
 		{
 			*result = v1 + p.x * (v2-v1) + p.y * (v3-v1);
 			return true;

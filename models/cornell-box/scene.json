@@ -1,4 +1,27 @@
 {
+    "renderer": {
+        "spp": 1,
+        "output_files": [
+			"cornell-box.exr",
+			"cornell-box.bmp",
+			"cornell-box.png"
+		]
+    },
+    "camera": {
+        "resolution": [ 512, 512 ],
+        "transform": {
+            "position": [ 278, 273, -800 ],
+            "look_at": [ 278, 273, 0 ],
+            "up": [ 0, 1, 0 ]
+        },
+        "type": "pinhole",
+        "fov": 39
+    },
+    "integrator": {
+        "type": "path_tracer",
+        "max_bounces": 16,
+        "enable_light_sampling": true
+    },
     "bsdfs": [
         {
             "name": "LeftWall",
@@ -64,24 +87,5 @@
             "bsdf": "Light",
 			"sample": true
         }
-    ],
-    "camera": {
-        "resolution": [ 1024, 1024 ],
-        "transform": {
-            "position": [ 278, 273, -800 ],
-            "look_at": [ 278, 273, 0 ],
-            "up": [ 0, 1, 0 ]
-        },
-        "type": "pinhole",
-        "fov": 39
-    },
-    "integrator": {
-        "type": "path_tracer",
-        "max_bounces": 16,
-        "enable_light_sampling": true
-    },
-    "renderer": {
-        "spp": 64,
-        "hdr_output_file": "cornell-box.exr"
-    }
+    ]
 }
