@@ -3,6 +3,8 @@
 #include "../object.hpp"
 #include "../geometry/geometry.hpp"
 
+// used for scene-level (multi-object) intersection calculation
+
 class HitInfo : public Primitive::Hit {
 public:
 	Object const* object = NULL;

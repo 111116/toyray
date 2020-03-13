@@ -202,14 +202,14 @@ vec4f operator * (const mat4f& a, const vec4f& b)
 
 // other functions
 
-mat3f transpose(const mat3f& a) {
+mat3f transposed(const mat3f& a) {
 	return mat3f(
 		vec3f(a[0][0], a[0][1], a[0][2]),
 		vec3f(a[1][0], a[1][1], a[1][2]),
 		vec3f(a[2][0], a[2][1], a[2][2])
 	);
 }
-mat4f transpose(const mat4f& a) {
+mat4f transposed(const mat4f& a) {
 	return mat4f(
 		vec4f(a[0][0], a[0][1], a[0][2], a[0][3]),
 		vec4f(a[1][0], a[1][1], a[1][2], a[1][3]),
@@ -255,6 +255,7 @@ mat3f inverse(mat3f a)
 	for (int i=0; i<3; ++i)
 		for (int j=0; j<3; ++j)
 			res[j][i] = (a[(i+1)%3][(j+1)%3] * a[(i+2)%3][(j+2)%3] - a[(i+2)%3][(j+1)%3] * a[(i+1)%3][(j+2)%3]) * invdet;
-	return res;	
+	return res;
 }
 
+mat4f inverse(mat4f a);
