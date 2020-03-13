@@ -1,0 +1,81 @@
+{
+    "renderer": {
+        "spp": 1,
+        "output_files": ["7.exr", "7.bmp"]
+    },
+    "camera": {
+        "resolution": [200,200],
+        "transform": {
+            "position": [0,0,10],
+            "look_at": [0,0,0],
+            "up": [0,1,0]
+        },
+        "type": "pinhole",
+        "fov": 35
+    },
+    "bsdfs": [
+		{
+            "name": "r",
+			"type": "phong",
+            "Kd": 0.4,
+            "Ks": 0.7,
+            "exp": 20
+        }
+    ],
+    "primitives": [
+        {
+            "bsdf": "0",
+            "type": "sphere",
+            "origin": [-2,2,0],
+            "radius": 0.9
+        },
+        {
+            "bsdf": "1",
+            "type": "sphere",
+            "origin": [0,2,0],
+            "radius": 0.9
+        },
+        {
+            "bsdf": "2",
+            "type": "sphere",
+            "origin": [2,2,0],
+            "radius": 0.9
+        },
+        {
+            "bsdf": "3",
+            "type": "sphere",
+            "origin": [-2,0,0],
+            "radius": 0.9
+        },
+        {
+            "bsdf": "4",
+            "type": "sphere",
+            "origin": [0,0,0],
+            "radius": 0.9
+        },
+        {
+            "bsdf": "5",
+            "type": "sphere",
+            "origin": [2,0,0],
+            "radius": 0.9
+        },
+        {
+            "bsdf": "6",
+            "type": "sphere",
+            "origin": [-2,-2,0],
+            "radius": 0.9
+        },
+        {
+            "bsdf": "7",
+            "type": "sphere",
+            "origin": [0,-2,0],
+            "radius": 0.9
+        },
+        {
+            "bsdf": "8",
+            "type": "sphere",
+            "origin": [2,-2,0],
+            "radius": 0.9
+        }
+    ]
+}
