@@ -1,0 +1,45 @@
+{
+	"renderer": {
+        "spp": 4,
+        "output_files": ["3.exr", "3.bmp"]
+    },
+	"Background": {
+		"color": [ 0.2, 0, 0.6 ]
+	},
+	"Lights": [
+		{
+			"type": "directional",
+			"color": [ 0.9, 0.9, 0.9 ],
+			"direction": [ -0.5, -0.3, -1 ]
+		}
+	],
+	"bsdfs": [
+		{
+			"name": "0",
+			"type": "phong",
+			"Kd": 1
+		}
+	],
+	"primitives": [
+		{
+			"type": "sphere",
+			"origin": [0,0,0],
+			"radius": 1,
+			"bsdf": "0",
+			"transform": {
+				"scale": [1,0.2,1],
+				"rotation": [0,0,45]
+			}
+		}
+	],
+	"camera": {
+		"type": "pinhole",
+		"fov": 20,
+		"transform": {
+			"position": [ 0,0,10 ],
+			"look_at": [ 0,0,0 ],
+			"up": [ 0, 1, 0 ]
+		},
+		"resolution": [200, 200]
+	}
+}

@@ -1,0 +1,85 @@
+{
+	"Background": {
+		"color": [ 0, 0, 0 ]
+	},
+	"Lights": [
+		{
+			"type": "point",
+			"color": [ 0.9, 0.9, 0.9 ],
+			"position": [ 0, 5, 5 ]
+		}
+	],
+	"materials": [
+		{
+			"name": "0",
+			"type": "phong",
+			"Kd": [1,0,0],
+			"Ks": [1,1,1],
+			"exp": 20
+		},
+		{
+			"name": "1",
+			"type": "phong",
+			"Kd": [0,1,0]
+		},
+		{
+			"name": "2",
+			"type": "phong",
+			"Kd": [0,0,1]
+		},
+		{
+			"name": "0",
+			"type": "phong",
+			"Kd": [1,1,1],
+			"Ks": [1,1,1],
+			"exp": 20
+		}
+	],
+	"primitives": [
+		{
+			"type": "sphere",
+			"material": "0",
+			"origin": [0,0,0],
+			"radius": 1
+		},
+		{
+			"type": "sphere",
+			"material": "1",
+			"origin": [1,1,1],
+			"radius": 0.75
+		},
+		{
+			"type": "sphere",
+			"material": "1",
+			"origin": [-1,-1,-1],
+			"radius": 0.75
+		},
+		{
+			"type": "sphere",
+			"material": "2",
+			"origin": [-1,1,-1],
+			"radius": 0.75
+		},
+		{
+			"type": "sphere",
+			"material": "2",
+			"origin": [1,-1,-1],
+			"radius": 0.75
+		},
+		{
+			"type": "plane",
+			"material": "3",
+			"normal": [0,1,0],
+			"offset": -2
+		},
+	],
+	"camera": {
+		"type": "perspective",
+		"angle": 30,
+		"center": [ 0, 0, 10 ],
+		"direction": [ 0, 0, -1 ],
+		"up": [ 0, 1, 0 ],
+		"height": 200,
+		"width": 200
+	}
+}
