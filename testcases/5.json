@@ -17,8 +17,8 @@
 		{
             "name": "r",
 			"type": "phong",
-            "Kd": 0.4,
-            "Ks": 0.7,
+            "Kd": [0.79, 0.66, 0.44],
+            "Ks": 1,
             "exp": 20
         }
     ],
@@ -28,14 +28,6 @@
             "recompute_normals": true,
             "file": "mesh/bunny_200.obj",
             "bsdf": "r"
-        },
-        {
-            "transform": {},
-        	"type": "sphere",
-            "origin": [70, 30, 10],
-            "radius": 10,
-            "emission": 10,
-            "bsdf": "Null"
         }
     ]
 }
