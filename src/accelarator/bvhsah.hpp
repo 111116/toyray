@@ -11,13 +11,6 @@ private:
 		Object* object = NULL;
 		AABox bound;
 	};
-	struct flatnode {
-		Primitive* shape = NULL;
-		Object* object = NULL;
-		AABox bound;
-		int loffset;
-		int roffset;
-	};
 	treenode* root = NULL;
 
 	void build(std::vector<std::pair<Primitive*, Object*>> list, treenode*& cur)

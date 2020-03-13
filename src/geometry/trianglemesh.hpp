@@ -10,9 +10,9 @@
 #include "container.hpp"
 
 
-class TriangleMesh: public FiniteContainer {
+class TriangleMesh: public BasicContainer {
 public:
-	TriangleMesh(const Json& conf): FiniteContainer(loadfromfile(getpath(conf["file"]).c_str())) {
+	TriangleMesh(const Json& conf): BasicContainer(loadfromfile(getpath(conf["file"]).c_str())) {
 		// recompute normal
 		bool recompute_normals = true;
 		if (conf.find("recompute_normals") != conf.end()) {
@@ -28,7 +28,7 @@ public:
 private:
 	// load mesh from an ascii Wavefront .obj file
 	// only supports triangle mesh with 2d texture
-	std::vector<Primitive*> loadfromfile(const char* filename) {
+	std::vector<BasicPrimitive*> loadfromfile(const char* filename) {
 #pragma omp critical
 		std::cout << "Loading mesh: " << filename << std::endl;
 		if (strcmp(filename+strlen(filename)-4, ".obj") != 0)
@@ -36,7 +36,7 @@ private:
 		std::ifstream fin(filename);
 		if (!fin)
 			throw "Can't open file";
-		std::vector<Primitive*> faces;
+		std::vector<BasicPrimitive*> faces;
 		std::vector<vec3f> v,vn;
 		std::vector<vec2f> vt;
 		std::string line;

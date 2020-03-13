@@ -15,7 +15,7 @@
 #include "env.hpp" // model directory
 #include "object.hpp"
 #include "cameras/camera.hpp"
-#include "accelarator/bvhsah.hpp"
+// #include "accelarator/bvhsah.hpp"
 #include "accelarator/bruteforce.hpp"
 #include "samplers/randomsampler.hpp"
 #include "film.hpp"
@@ -39,7 +39,7 @@ Color normal(Ray ray) {
 	if (!hit) {
 		return Color();
 	}
-	return Color(0.5,0.5,0.5) + 0.5 * hit.primitive->Ns(hit.p);
+	return Color(0.5,0.5,0.5) + 0.5 * hit.Ns;
 }
 
 
@@ -50,8 +50,6 @@ Color brightness(Ray ray) {
 		// if (globalLightProbe) result += lambda * globalLightProbe->radiance(ray.dir);
 		return Color(0);
 	}
-	auto Ns = hit.primitive->Ns(hit.p);
-	auto Ng = hit.primitive->Ng(hit.p);
 	Color result;
 	if (hit.object->emission) {
 		result += hit.object->emission->radiance(ray);
@@ -75,6 +73,8 @@ Color brightness(Ray ray) {
 	// 		result += bsdf->f(-ray.dir, shadowray.dir, Ns, Ng) * fabs(dot(Ns, shadowray.dir)) * light->emission->radiance(shadowray) * (dw / pdf);
 	// 	}
 	// }
+	vec3f Ns = hit.Ns;
+	vec3f Ng = hit.Ng;
 	if (dot(Ns,vec3f(0,1,0))<0) Ns*=-1;
 	if (dot(Ng,vec3f(0,1,0))<0) Ng*=-1;
 	result += bsdf->f(-ray.dir,vec3f(0,1,0),Ns,Ng);
@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
 		if (o->emission && o->samplable)
 			samplable_light_objects.push_back(o);
 	}
-	acc = new BVH(objects);
+	acc = new Bruteforce(objects);
 	Camera* camera = newCamera(conf["camera"]);
 	nspp = conf["renderer"]["spp"];
 

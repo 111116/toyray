@@ -3,17 +3,12 @@
 #include "../object.hpp"
 #include "../geometry/geometry.hpp"
 
-struct HitInfo {
-	BasicPrimitive const* primitive = NULL;
-	Object* object = NULL;
-	point p;
-	operator bool() {
-		return primitive!=NULL;
-	}
+class HitInfo : public Primitive::Hit {
+public:
+	Object const* object = NULL;
 	HitInfo(){}
-	HitInfo(BasicPrimitive const* primitive, Object* object, point p):
-		primitive(primitive), object(object), p(p)
-	{}
+	HitInfo(const Primitive::Hit& hit, Object const* object):
+		Primitive::Hit(hit), object(object) {}
 };
 
 struct Accelarator {

@@ -9,7 +9,6 @@ struct Bruteforce : public Accelarator {
 		for (Object* o: list) {
 			this->list.push_back({o->primitive, o});
 		}
-		std::cout << this->list.size() << " faces" << std::endl;
 	}
 
 	HitInfo hit(const Ray& ray)
@@ -22,7 +21,7 @@ struct Bruteforce : public Accelarator {
 			if (o.first->intersect(ray, &res)) {
 				if (!hit || sqrdist > sqrlen(res.p - ray.origin)) {
 					sqrdist = sqrlen(res.p - ray.origin);
-					hit = HitInfo(res.primitive, o.second, res.p);
+					hit = HitInfo(res, o.second);
 				}
 			}
 		}
