@@ -33,7 +33,7 @@ void writeBMP(const char* filename, float* data, int W, int H, float outputgamma
 {
 	char bytedata[W*H*3];
 	for (int i=0; i<W*H*3; ++i)
-		bytedata[i] = std::min(255, int(data[i]>1? 1: std::pow(data[i],1.0/outputgamma) *255));
+		bytedata[i] = std::min(255, int(std::pow(data[i],1.0/outputgamma) *255));
 	return writeBMP(filename, bytedata, W, H);
 }
 
