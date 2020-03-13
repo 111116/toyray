@@ -22,6 +22,12 @@ namespace {
 }
 
 mat4f parseTransform(const Json& conf) {
+	if (conf.type() == Json::value_t::array) {
+		std::vector<float> v = conf;
+		if (v.size() != 16)
+			throw "bad transformation matrix";
+		return mat4f(v[0],v[1],v[2],v[3],v[4],v[5],v[6],v[7],v[8],v[9],v[10],v[11],v[12],v[13],v[14],v[15]);
+	}
 	mat4f trans = mat4f::unit;
 	if (conf.find("scale") != conf.end()) {
 		vec3f scale = json2vec3f(conf["scale"]);
