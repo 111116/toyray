@@ -1,6 +1,6 @@
 {
     "renderer": {
-        "spp": 1,
+        "spp": 2,
         "output_files": ["bunny.exr", "bunny.bmp"]
     },
     "camera": {
@@ -25,9 +25,11 @@
     "primitives": [
         {
             "transform": {
+                "scale": 0.6,
+                "position": [0.2, 0.15, 0]
 			},
             "type": "mesh",
-            "recompute_normals": true,
+            "recompute_normals": false,
             "file": "mesh/bunny.obj",
             "bsdf": "r"
         },
