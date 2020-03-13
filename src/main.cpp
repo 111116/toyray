@@ -87,7 +87,7 @@ int nspp = 1; // may be overriden in conf
 
 void welcome(int argc, char* argv[]) {
 #ifndef NDEBUG
-	fprintf(stderr, "WARNING: running in DEBUG mode.\n");
+	fprintf(stderr, "WARNING: running in DEBUG mode. EXTREMELY SLOW!\n");
 #endif
 #ifdef THREADED
 #pragma omp parallel

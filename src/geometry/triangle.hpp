@@ -88,6 +88,6 @@ public:
 	}
 private:
 	bool onsurface(const point& p) const {
-		return norm(cross(p-v1,v2-v1)) + norm(cross(p-v2,v3-v2)) + norm(cross(p-v3,v1-v3)) < (1+1e-5) * norm(cross(v2-v1,v3-v1));
+		return norm(cross(p-v1,v2-v1)) + norm(cross(p-v2,v3-v2)) + norm(cross(p-v3,v1-v3)) < (1+1e-4) * norm(cross(v2-v1,v3-v1));
 	}
 };

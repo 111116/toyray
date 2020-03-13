@@ -10,7 +10,7 @@ ENDIF()
 
 
 SET(CMAKE_CXX_STANDARD 14)
-# message(${CMAKE_CXX_FLAGS_RELEASE})
+message(${CMAKE_BUILD_TYPE})
 
 
 # file(GLOB_RECURSE SRC "src/*.cpp")
