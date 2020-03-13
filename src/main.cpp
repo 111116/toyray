@@ -3,6 +3,7 @@
 #include <assert.h>
 
 #include <algorithm>
+#include <unordered_map>
 #include <vector>
 #include <fstream>
 #include <ctime>
@@ -104,6 +105,54 @@ void welcome(int argc, char* argv[]) {
 }
 
 
+// load materials & geometries & light sources to memory
+void loadScene(const Json& conf) {
+	for (auto o: conf["bsdfs"]) {
+		bsdf[o["name"]] = newMaterial(o);
+	}
+	// auto instancing for meshes
+	auto encode = [](const Json& o) {
+		bool recompute_normals = true;
+		if (o.find("recompute_normals") != o.end()) {
+			recompute_normals = o["recompute_normals"];
+		}
+		return (recompute_normals?"1":"0") + std::string(o["file"]);
+	};
+	std::unordered_map<std::string, Primitive*> meshref;
+	for (auto o: conf["primitives"]) {
+		if (o["type"] == "mesh") {
+			meshref[encode(o)] = NULL;
+		}
+	}
+#pragma omp parallel for schedule(dynamic)
+	for (auto& p: meshref) {
+		// decode conf to json
+		std::unordered_map<std::string, Json> t;
+		t["file"] = p.first.substr(1);
+		t["recompute_normals"] = (p.first[0]=='1');
+		p.second = new TriangleMesh(t);
+	}
+	for (auto o: conf["primitives"]) {
+		// if (o["type"] == "infinite_sphere") {
+		// 	// assume infinite_sphere will only be used for light probes
+		// 	globalLightProbe = new LightProbe(getpath(o["emission"]).c_str());
+		// 	// TODO currently light probes are not samplable
+		// }
+		// else {
+			Object* newobj;
+			Primitive* instancing = (o["type"] == "mesh")? meshref[encode(o)]: NULL;
+			newobj = new Object(o, bsdf[o["bsdf"]], instancing);
+			objects.push_back(newobj);
+		// }
+	}
+	for (auto o: objects) {
+		if (o->emission && o->samplable)
+			samplable_light_objects.push_back(o);
+	}
+	acc = new BVH(objects);
+}
+
+
 int main(int argc, char* argv[])
 {
 	try {
@@ -115,28 +164,7 @@ int main(int argc, char* argv[])
 	// load scene conf file
 	Json conf;
 	fin >> conf;
-	for (auto o: conf["bsdfs"]) {
-		bsdf[o["name"]] = newMaterial(o);
-	}
-#pragma omp parallel for schedule(dynamic)
-	for (auto o: conf["primitives"]) {
-		// if (o["type"] == "infinite_sphere") {
-		// 	// assume infinite_sphere will only be used for light probes
-		// 	globalLightProbe = new LightProbe(getpath(o["emission"]).c_str());
-		// 	// TODO currently light probes are not samplable
-		// }
-		// else {
-			Object* newobj;
-			newobj = new Object(o, bsdf[o["bsdf"]]);
-#pragma omp critical
-			objects.push_back(newobj);
-		// }
-	}
-	for (auto o: objects) {
-		if (o->emission && o->samplable)
-			samplable_light_objects.push_back(o);
-	}
-	acc = new BVH(objects);
+	loadScene(conf);
 	Camera* camera = newCamera(conf["camera"]);
 	nspp = conf["renderer"]["spp"];
 
@@ -158,8 +186,7 @@ int main(int argc, char* argv[])
 				vec2f uv = (vec2f(x,y) + sampler->get2f()) * vec2f(1.0/camera->resx, 1.0/camera->resy);
 				Ray ray = camera->sampleray(uv);
 				Color tres = normal(ray);
-				if (norm(tres)<1e8) res += tres;
-				// std::cerr << "wtf" << std::endl;
+				/*if (norm(tres)<1e8)*/ res += tres;
 			}
 			film.setPixel(x, y, res/nspp);
 		}

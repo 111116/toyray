@@ -20,18 +20,23 @@ struct Object
 	// an object can contain either a primitive or a container of primitives
 	Primitive* primitive = NULL;
 
-	Object(const Json& conf, BSDF* bsdf)
+	Object(const Json& conf, BSDF* bsdf, Primitive* instancing = NULL)
 	{
 		// transform parsed here
 		// pretransform if triangle / mesh TODO
-		if (conf["type"] == "mesh") {
-			primitive = new TriangleMesh(conf);
+		if (instancing != NULL) {
+			primitive = instancing;
 		}
-		if (conf["type"] == "sphere") {
-			primitive = new Sphere(json2vec3f(conf["origin"]), (double)conf["radius"]);
-		}
-		if (conf["type"] == "plane") {
-			primitive = new Plane(json2vec3f(conf["normal"]), (double)conf["offset"]);
+		else {
+			if (conf["type"] == "mesh") {
+				primitive = new TriangleMesh(conf);
+			}
+			if (conf["type"] == "sphere") {
+				primitive = new Sphere(json2vec3f(conf["origin"]), (double)conf["radius"]);
+			}
+			if (conf["type"] == "plane") {
+				primitive = new Plane(json2vec3f(conf["normal"]), (double)conf["offset"]);
+			}
 		}
 		if (!primitive)
 			throw "unrecognized geometric primitive type";
