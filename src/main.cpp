@@ -1,10 +1,6 @@
 // ray casting
 
-#define DEBUG
-
-#ifdef DEBUG
 #include <assert.h>
-#endif
 
 #include <algorithm>
 #include <vector>
@@ -79,14 +75,9 @@ Color brightness(Ray ray) {
 	// 		result += bsdf->f(-ray.dir, shadowray.dir, Ns, Ng) * fabs(dot(Ns, shadowray.dir)) * light->emission->radiance(shadowray) * (dw / pdf);
 	// 	}
 	// }
-	// patch for Phong ambient
-	if (bsdf->component)
-	{
-		Phong* phong = dynamic_cast<Phong*>(bsdf->component);
-		if (phong != NULL) {
-			result += phong->Kd * dot(Ns, vec3f(0,1,0));
-		}
-	}
+	if (dot(Ns,vec3f(0,1,0))<0) Ns*=-1;
+	if (dot(Ng,vec3f(0,1,0))<0) Ng*=-1;
+	result += bsdf->f(-ray.dir,vec3f(0,1,0),Ns,Ng);
 	return result;
 }
 
@@ -94,10 +85,9 @@ Color brightness(Ray ray) {
 int nspp = 1; // may be overriden in conf
 
 
-int main(int argc, char* argv[])
-{
-#ifdef DEBUG
-	fprintf(stderr, "WARNING: running in debug mode.\n");
+void welcome(int argc, char* argv[]) {
+#ifndef NDEBUG
+	fprintf(stderr, "WARNING: running in DEBUG mode.\n");
 #endif
 #ifdef THREADED
 #pragma omp parallel
@@ -108,11 +98,17 @@ int main(int argc, char* argv[])
 #else
 	std::cerr << "Threading disabled" << std::endl;
 #endif
-	// parse commandline args
 	if (argc<=1) {
 		std::cerr << "Usage: " << argv[0] << " <json file>"<< std::endl;
-		return 1;
 	}
+}
+
+
+int main(int argc, char* argv[])
+{
+	welcome(argc, argv);
+	// parse commandline args
+	if (argc<=1) return 1;
 	std::ifstream fin(argv[1]);
 	modelpath = directoryOf(argv[1]);
 	// load scene conf file
@@ -160,8 +156,9 @@ int main(int argc, char* argv[])
 				Sampler* sampler = new RandomSampler();
 				vec2f uv = (vec2f(x,y) + sampler->get2f()) * vec2f(1.0/camera->resx, 1.0/camera->resy);
 				Ray ray = camera->sampleray(uv);
-				Color tres = brightness(ray);
+				Color tres = normal(ray);
 				if (norm(tres)<1e8) res += tres;
+				// std::cerr << "wtf" << std::endl;
 			}
 			film.setPixel(x, y, res/nspp);
 		}

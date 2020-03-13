@@ -114,7 +114,7 @@ private:
 
 public:
 	BVH(const std::vector<Object*>& list) {
-		std::cout << "building BVH of " << list.size() << " objects" << std::endl;
+		std::cout << "building SAH BVH of " << list.size() << " objects" << std::endl;
 		for (Object* o: list) {
 			this->list.push_back({o->primitive, o});
 		}

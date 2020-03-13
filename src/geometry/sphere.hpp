@@ -33,17 +33,13 @@ public:
 
 	vec3f Ns(const point& p) const
 	{
-#ifdef DEBUG
 		assert(abs(norm(p - center) - radius) < 1e-2);
-#endif
 		return normalized(p - center);
 	}
 
 	vec3f Ng(const point& p) const
 	{
-#ifdef DEBUG
 		assert(abs(norm(p - center) - radius) < 1e-2);
-#endif
 		return normalized(p - center);
 	}
 
