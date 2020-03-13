@@ -10,7 +10,7 @@ private:
 
 public:
 	Sphere(point p, float r): center(p), radius(r) {}
-	bool intersect(const Ray& ray, point* result) const
+	bool intersect(const Ray& ray, float& result) const
 	{
         vec3f OC = center - ray.origin;
         float midpointT = dot(OC, ray.dir);
@@ -20,12 +20,12 @@ public:
         float tanH = std::sqrt(radius * radius - sqrRmid);
         float lambda = midpointT - tanH;
         if (lambda >= 0) { // intersecting outer surface
-            *result = ray.atParam(lambda);
+            result = lambda;
             return true;
         }
         lambda = midpointT + tanH;
         if (lambda >= 0) { // intersection inner surface
-            *result = ray.atParam(lambda);
+            result = lambda;
             return true;
         }
         return false;

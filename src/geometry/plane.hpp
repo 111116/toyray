@@ -13,10 +13,10 @@ protected:
 public:
     Plane(const vec3f& normal, float d) : abc(normal), d(d) {}
 
-    bool intersect(const Ray& ray, point* result) const {
+    bool intersect(const Ray& ray, float& result) const {
         float lambda = (d - dot(abc, ray.origin)) / dot(abc, ray.dir);
         if (lambda >= 0) {
-        	*result = ray.atParam(lambda);
+        	result = lambda;
         	return true;
         }
         return false;

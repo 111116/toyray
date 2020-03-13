@@ -33,7 +33,7 @@ public:
 		tMatrix = inverse(mat3f(v2-v1, v3-v1, cross(v2-v1, normalized(v3-v1))));
 	}
 
-	bool intersect(const Ray& ray, point* result) const
+	bool intersect(const Ray& ray, float& result) const
 	{
 		vec3f o = tMatrix * (ray.origin - v1);
 		vec3f dir = tMatrix * ray.dir;
@@ -41,7 +41,7 @@ public:
 		vec3f p = o - dir * t;
 		if (t<0 && p.x >= 0 && p.y >= 0 && p.x + p.y <= 1)
 		{
-			*result = v1 + p.x * (v2-v1) + p.y * (v3-v1);
+			result = -t;
 			return true;
 		}
 		return false;
