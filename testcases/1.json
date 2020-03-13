@@ -1,4 +1,8 @@
 {
+	"renderer": {
+        "spp": 4,
+        "output_files": ["1.exr", "1.bmp"]
+    },
 	"Background": {
 		"color": [ 0, 0, 0 ]
 	},
@@ -9,7 +13,7 @@
 			"position": [ 0, 5, 5 ]
 		}
 	],
-	"materials": [
+	"bsdfs": [
 		{
 			"name": "0",
 			"type": "phong",
@@ -38,48 +42,49 @@
 	"primitives": [
 		{
 			"type": "sphere",
-			"material": "0",
+			"bsdf": "0",
 			"origin": [0,0,0],
 			"radius": 1
 		},
 		{
 			"type": "sphere",
-			"material": "1",
+			"bsdf": "1",
 			"origin": [1,1,1],
 			"radius": 0.75
 		},
 		{
 			"type": "sphere",
-			"material": "1",
-			"origin": [-1,-1,-1],
+			"bsdf": "1",
+			"origin": [-1,-1,1],
 			"radius": 0.75
 		},
 		{
 			"type": "sphere",
-			"material": "2",
+			"bsdf": "2",
 			"origin": [-1,1,-1],
 			"radius": 0.75
 		},
 		{
 			"type": "sphere",
-			"material": "2",
+			"bsdf": "2",
 			"origin": [1,-1,-1],
 			"radius": 0.75
 		},
 		{
 			"type": "plane",
-			"material": "3",
+			"bsdf": "3",
 			"normal": [0,1,0],
 			"offset": -2
-		},
+		}
 	],
 	"camera": {
-		"type": "perspective",
-		"angle": 30,
-		"center": [ 0, 0, 10 ],
-		"direction": [ 0, 0, -1 ],
-		"up": [ 0, 1, 0 ],
-		"height": 200,
-		"width": 200
+		"type": "pinhole",
+		"fov": 30,
+		"transform": {
+			"position": [ 0, 0, 10 ],
+			"look_at": [ 0, 0, 0 ],
+			"up": [ 0, 1, 0 ]
+		},
+		"resolution": [200, 200]
 	}
 }
