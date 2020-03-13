@@ -85,7 +85,7 @@ private:
 			HitInfo hit;
 			Primitive::Hit h;
 			if (node->shape->intersect(ray, &h)) {
-				hit = HitInfo(h.primitive, node->object, h.p);
+				hit = HitInfo(h, node->object);
 			}
 			return hit;
 		}

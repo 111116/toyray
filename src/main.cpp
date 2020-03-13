@@ -15,7 +15,7 @@
 #include "env.hpp" // model directory
 #include "object.hpp"
 #include "cameras/camera.hpp"
-// #include "accelarator/bvhsah.hpp"
+#include "accelarator/bvhsah.hpp"
 #include "accelarator/bruteforce.hpp"
 #include "samplers/randomsampler.hpp"
 #include "film.hpp"
@@ -135,13 +135,13 @@ int main(int argc, char* argv[])
 		if (o->emission && o->samplable)
 			samplable_light_objects.push_back(o);
 	}
-	acc = new Bruteforce(objects);
+	acc = new BVH(objects);
 	Camera* camera = newCamera(conf["camera"]);
 	nspp = conf["renderer"]["spp"];
 
 	// prepare film
 	Film film(camera->resx, camera->resy);
-	fprintf(stderr, "INFO: rendering at %d x %d x %d spp\n", camera->resx, camera->resy, nspp);
+	fprintf(stderr, "Rendering at %d x %d x %d spp\n", camera->resx, camera->resy, nspp);
 	// start rendering
 	auto start = std::chrono::system_clock::now();
 	int line_finished = 0;
@@ -171,7 +171,7 @@ int main(int argc, char* argv[])
 	std::cout << "  " << elapsed_seconds.count() << "s\n";
 	// save files
 	for (std::string filename : conf["renderer"]["output_files"]) {
-		std::cerr << "INFO: Writing result to " << filename << "\n";
+		std::cerr << "Writing result to " << filename << "\n";
 		film.saveFile(filename);
 	}
 }
