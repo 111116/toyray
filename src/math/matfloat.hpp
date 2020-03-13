@@ -43,6 +43,11 @@ struct mat4f
 		data[0][2] = c.x; data[1][2] = c.y; data[2][2] = c.z; data[3][2] = c.w;
 		data[0][3] = d.x; data[1][3] = d.y; data[2][3] = d.z; data[3][3] = d.w;
 	}
+	mat4f(float k00, float k01, float k02, float k03,
+		  float k10, float k11, float k12, float k13,
+		  float k20, float k21, float k22, float k23,
+		  float k30, float k31, float k32, float k33):
+		data{k00,k01,k02,k03,k10,k11,k12,k13,k20,k21,k22,k23,k30,k31,k32,k33} {}
 	float* operator[](unsigned i) {
 		return data[i];
 	}
