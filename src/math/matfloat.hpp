@@ -49,8 +49,10 @@ struct mat4f
 	float const* operator[](unsigned i) const {
 		return data[i];
 	}
+	static const mat4f unit;
 };
 
+const mat4f mat4f::unit(vec4f(1,0,0,0),vec4f(0,1,0,0),vec4f(0,0,1,0),vec4f(0,0,0,1));
 
 // element-wise operations
 
@@ -259,6 +261,29 @@ mat3f inverse(mat3f a)
 }
 
 mat4f inverse(mat4f a);
+
+bool operator == (const mat4f& a, const mat4f& b) {
+	return a[0][0]==b[0][0] &&
+		a[0][1]==b[0][1] &&
+		a[0][2]==b[0][2] &&
+		a[0][3]==b[0][3] &&
+		a[1][0]==b[1][0] &&
+		a[1][1]==b[1][1] &&
+		a[1][2]==b[1][2] &&
+		a[1][3]==b[1][3] &&
+		a[2][0]==b[2][0] &&
+		a[2][1]==b[2][1] &&
+		a[2][2]==b[2][2] &&
+		a[2][3]==b[2][3] &&
+		a[3][0]==b[3][0] &&
+		a[3][1]==b[3][1] &&
+		a[3][2]==b[3][2] &&
+		a[3][3]==b[3][3];
+}
+
+bool operator != (const mat4f& a, const mat4f& b) {
+	return !(a==b);
+}
 
 
 // 4x4 matrix inversion implementation below
