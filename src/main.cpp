@@ -106,6 +106,7 @@ void welcome(int argc, char* argv[]) {
 
 int main(int argc, char* argv[])
 {
+	try {
 	welcome(argc, argv);
 	// parse commandline args
 	if (argc<=1) return 1;
@@ -173,5 +174,8 @@ int main(int argc, char* argv[])
 	for (std::string filename : conf["renderer"]["output_files"]) {
 		std::cerr << "Writing result to " << filename << "\n";
 		film.saveFile(filename);
+	}
+	} catch (const char* s) {
+		std::cerr << "FATAL: " << s << "\n";
 	}
 }
