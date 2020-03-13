@@ -30,6 +30,9 @@ struct Object
 		if (conf["type"] == "sphere") {
 			primitive = new Sphere(json2vec3f(conf["origin"]), (double)conf["radius"]);
 		}
+		if (conf["type"] == "plane") {
+			primitive = new Plane(json2vec3f(conf["normal"]), (double)conf["offset"]);
+		}
 		if (!primitive)
 			throw "unrecognized geometric primitive type";
 		if (conf.find("transform") != conf.end()) {

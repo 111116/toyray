@@ -5,7 +5,7 @@
 
 // infinite plane of ax+by+cz=d where (a,b,c) is normalized
 
-class Plane : public Primitive
+class Plane : public BasicPrimitive
 {
 protected:
     vec3f abc;
