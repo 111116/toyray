@@ -5,7 +5,7 @@
 
 class Transformed : public Primitive
 {
-	Primitive const* inner;
+	Primitive* const inner;
 	const mat4f trans;
 	const mat4f invTrans;
 	AABox bound;
@@ -19,7 +19,7 @@ class Transformed : public Primitive
 
 public:
 	// using singular matrix is strongly discouraged!
-	Transformed(Primitive const* inner, const mat4f& m):
+	Transformed(Primitive* inner, const mat4f& m):
 		inner(inner), trans(m), invTrans(inverse(m))
 	{
 		// calculate bounding box of transformed shape

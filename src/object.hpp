@@ -4,8 +4,12 @@
 #include "env.hpp"
 #include "geometry/trianglemesh.hpp"
 #include "geometry/sphere.hpp"
+#include "geometry/plane.hpp"
+#include "geometry/transform.hpp"
 #include "bsdfs/bsdf.hpp"
 #include "lights/light.hpp"
+#include "transformparser.hpp"
+
 
 
 struct Object
@@ -28,6 +32,13 @@ struct Object
 		}
 		if (!primitive)
 			throw "unrecognized geometric primitive type";
+		if (conf.find("transform") != conf.end()) {
+			mat4f m = parseTransform(conf["transform"]);
+			if (m != mat4f::unit) {
+				Primitive* t = primitive;
+				primitive = new Transformed(t, m);
+			}
+		}
 		this->bsdf = bsdf;
 		// emission
 		if (conf.find("emission") != conf.end()) {
