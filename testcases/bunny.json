@@ -1,0 +1,43 @@
+{
+    "renderer": {
+        "spp": 1,
+        "output_files": ["bunny.exr", "bunny.bmp"]
+    },
+    "camera": {
+        "resolution": [1000,1000],
+        "transform": {
+            "position": [0, 0.8, 5],
+            "look_at": [0, 0.8, 0],
+            "up": [0,1,0]
+        },
+        "type": "pinhole",
+        "fov": 30
+    },
+    "bsdfs": [
+		{
+            "name": "r",
+			"type": "phong",
+            "Kd": 0.4,
+            "Ks": 0.7,
+            "exp": 20
+        }
+    ],
+    "primitives": [
+        {
+            "transform": {
+			},
+            "type": "mesh",
+            "recompute_normals": true,
+            "file": "mesh/bunny.obj",
+            "bsdf": "r"
+        },
+        {
+            "transform": {},
+        	"type": "sphere",
+            "origin": [70, 30, 10],
+            "radius": 10,
+            "emission": 10,
+            "bsdf": "Null"
+        }
+    ]
+}
