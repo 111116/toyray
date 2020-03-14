@@ -1,6 +1,7 @@
 #pragma once
 
 #include "aabox.hpp"
+#include "../samplers/sampler.hpp"
 
 
 class Primitive
@@ -30,7 +31,7 @@ public:
 
 // elementary geometric pritimive (instead of composites like mesh)
 // used for fast intersection without computing surface normal
-class BasicPrimitive : public Primitive
+class BasicPrimitive : virtual public Primitive
 {
 public:
 	// result shouldn't be changed if there's no hit
@@ -51,3 +52,24 @@ bool BasicPrimitive::intersect(const Ray& ray, Hit* result) const
 	*result = Hit(p, Ns(p), Ng(p));
 	return true;
 }
+
+
+class SurfaceSamplablePrimitive : virtual public Primitive
+{
+public:
+	class SampleInfo;
+	// pdf is d(probability) / d(area)
+	virtual SampleInfo sampleSurface(Sampler& sampler) const = 0;
+};
+
+class SurfaceSamplablePrimitive::SampleInfo
+{
+public:
+	point p;
+	vec3f normal; // geometric normal; can be either-sided
+	float pdf;
+	SampleInfo(point p, vec3f normal, float pdf):
+		p(p), normal(normal), pdf(pdf) {}
+};
+
+

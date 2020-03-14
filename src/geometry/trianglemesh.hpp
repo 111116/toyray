@@ -10,7 +10,8 @@
 #include "container.hpp"
 
 
-class TriangleMesh: public BasicContainer {
+class TriangleMesh: public BasicContainer, public SurfaceSamplablePrimitive
+{
 public:
 	TriangleMesh(const Json& conf): BasicContainer(loadfromfile(getpath(conf["file"]).c_str())) {
 		// recompute normal
@@ -25,6 +26,17 @@ public:
 			}
 		}
 	}
+
+	SampleInfo sampleSurface(Sampler& sampler) const
+	{
+		unsigned id = sampler.get1u(list.size());
+		Triangle* triangle = dynamic_cast<Triangle*>(list[id]);
+		assert(triangle != NULL);
+		SampleInfo info = triangle->sampleSurface(sampler);
+		info.pdf /= list.size();
+		return info;
+	}
+
 private:
 	// load mesh from an ascii Wavefront .obj file
 	// only supports triangle mesh with 2d texture

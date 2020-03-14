@@ -3,7 +3,7 @@
 #include <vector>
 #include "geometry.hpp"
 
-class BasicContainer: public Primitive
+class BasicContainer: virtual public Primitive
 {
 	AABox bound;
 	struct HitTmp {

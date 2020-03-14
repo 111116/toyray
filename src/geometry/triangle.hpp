@@ -3,7 +3,7 @@
 #include "geometry.hpp"
 #include "../math/matfloat.hpp"
 
-class Triangle: public BasicPrimitive
+class Triangle: public BasicPrimitive, public SurfaceSamplablePrimitive
 {
 	vec3f v1,v2,v3;
 	vec3f vn1, vn2, vn3;
@@ -60,16 +60,12 @@ public:
 		return planeNormal;
 	}
 
-	// point surface_uniform_sample() const
-	// {
-	// 	float a=randf(), b=randf();
-	// 	if (a+b>1) a=1-a, b=1-b;
-	// 	return v1 + a*(v2-v1) + b*(v3-v1);
-	// }
-	// float surfaceArea() const
-	// {
-	// 	return norm(cross(v2-v1, v3-v1))/2;
-	// }
+	SampleInfo sampleSurface(Sampler& sampler) const
+	{
+		vec2f t = sampler.sampleUnitTriangle();
+		vec3f p = v1 + t.x * (v2-v1) + t.y * (v3-v1);
+		return SampleInfo(p, planeNormal, 2 * one_by_2S);
+	}
 
 	AABox boundingVolume() const
 	{

@@ -2,7 +2,7 @@
 
 #include "geometry.hpp"
 
-class Sphere: public BasicPrimitive
+class Sphere: public BasicPrimitive, public SurfaceSamplablePrimitive
 {
 private:
 	point center;
@@ -33,25 +33,21 @@ public:
 
 	vec3f Ns(const point& p) const
 	{
-		assert(abs(norm(p - center) - radius) < 1e-2);
+		assert(fabs(norm(p - center) - radius) < 1e-2);
 		return normalized(p - center);
 	}
 
 	vec3f Ng(const point& p) const
 	{
-		assert(abs(norm(p - center) - radius) < 1e-2);
+		assert(fabs(norm(p - center) - radius) < 1e-2);
 		return normalized(p - center);
 	}
 
-	// point surface_uniform_sample() const
-	// {
-	// 	return center + radius * randunitvec3f();
-	// }
-
-	// float surfaceArea() const
-	// {
-	// 	return 4*PI * radius * radius;
-	// }
+	SampleInfo sampleSurface(Sampler& sampler) const
+	{
+		vec3f N = sampler.sampleUnitSphereSurface();
+		return SampleInfo(center + radius * N, N, 1.0 / (4*PI * radius * radius));
+	}
 
 	AABox boundingVolume() const
 	{
