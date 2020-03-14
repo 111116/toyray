@@ -12,10 +12,15 @@ public:
 };
 
 
-class Phong : public BxDF {
-public:
+class BRDF : public BxDF {
+};
+
+
+class Phong : public BRDF {
+private:
 	Color Ka, Kd, Ks;
 	double exp = 0;
+public:
 	Phong(const Json& conf) {
 		if (conf.find("Ka") != conf.end()) Ka = json2vec3f(conf["Ka"]);
 		if (conf.find("Kd") != conf.end()) Kd = json2vec3f(conf["Kd"]);
@@ -24,5 +29,17 @@ public:
 	}
 	Color f(const vec3f& wo, const vec3f& wi) const {
 		return 1/PI * (Kd + 1/abs(wi.z) * Ks * pow(std::max(0.0f,dot(vec3f(-wi.x, -wi.y, wi.z), wo)), exp));
+	}
+};
+
+
+class LambertBRDF : public BRDF {
+private:
+	Color albedo;
+public:
+	LambertBRDF(Color r): albedo(r) {}
+
+	Color f(const vec3f& wo, const vec3f& wi) const {
+		return 1/PI * albedo;
 	}
 };

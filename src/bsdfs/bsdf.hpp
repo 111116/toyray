@@ -22,6 +22,8 @@ BSDF* newMaterial(const Json& conf) {
 	BSDF* bsdf = new BSDF();
 	if (conf["type"] == "phong")
 		bsdf->component = new Phong(conf);
+	if (conf["type"] == "lambert")
+		bsdf->component = new LambertBRDF(json2vec3f(conf["albedo"]));
 	return bsdf;
 }
 
