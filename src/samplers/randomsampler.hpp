@@ -34,4 +34,13 @@ public:
 		}
 		return t;
 	}
+	vec2f sampleUnitDisk() {
+		float x,y;
+		do {
+			x = get1f()*2-1;
+			y = get1f()*2-1;
+		}
+		while (x*x+y*y>1);
+		return vec2f(x,y);
+	}
 };
