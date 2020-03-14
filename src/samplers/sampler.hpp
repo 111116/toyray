@@ -11,4 +11,6 @@ public:
 	virtual vec2f get2f() = 0;
 	// sample {0,1,...,limit-1}
 	virtual unsigned get1u(unsigned limit) = 0;
+	// samle {v: norm(v)==1}
+	virtual vec3f sampleUnitSphereSurface() = 0;
 };

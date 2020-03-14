@@ -1,6 +1,6 @@
 {
     "renderer": {
-        "spp": 1,
+        "spp": 16,
         "output_files": [
 			"cornell-box.exr",
 			"cornell-box.bmp",

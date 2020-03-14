@@ -33,7 +33,7 @@ std::vector<Light*> samplable_lights;
 std::vector<Light*> global_lights;
 Accelarator* acc;
 std::unordered_map<std::string, BSDF*> bsdf;
-// int max_bounces;
+int max_bounces = 2;
 
 
 Color normal(Ray ray) {
@@ -46,26 +46,38 @@ Color normal(Ray ray) {
 
 
 // sample radiance using ray casting
-Color brightness(Ray ray, Sampler& sampler) {
-	HitInfo hit = acc->hit(ray);
+Color brightness(Ray ray, Sampler& sampler)
+{
+	Color through(1);
 	Color result;
-	if (!hit) {
-		for (Light* l: global_lights)
-			result += l->radiance(ray);
-		// if (globalLightProbe) result += lambda * globalLightProbe->radiance(ray.dir);
-		return result;
-	}
-	if (hit.object->emission) {
-		result += hit.object->emission->radiance(ray);
-	}
-	BSDF* bsdf = hit.object->bsdf;
-	if (!bsdf) return result;
-	// direct light (local)
-	for (Light* l: samplable_lights) {
-		vec3f dirToLight;
-		Color irr = l->sampleIrradiance(hit.p, dirToLight, sampler);
-		// don't do shadow ray test for now
-		result += irr * std::abs(dot(hit.Ns, dirToLight)) * bsdf->f(-ray.dir, dirToLight, hit.Ns, hit.Ng);
+	for (int nbounce = 0;; ++nbounce)
+	{
+
+		HitInfo hit = acc->hit(ray);
+		if (!hit) {
+			for (Light* l: global_lights)
+				result += through * l->radiance(ray);
+			break;
+		}
+		if (hit.object->emission) {
+			// TODO
+			result += through * hit.object->emission->radiance(ray);
+		}
+		BSDF* bsdf = hit.object->bsdf;
+		if (!bsdf) break;
+		if (nbounce == max_bounces) break;
+		// direct light (local) // TODO
+		for (Light* l: samplable_lights) {
+			vec3f dirToLight;
+			Color irr = l->sampleIrradiance(hit.p, dirToLight, sampler);
+			// don't do shadow ray test for now
+			result += through * irr * std::abs(dot(hit.Ns, dirToLight)) * bsdf->f(-ray.dir, dirToLight, hit.Ns, hit.Ng);
+		}
+		// indirect light
+		vec3f newdir = sampler.sampleUnitSphereSurface();
+		through *= 4*PI * std::abs(dot(newdir, hit.Ns)) * bsdf->f(-ray.dir, newdir, hit.Ns, hit.Ng);
+		// TODO auto error instead of fixed 1e-3
+		ray = Ray(hit.p + 1e-3*newdir, newdir);
 	}
 	// if (!samplable_lights.empty())
 	// {
@@ -86,8 +98,6 @@ Color brightness(Ray ray, Sampler& sampler) {
 	return result;
 }
 
-
-int nspp = 1; // may be overriden in conf
 
 
 void welcome(int argc, char* argv[]) {
@@ -187,7 +197,7 @@ int main(int argc, char* argv[])
 	loadPrimitives(conf);
 	loadSources(conf);
 	acc = new BVH(objects);
-	nspp = conf["renderer"]["spp"];
+	int nspp = conf["renderer"]["spp"];
 	Camera* camera = newCamera(conf["camera"]);
 	Film film(camera->resx, camera->resy);
 	fprintf(stdout, "Rendering at %d x %d x %d spp\n", camera->resx, camera->resy, nspp);
@@ -207,8 +217,8 @@ int main(int argc, char* argv[])
 			}
 			film.setPixel(x, y, res/nspp);
 		}
-		#pragma omp critical
-		fprintf(stdout, "\r%.1f%%", 100.0f*(++line_finished)/camera->resy);
+#pragma omp critical
+		fprintf(stderr, "\r%.1f%%", 100.0f*(++line_finished)/camera->resy);
 	}
 	// end timing
 	auto end = std::chrono::system_clock::now();
