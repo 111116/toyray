@@ -31,11 +31,11 @@
         {
             "type": "point",
             "position": [0,5,5],
-            "intensity": [62.8,62.8,31.4]
+            "intensity": [48,48,10]
         },
         {
             "type": "constant",
-            "radiance": [0.1, 0.2, 0.7]
+            "radiance": [0.0063, 0.029, 0.456]
         }
     ],
     "primitives": [

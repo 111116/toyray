@@ -17,7 +17,7 @@
 		{
             "name": "r",
 			"type": "phong",
-            "Kd": [0.79, 0.66, 0.44],
+            "Kd": [0.595, 0.4, 0.164],
             "Ks": 1,
             "exp": 20
         }
@@ -25,7 +25,7 @@
     "emissions": [
         {
             "type": "constant",
-            "radiance": [0.1, 0.7, 0.2]
+            "radiance": [0.0063, 0.456, 0.029]
         },
         {
             "type": "directional",

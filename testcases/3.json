@@ -6,7 +6,7 @@
 	"emissions": [
 		{
 			"type": "constant",
-			"radiance": [0.2, 0, 0.6]
+			"radiance": [0.029, 0, 0.325]
 		},
 		{
 			"type": "directional",
