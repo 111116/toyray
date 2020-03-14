@@ -21,6 +21,7 @@ protected:
 public:
 	BasicContainer(const std::vector<BasicPrimitive*>& list): list(list)
 	{
+#pragma omp critical
 		std::cout << "building SAH BVH of " << list.size() << " primitives" << std::endl;
 		build(list, root);
 		bound = list[0]->boundingVolume();
