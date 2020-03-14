@@ -2,6 +2,7 @@
 
 #include "pointlight.hpp"
 #include "constlight.hpp"
+#include "diffuselight.hpp"
 #include "directionallight.hpp"
 #include "../jsonutil.hpp"
 
