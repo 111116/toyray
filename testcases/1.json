@@ -6,7 +6,7 @@
 	"emissions": [
 		{
 			"type": "point",
-			"???": [ 0.9, 0.9, 0.9 ],
+			"intensity": [ 0.9, 0.9, 0.9 ],
 			"position": [ 0, 5, 5 ]
 		}
 	],
