@@ -23,6 +23,6 @@ public:
 		if (conf.find("exp") != conf.end()) exp = conf["exp"];
 	}
 	Color f(const vec3f& wo, const vec3f& wi) const {
-		return 1/PI * (Kd + 1/abs(wi.z) * Ks * pow(dot(vec3f(-wi.x, -wi.y, wi.z), wo), exp));
+		return 1/PI * (Kd + 1/abs(wi.z) * Ks * pow(std::max(0.0f,dot(vec3f(-wi.x, -wi.y, wi.z), wo)), exp));
 	}
 };
