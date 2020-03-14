@@ -20,9 +20,18 @@ public:
 		return rand() % limit;
 	}
 	vec3f sampleUnitSphereSurface() {
+		// TODO optimize
 		vec3f v;
 		do v = vec3f(get1f()*2-1, get1f()*2-1, get1f()*2-1);
 		while (norm(v)>1 || norm(v)<1e-3);
 		return normalized(v);
+	}
+	vec2f sampleUnitTriangle() {
+		vec2f t = get2f();
+		if (t.x + t.y > 1) {
+			t.x = 1 - t.x;
+			t.y = 1 - t.y;
+		}
+		return t;
 	}
 };
