@@ -1,6 +1,6 @@
 {
     "renderer": {
-        "spp": 1,
+        "spp": 4,
         "output_files": ["6.exr", "6.bmp"]
     },
     "camera": {
