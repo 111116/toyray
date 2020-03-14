@@ -63,8 +63,8 @@ private:
 			accu = accu + list[i].first->boundingVolume();
 			suffix_area[i] = accu.surfaceArea();
 		}
-		int rangemin = round(list.size()*0.1);
-		int rangemax = round(list.size()*0.9)-1;
+		int rangemin = round(list.size()*0.15);
+		int rangemax = round(list.size()*0.85)-1;
 		// limit split point from being too close to side
 		int best = rangemin;
 		for (int i=rangemin; i<rangemax; ++i) {
