@@ -3,13 +3,10 @@
         "spp": 4,
         "output_files": ["1.exr", "1.bmp"]
     },
-	"Background": {
-		"color": [ 0, 0, 0 ]
-	},
-	"Lights": [
+	"emissions": [
 		{
 			"type": "point",
-			"color": [ 0.9, 0.9, 0.9 ],
+			"???": [ 0.9, 0.9, 0.9 ],
 			"position": [ 0, 5, 5 ]
 		}
 	],

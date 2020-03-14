@@ -13,6 +13,13 @@
         "type": "pinhole",
         "fov": 35
     },
+    "emissions": [
+        {
+            "type": "directional",
+            "direction": [-1,-1,-1],
+            "irradiance": 0.9
+        }
+    ],
     "bsdfs": [
         {
             "name": "0",

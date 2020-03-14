@@ -22,6 +22,13 @@
             "exp": 20
         }
     ],
+    "emissions": [
+        {
+            "type": "directional",
+            "direction": [ -0.5, -0.5, -1 ],
+            "irradiance": [ 0.5, 0.5, 0.5 ]
+        }
+    ],
     "primitives": [
         {
             "transform": {

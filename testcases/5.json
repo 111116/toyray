@@ -22,6 +22,22 @@
             "exp": 20
         }
     ],
+    "emissions": [
+        {
+            "type": "constant",
+            "radiance": [0.1, 0.7, 0.2],
+        },
+        {
+            "type": "directional",
+            "direction": [ 0.2, -1, -0.4 ],
+            "irradiance": [ 0.7, 0.7, 0.7 ]
+        },
+        {
+            "type": "directional",
+            "direction": [ -7, -5, -5 ],
+            "irradiance": [ 0.3, 0.3, 0.3 ]
+        }
+    ],
     "primitives": [
         {
             "type": "mesh",

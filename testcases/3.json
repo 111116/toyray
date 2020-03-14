@@ -3,14 +3,15 @@
         "spp": 4,
         "output_files": ["3.exr", "3.bmp"]
     },
-	"Background": {
-		"color": [ 0.2, 0, 0.6 ]
-	},
-	"Lights": [
+	"emissions": [
+		{
+			"type": "constant",
+			"radiance": [0.2, 0, 0.6]
+		},
 		{
 			"type": "directional",
-			"color": [ 0.9, 0.9, 0.9 ],
-			"direction": [ -0.5, -0.3, -1 ]
+			"irradiance": [ 1,1,1 ],
+			"direction": [ -0.2, -0.2, -1]
 		}
 	],
 	"bsdfs": [
