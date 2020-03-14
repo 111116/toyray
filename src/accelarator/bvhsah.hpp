@@ -111,7 +111,6 @@ public:
 		for (Object* o: list) {
 			this->list.push_back({o->primitive, o});
 		}
-		std::cout << this->list.size() << " faces" << std::endl;
 		build(this->list, root);
 		// printSA(root);
 	}
