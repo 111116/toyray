@@ -281,3 +281,6 @@ vec3f cross(const vec3f& a, const vec3f& b)
 	return vec3f(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
 }
 
+bool operator == (const vec3f& a, const vec3f& b) {
+	return a.x==b.x && a.y==b.y && a.z==b.z;
+}

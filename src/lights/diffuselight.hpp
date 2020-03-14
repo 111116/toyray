@@ -12,7 +12,7 @@ public:
 	DiffuseLight(bool sample, const Color& color, Primitive* base):
 		Light(sample), _radiance(color), base(base) {}
 
-	Color sampleIrradiance(const point& surface, vec3f& dirToLight, Sampler&) const
+	Color sampleIrradiance(const point& surface, vec3f& dirToLight, float& dist, Sampler&) const
 	{
 		// TODO
 		throw "DiffuseLight: [sample by source] unimplemented";

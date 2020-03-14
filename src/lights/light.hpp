@@ -15,7 +15,7 @@ public:
 
 	// return irradiance or sampled radiance scaled by 1/pdf (sample chosen by source)
 	// dirToLight is assigned unit vector
-	virtual Color sampleIrradiance(const point& surface, vec3f& dirToLight, Sampler&) const = 0;
+	virtual Color sampleIrradiance(const point& surface, vec3f& dirToLight, float& dist, Sampler&) const = 0;
 
 	// return radiance (sample chosen by object); zero if dirac
 	// ray is inbound (pointed toward light)

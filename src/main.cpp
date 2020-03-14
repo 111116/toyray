@@ -52,7 +52,6 @@ Color brightness(Ray ray, Sampler& sampler)
 	Color result;
 	for (int nbounce = 0;; ++nbounce)
 	{
-
 		HitInfo hit = acc->hit(ray);
 		if (!hit) {
 			for (Light* l: global_lights)
@@ -69,13 +68,18 @@ Color brightness(Ray ray, Sampler& sampler)
 		// direct light (local) // TODO
 		for (Light* l: samplable_lights) {
 			vec3f dirToLight;
-			Color irr = l->sampleIrradiance(hit.p, dirToLight, sampler);
-			// don't do shadow ray test for now
-			result += through * irr * std::abs(dot(hit.Ns, dirToLight)) * bsdf->f(-ray.dir, dirToLight, hit.Ns, hit.Ng);
+			float dist;
+			Color irr = l->sampleIrradiance(hit.p, dirToLight, dist, sampler);
+			// shadow ray test // TODO auto error instead of fixed 1e-3, 0.999
+			Ray shadowray(hit.p + 1e-3 * dirToLight, dirToLight);
+			HitInfo shadowhit = acc->hit(shadowray);
+			if (!shadowhit || norm(shadowhit.p - shadowray.origin) > 0.999 * dist)
+				result += through * irr * std::abs(dot(hit.Ns, dirToLight)) * bsdf->f(-ray.dir, dirToLight, hit.Ns, hit.Ng);
 		}
 		// indirect light
 		vec3f newdir = sampler.sampleUnitSphereSurface();
 		through *= 4*PI * std::abs(dot(newdir, hit.Ns)) * bsdf->f(-ray.dir, newdir, hit.Ns, hit.Ng);
+		if (through == vec3f() || !(sqrlen(through) < 1e20)) break;
 		// TODO auto error instead of fixed 1e-3
 		ray = Ray(hit.p + 1e-3*newdir, newdir);
 	}
