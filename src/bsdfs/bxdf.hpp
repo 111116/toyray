@@ -5,41 +5,51 @@
 
 // BxDF should work on both hemispheres
 
-class BxDF {
+class BxDF
+{
+protected:
+	bool _isDirac;
+	bool _isRefractive;
 public:
+	bool const& isDirac = _isDirac;
+	bool const& isRefractive = _isRefractive;
 	// assuming normal N = (0,0,1)
+	// for Dirac f should always return 0
 	virtual Color f(const vec3f& wo, const vec3f& wi) const = 0;
+	// for Dirac f, returns dI/dI, pdf is always assigned 1
+	virtual Color sample_f(const vec3f& wo, vec3f& wi, float& pdf, Sampler&) const = 0;
 };
 
 
-class BRDF : public BxDF {
-};
-
-
-class Phong : public BRDF {
-private:
-	Color Ka, Kd, Ks;
-	double exp = 0;
+class BRDF : public BxDF
+{
 public:
-	Phong(const Json& conf) {
-		if (conf.find("Ka") != conf.end()) Ka = json2vec3f(conf["Ka"]);
-		if (conf.find("Kd") != conf.end()) Kd = json2vec3f(conf["Kd"]);
-		if (conf.find("Ks") != conf.end()) Ks = json2vec3f(conf["Ks"]);
-		if (conf.find("exp") != conf.end()) exp = conf["exp"];
+	BRDF()
+	{
+		_isRefractive = false;
 	}
-	Color f(const vec3f& wo, const vec3f& wi) const {
-		return 1/PI * (Kd + 1/fabs(wi.z) * Ks * pow(std::max(0.0f,dot(vec3f(-wi.x, -wi.y, wi.z), wo)), exp));
+	// default implementation for diffuse reflectives
+	Color sample_f(const vec3f& wo, vec3f& wi, float& pdf, Sampler& sampler) const
+	{
+		wi = sampler.cosSampleHemisphereSurface();
+		pdf = wi.z/PI;
+		if (wo.z<0) wi.z *= -1;
+		return f(wo, wi);
 	}
 };
 
 
-class LambertBRDF : public BRDF {
+class LambertBRDF : public BRDF
+{
 private:
 	Color albedo;
 public:
-	LambertBRDF(Color r): albedo(r) {}
-
-	Color f(const vec3f& wo, const vec3f& wi) const {
+	LambertBRDF(Color r): albedo(r)
+	{
+		_isDirac = false;
+	}
+	Color f(const vec3f& wo, const vec3f& wi) const
+	{
 		return 1/PI * albedo;
 	}
 };
