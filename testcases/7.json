@@ -17,7 +17,7 @@
         {
             "type": "directional",
             "direction": [-1,-1,-1],
-            "irradiance": 0.9
+            "irradiance": 2.826
         }
     ],
     "bsdfs": [

@@ -6,7 +6,7 @@
 	"emissions": [
 		{
 			"type": "directional",
-			"irradiance": 0.8,
+			"irradiance": 2.51,
 			"direction": [ -2,-4,-8 ]
 		}
 	],

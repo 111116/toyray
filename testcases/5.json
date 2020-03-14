@@ -30,12 +30,12 @@
         {
             "type": "directional",
             "direction": [ 0.2, -1, -0.4 ],
-            "irradiance": [ 0.7, 0.7, 0.7 ]
+            "irradiance": 2.2
         },
         {
             "type": "directional",
             "direction": [ -7, -5, -5 ],
-            "irradiance": [ 0.3, 0.3, 0.3 ]
+            "irradiance": 0.94
         }
     ],
     "primitives": [

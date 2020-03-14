@@ -10,7 +10,7 @@
 		},
 		{
 			"type": "directional",
-			"irradiance": [ 0.9, 0.9, 0.9 ],
+			"irradiance": 2.8,
 			"direction": [ -0.5, -0.3, -1 ]
 		}
 	],
