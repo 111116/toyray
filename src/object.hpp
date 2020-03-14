@@ -6,7 +6,7 @@
 #include "geometry/plane.hpp"
 #include "geometry/transform.hpp"
 #include "bsdfs/bsdf.hpp"
-#include "lights/light.hpp"
+#include "lights/lighttypes.hpp"
 #include "transformparser.hpp"
 
 
@@ -49,11 +49,13 @@ struct Object
 		}
 		// apply emission
 		if (conf.find("emission") != conf.end()) {
-			throw "mesh source: unimplemented";
-			// this->emission = new DiffuseAreaLight(json2vec3f(conf["emission"]));
-			// if (conf.find("sample") != conf.end()) {
-			// 	this->emission->samplable = conf["sample"];
-			// }
+			bool samplable = false;
+			if (conf.find("sample") != conf.end()) {
+				samplable = conf["sample"];
+			}
+			// TODO
+			samplable = false; // override
+			this->emission = new DiffuseLight(samplable, json2vec3f(conf["emission"]), primitive);
 		}
 	}
 	// point sample_point(float& pdf, Primitive*& shape) const {
