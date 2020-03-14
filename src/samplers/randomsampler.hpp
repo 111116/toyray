@@ -1,6 +1,6 @@
 #pragma once
 
-// TODO rand for threading
+// TODO thread-safe random
 
 #include <cstdlib>
 #include "sampler.hpp"

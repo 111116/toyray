@@ -21,8 +21,7 @@ struct Object
 	Object(const Json& conf, BSDF* bsdf, Primitive* instancing = NULL)
 	{
 		this->bsdf = bsdf;
-		// transform parsed here
-		// pretransform if triangle / mesh TODO
+		// primitive construct (use instancing if applicable)
 		if (instancing != NULL) {
 			primitive = instancing;
 		}
@@ -40,6 +39,7 @@ struct Object
 		if (!primitive) {
 			throw "unrecognized geometric primitive type";
 		}
+		// apply transform
 		if (conf.find("transform") != conf.end()) {
 			mat4f m = parseTransform(conf["transform"]);
 			if (m != mat4f::unit) {
@@ -47,7 +47,7 @@ struct Object
 				primitive = new Transformed(t, m);
 			}
 		}
-		// emission
+		// apply emission
 		if (conf.find("emission") != conf.end()) {
 			throw "mesh source: unimplemented";
 			// this->emission = new DiffuseAreaLight(json2vec3f(conf["emission"]));
