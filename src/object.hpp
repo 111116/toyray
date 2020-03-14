@@ -53,8 +53,6 @@ struct Object
 			if (conf.find("sample") != conf.end()) {
 				samplable = conf["sample"];
 			}
-			// TODO
-			samplable = false; // override
 			this->emission = new DiffuseLight(samplable, json2vec3f(conf["emission"]), primitive);
 		}
 	}

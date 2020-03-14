@@ -33,7 +33,7 @@ std::vector<Light*> samplable_lights;
 std::vector<Light*> global_lights;
 Accelarator* acc;
 std::unordered_map<std::string, BSDF*> bsdf;
-int max_bounces = 2;
+int max_bounces = 16;
 
 
 Color normal(Ray ray) {
@@ -60,7 +60,8 @@ Color brightness(Ray ray, Sampler& sampler)
 		}
 		if (hit.object->emission) {
 			// TODO
-			result += through * hit.object->emission->radiance(ray);
+			if (nbounce==0 || !hit.object->emission->samplable)
+				result += through * hit.object->emission->radiance(ray);
 		}
 		BSDF* bsdf = hit.object->bsdf;
 		if (!bsdf) break;
@@ -74,11 +75,11 @@ Color brightness(Ray ray, Sampler& sampler)
 			Ray shadowray(hit.p + 1e-3 * dirToLight, dirToLight);
 			HitInfo shadowhit = acc->hit(shadowray);
 			if (!shadowhit || norm(shadowhit.p - shadowray.origin) > 0.999 * dist)
-				result += through * irr * std::abs(dot(hit.Ns, dirToLight)) * bsdf->f(-ray.dir, dirToLight, hit.Ns, hit.Ng);
+				result += through * irr * fabs(dot(hit.Ns, dirToLight)) * bsdf->f(-ray.dir, dirToLight, hit.Ns, hit.Ng);
 		}
 		// indirect light
 		vec3f newdir = sampler.sampleUnitSphereSurface();
-		through *= 4*PI * std::abs(dot(newdir, hit.Ns)) * bsdf->f(-ray.dir, newdir, hit.Ns, hit.Ng);
+		through *= 4*PI * fabs(dot(newdir, hit.Ns)) * bsdf->f(-ray.dir, newdir, hit.Ns, hit.Ng);
 		if (through == vec3f() || !(sqrlen(through) < 1e20)) break;
 		// TODO auto error instead of fixed 1e-3
 		ray = Ray(hit.p + 1e-3*newdir, newdir);

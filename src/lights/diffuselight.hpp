@@ -6,16 +6,23 @@ class DiffuseLight : public Light
 {
 private:
 	Color _radiance;
-	Primitive* base;
+	SurfaceSamplablePrimitive* base;
 
 public:
 	DiffuseLight(bool sample, const Color& color, Primitive* base):
-		Light(sample), _radiance(color), base(base) {}
-
-	Color sampleIrradiance(const point& surface, vec3f& dirToLight, float& dist, Sampler&) const
+		Light(sample), _radiance(color), base(dynamic_cast<SurfaceSamplablePrimitive*>(base))
 	{
-		// TODO
-		throw "DiffuseLight: [sample by source] unimplemented";
+		if (base == NULL && samplable)
+			throw "DiffuseLight: primitive not samplable";
+	}
+
+	Color sampleIrradiance(const point& surface, vec3f& dirToLight, float& dist, Sampler& sampler) const
+	{
+		assert(samplable);
+		auto info = base->sampleSurface(sampler);
+		dist = norm(info.p - surface);
+		dirToLight = normalized(info.p - surface);
+		return fabs(dot(info.normal, dirToLight)) / sqrlen(info.p - surface) / info.pdf * _radiance;
 	}
 
 	// caller MUST make sure the ray is intersecting the emitter mesh
