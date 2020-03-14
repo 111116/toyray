@@ -18,6 +18,7 @@ public:
 	virtual Color sampleIrradiance(const point& surface, vec3f& dirToLight, Sampler&) const = 0;
 
 	// return radiance (sample chosen by object); zero if dirac
+	// ray is inbound (pointed toward light)
 	virtual Color radiance(const Ray& ray) const = 0;
 
 protected:

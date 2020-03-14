@@ -1,7 +1,6 @@
 #pragma once
 
 #include "jsonutil.hpp"
-#include "env.hpp"
 #include "geometry/trianglemesh.hpp"
 #include "geometry/sphere.hpp"
 #include "geometry/plane.hpp"
@@ -16,12 +15,12 @@ struct Object
 {
 	BSDF* bsdf = NULL;
 	Light* emission = NULL;
-	bool samplable = true; // flag for light sampling; only valid when emission!=NULL
 	// an object can contain either a primitive or a container of primitives
 	Primitive* primitive = NULL;
 
 	Object(const Json& conf, BSDF* bsdf, Primitive* instancing = NULL)
 	{
+		this->bsdf = bsdf;
 		// transform parsed here
 		// pretransform if triangle / mesh TODO
 		if (instancing != NULL) {
@@ -38,8 +37,9 @@ struct Object
 				primitive = new Plane(json2vec3f(conf["normal"]), (double)conf["offset"]);
 			}
 		}
-		if (!primitive)
+		if (!primitive) {
 			throw "unrecognized geometric primitive type";
+		}
 		if (conf.find("transform") != conf.end()) {
 			mat4f m = parseTransform(conf["transform"]);
 			if (m != mat4f::unit) {
@@ -47,13 +47,13 @@ struct Object
 				primitive = new Transformed(t, m);
 			}
 		}
-		this->bsdf = bsdf;
 		// emission
 		if (conf.find("emission") != conf.end()) {
-			this->emission = new DiffuseAreaLight(json2vec3f(conf["emission"]));
-			if (conf.find("sample") != conf.end()) {
-				samplable = conf["sample"];
-			}
+			throw "mesh source: unimplemented";
+			// this->emission = new DiffuseAreaLight(json2vec3f(conf["emission"]));
+			// if (conf.find("sample") != conf.end()) {
+			// 	this->emission->samplable = conf["sample"];
+			// }
 		}
 	}
 	// point sample_point(float& pdf, Primitive*& shape) const {
