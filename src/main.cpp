@@ -46,10 +46,11 @@ Color normal(Ray ray) {
 
 
 // sample radiance using ray casting
-Color brightness(Ray ray, Sampler& sampler)
+Color radiance(Ray ray, Sampler& sampler)
 {
 	Color through(1);
 	Color result;
+	bool lastDirac = true; // accept all light sources if directly into camera
 	for (int nbounce = 0;; ++nbounce)
 	{
 		HitInfo hit = acc->hit(ray);
@@ -60,7 +61,7 @@ Color brightness(Ray ray, Sampler& sampler)
 		}
 		if (hit.object->emission) {
 			// TODO
-			if (nbounce==0 || !hit.object->emission->samplable)
+			if (lastDirac || !hit.object->emission->samplable)
 				result += through * hit.object->emission->radiance(ray);
 		}
 		BSDF* bsdf = hit.object->bsdf;
@@ -77,29 +78,14 @@ Color brightness(Ray ray, Sampler& sampler)
 			if (!shadowhit || norm(shadowhit.p - shadowray.origin) > 0.999 * dist)
 				result += through * irr * fabs(dot(hit.Ns, dirToLight)) * bsdf->f(-ray.dir, dirToLight, hit.Ns, hit.Ng);
 		}
-		// indirect light
-		vec3f newdir = sampler.sampleUnitSphereSurface();
-		through *= 4*PI * fabs(dot(newdir, hit.Ns)) * bsdf->f(-ray.dir, newdir, hit.Ns, hit.Ng);
+		// indirect light (bsdf importance sampling)
+		vec3f newdir;
+		Color f = bsdf->sample_f(-ray.dir, newdir, hit.Ns, hit.Ng, lastDirac, sampler); // already scaled by 1/pdf
+		through *= fabs(dot(newdir, hit.Ns)) * f;
 		if (through == vec3f() || !(sqrlen(through) < 1e20)) break;
 		// TODO auto error instead of fixed 1e-3
 		ray = Ray(hit.p + 1e-3*newdir, newdir);
 	}
-	// if (!samplable_lights.empty())
-	// {
-	// 	Object* light = samplable_lights[rand() % samplable_lights.size()];
-	// 	float pdf;
-	// 	Primitive* shape;
-	// 	point lightp = light->sample_point(pdf, shape);
-	// 	// check if direct light was blocked
-	// 	if (pdf > 1e-8) {
-	// 		Ray shadowray = {hit.p, normalized(lightp - hit.p)};
-	// 		shadowray.origin += 1e-3 * shadowray.dir;
-	// 		pdf /= samplable_lights.size();
-	// 		vec3f lightN = shape->Ns(lightp);
-	// 		float dw = pow(norm(lightp - hit.p), -2) * fabs(dot(shadowray.dir, lightN));
-	// 		result += bsdf->f(-ray.dir, shadowray.dir, Ns, Ng) * fabs(dot(Ns, shadowray.dir)) * light->emission->radiance(shadowray) * (dw / pdf);
-	// 	}
-	// }
 	return result;
 }
 
@@ -217,7 +203,7 @@ int main(int argc, char* argv[])
 				Sampler* sampler = new RandomSampler();
 				vec2f uv = (vec2f(x,y) + sampler->get2f()) * vec2f(1.0/camera->resx, 1.0/camera->resy);
 				Ray ray = camera->sampleray(uv);
-				Color tres = brightness(ray, *sampler);
+				Color tres = radiance(ray, *sampler);
 				/*if (norm(tres)<1e8)*/ res += tres;
 			}
 			film.setPixel(x, y, res/nspp);

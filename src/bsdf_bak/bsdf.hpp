@@ -4,39 +4,46 @@
 #include "../jsonutil.hpp"
 
 
-class BSDF {
+class BSDF
+{
 private:
 	static const MAXN_COMPONENT = 4;
-	BxDF* components[MAXN_COMPONENT];
 	int n_component = 0;
+	BxDF const* components[MAXN_COMPONENT];
+
 public:
-	// bidirectional scattering distribution function value of non-delta components
+	void add_component(BxDF const* component) {
+		if (n_component >= MAXN_COMPONENT)
+			throw "BSDF too many components";
+		components[n_component++] = component;
+	}
+	// bidirectional scattering distribution function value of non-Dirac components
 	// wo: direction of outgoing ray (normalized)
 	// wi: directoin of incoming ray (inverted, normalized)
 	// Ns: direction of shading normal vector (outward, normalized)
 	// Ng: direction of geometry normal vector (outward, normalized)
 	// Note that Ng will be used to determine whether BRDF or BTDF component is used,
-	// while Ns is passed to BRDF/BTDF which works continuously on both sides
-	Color f(const vec3& wo, const vec3& wi, const vec3& Ns, const vec3& Ng, BxDFType allowed_type) const;
+	// while Ns is passed to BRDF/BTDF which works on both sides
+	Color f(const vec3& wo, const vec3& wi, const vec3& Ns, const vec3& Ng) const;
 
 	// bidirectional scattering distribution function value with importance sampling
-	// delta and non-delta components are sampled separately
+	// integrator without MIS should be unaware of pdf
+	// so for now we scale sampled f with 1/pdf internally
+	Color sample_f(const vec3& wo, vec3& wi, const vec3& Ns, const vec3& Ng, bool& isDirac) const;
 
-	// For completely non-delta functions: sample_f(wo,wi,Ns,Ng) == f(wo,wi,Ns,Ng),
-	// pdf = probability density function of wi over S^2, isspecular = false
-	// For delta functions: E[sample_f/pdf] = 
-	Color sample_f(const vec3& wo, vec3& wi, const vec3& Ns, const vec3& Ng, float& pdf, BxDFType allowed_type, BxDFType& sampled_type) const;
+private:
+	void getLocalBasis(const vec3f&)
 };
 
 
 BSDF* newMaterial(const Json& conf) {
 	BSDF* bsdf = new BSDF();
 	if (conf["type"] == "lambert")
-		bsdf->reflect = new LambertBRDF(json2vec3(conf["albedo"]));
+		bsdf->add_component(new LambertBRDF(json2vec3(conf["albedo"])));
 	if (conf["type"] == "mirror")
-		bsdf->reflect = new MirrorBRDF(json2vec3(conf["albedo"]));
+		bsdf->add_component(new MirrorBRDF(json2vec3(conf["albedo"])));
 	if (conf["type"] == "invisible")
-		bsdf->refract = new InvisibleBTDF();
+		bsdf->add_component(new InvisibleBTDF());
 	return bsdf;
 }
 
