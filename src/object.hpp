@@ -5,7 +5,7 @@
 #include "geometry/sphere.hpp"
 #include "geometry/plane.hpp"
 #include "geometry/transform.hpp"
-#include "bsdfs/bsdf.hpp"
+#include "bsdfs/materials.hpp"
 #include "lights/lighttypes.hpp"
 #include "transformparser.hpp"
 

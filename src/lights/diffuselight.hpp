@@ -2,6 +2,7 @@
 
 #include "light.hpp"
 
+// area diffuse light source
 class DiffuseLight : public Light
 {
 private:
