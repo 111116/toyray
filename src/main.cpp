@@ -131,7 +131,7 @@ void loadPrimitives(const Json& conf) {
 		}
 	}
 	// flatten map elements for parallelization
-	std::vector<typeof(meshref.begin())> v;
+	std::vector<std::unordered_map<std::string, Primitive*>::iterator> v;
 	for (auto it = meshref.begin(); it != meshref.end(); ++it)
 		v.push_back(it);
 #pragma omp parallel for schedule(dynamic)
