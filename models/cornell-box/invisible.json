@@ -1,4 +1,8 @@
 {
+    "renderer": {
+        "spp": 64,
+        "output_files": ["cornell-box-invisible.exr"]
+    },
     "bsdfs": [
         {
             "name": "LeftWall",
@@ -83,9 +87,5 @@
         "type": "path_tracer",
         "max_bounces": 16,
         "enable_light_sampling": true
-    },
-    "renderer": {
-        "spp": 16,
-        "hdr_output_file": "cornell-box-invisible.exr"
     }
 }
