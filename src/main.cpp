@@ -182,51 +182,53 @@ void loadSources(const Json& conf) {
 int main(int argc, char* argv[])
 {
 	try {
-	welcome(argc, argv);
-	// parse commandline args
-	if (argc<=1) return 1;
-	std::ifstream fin(argv[1]);
-	if (!fin) throw "Failed reading scene file";
-	modelpath = directoryOf(argv[1]);
-	// load scene conf file
-	Json conf;
-	fin >> conf;
-	loadMaterials(conf);
-	loadPrimitives(conf);
-	loadSources(conf);
-	acc = new BVH(objects);
-	int nspp = conf["renderer"]["spp"];
-	Camera* camera = newCamera(conf["camera"]);
-	Film film(camera->resx, camera->resy);
-	fprintf(stdout, "Rendering at %d x %d x %d spp\n", camera->resx, camera->resy, nspp);
-	// start rendering
-	auto start = std::chrono::system_clock::now();
-	int line_finished = 0;
+		welcome(argc, argv);
+		// parse commandline args
+		if (argc<=1) return 1;
+		std::ifstream fin(argv[1]);
+		if (!fin) throw "Failed reading scene file";
+		modelpath = directoryOf(argv[1]);
+		// load scene conf file
+		Json conf;
+		fin >> conf;
+		loadMaterials(conf);
+		loadPrimitives(conf);
+		loadSources(conf);
+		acc = new BVH(objects);
+		int nspp = conf["renderer"]["spp"];
+		Camera* camera = newCamera(conf["camera"]);
+		Film film(camera->resx, camera->resy);
+
+		fprintf(stdout, "Rendering at %d x %d x %d spp\n", camera->resx, camera->resy, nspp);
+		// start rendering
+		auto start = std::chrono::system_clock::now();
+		int line_finished = 0;
 #pragma omp parallel for schedule(dynamic)
-	for (int y=0; y<camera->resy; ++y) {
-		for (int x=0; x<camera->resx; ++x) {
-			Color res;
-			for (int i=0; i<nspp; ++i) {
-				Sampler* sampler = new RandomSampler();
-				vec2f uv = (vec2f(x,y) + sampler->get2f()) * vec2f(1.0/camera->resx, 1.0/camera->resy);
-				Ray ray = camera->sampleray(uv);
-				Color tres = radiance(ray, *sampler);
-				/*if (norm(tres)<1e8)*/ res += tres;
+		for (int y=0; y<camera->resy; ++y) {
+			for (int x=0; x<camera->resx; ++x) {
+				Color res;
+				for (int i=0; i<nspp; ++i) {
+					Sampler* sampler = new RandomSampler();
+					vec2f uv = (vec2f(x,y) + sampler->get2f()) * vec2f(1.0/camera->resx, 1.0/camera->resy);
+					Ray ray = camera->sampleray(uv);
+					Color tres = radiance(ray, *sampler);
+					/*if (norm(tres)<1e8)*/ res += tres;
+				}
+				film.setPixel(x, y, res/nspp);
 			}
-			film.setPixel(x, y, res/nspp);
-		}
 #pragma omp critical
-		fprintf(stderr, "\r%.1f%%", 100.0f*(++line_finished)/camera->resy);
-	}
-	// end timing
-	auto end = std::chrono::system_clock::now();
-	std::chrono::duration<double> elapsed_seconds = end-start;
-	std::cout << "  " << elapsed_seconds.count() << "s\n";
-	// save files
-	for (std::string filename : conf["renderer"]["output_files"]) {
-		std::cout << "Writing result to " << filename << "\n";
-		film.saveFile(filename);
-	}
+			// report progress
+			fprintf(stderr, "\r%.1f%%", 100.0f*(++line_finished)/camera->resy);
+		}
+		// end timing
+		auto end = std::chrono::system_clock::now();
+		std::chrono::duration<double> elapsed_seconds = end-start;
+		std::cout << "  " << elapsed_seconds.count() << "s\n";
+		// save files
+		for (std::string filename : conf["renderer"]["output_files"]) {
+			std::cout << "Writing result to " << filename << "\n";
+			film.saveFile(filename);
+		}
 	}
 	catch (const char* s)
 	{
