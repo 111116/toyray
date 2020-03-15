@@ -151,6 +151,8 @@ void loadPrimitives(const Json& conf) {
 		// else {
 			Object* newobj;
 			Primitive* instancing = (o["type"] == "mesh")? meshref[encode(o)]: NULL;
+			if (bsdf.find(std::string(o["bsdf"])) == bsdf.end())
+				std::cerr << "WARNING: UNDEFINED BSDF " + std::string(o["bsdf"]) << std::endl;
 			newobj = new Object(o, bsdf[o["bsdf"]], instancing);
 			objects.push_back(newobj);
 		// }
@@ -184,6 +186,7 @@ int main(int argc, char* argv[])
 	// parse commandline args
 	if (argc<=1) return 1;
 	std::ifstream fin(argv[1]);
+	if (!fin) throw "Failed reading scene file";
 	modelpath = directoryOf(argv[1]);
 	// load scene conf file
 	Json conf;
