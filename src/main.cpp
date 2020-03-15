@@ -130,13 +130,17 @@ void loadPrimitives(const Json& conf) {
 			meshref[encode(o)] = NULL;
 		}
 	}
+	// flatten map elements for parallelization
+	std::vector<typeof(meshref.begin())> v;
+	for (auto it = meshref.begin(); it != meshref.end(); ++it)
+		v.push_back(it);
 #pragma omp parallel for schedule(dynamic)
-	for (auto& p: meshref) {
+	for (auto p = v.begin(); p != v.end(); ++p) {
 		// decode conf to json
 		std::unordered_map<std::string, Json> t;
-		t["file"] = p.first.substr(1);
-		t["recompute_normals"] = (p.first[0]=='1');
-		p.second = new TriangleMesh(t);
+		t["file"] = (*p)->first.substr(1);
+		t["recompute_normals"] = ((*p)->first[0]=='1');
+		(*p)->second = new TriangleMesh(t);
 	}
 	for (auto o: conf["primitives"]) {
 		// if (o["type"] == "infinite_sphere") {
