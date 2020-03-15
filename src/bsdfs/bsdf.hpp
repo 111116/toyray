@@ -17,6 +17,9 @@ public:
 			throw "BSDF too many components";
 		components[n_component++] = component;
 	}
+	bool empty() const {
+		return n_component == 0;
+	}
 	// bidirectional scattering distribution function value of non-Dirac components
 	// wo: direction of outgoing ray (normalized)
 	// wi: directoin of incoming ray (inverted, normalized)

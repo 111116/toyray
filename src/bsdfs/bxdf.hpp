@@ -21,7 +21,7 @@ public:
 };
 
 
-class BRDF : public BxDF
+class BRDF : virtual public BxDF
 {
 public:
 	BRDF()
@@ -39,17 +39,34 @@ public:
 };
 
 
-class LambertBRDF : public BRDF
+class BTDF : virtual public BxDF
 {
-private:
-	Color albedo;
 public:
-	LambertBRDF(Color r): albedo(r)
+	BTDF()
 	{
-		_isDirac = false;
+		_isRefractive = true;
 	}
-	Color f(const vec3f& wo, const vec3f& wi) const
+	// default implementation for diffuse refractives
+	Color sample_f(const vec3f& wo, vec3f& wi, float& pdf, Sampler& sampler) const
 	{
-		return 1/PI * albedo;
+		wi = sampler.cosSampleHemisphereSurface();
+		pdf = wi.z/PI;
+		if (wo.z>0) wi.z *= -1;
+		return f(wo, wi);
+	}
+};
+
+
+
+class DiracBxDF : virtual public BxDF
+{
+public:
+	DiracBxDF()
+	{
+		_isDirac = true;
+	}
+	Color f(const vec3f& wo, const vec3f& wi) const final
+	{
+		return Color(0);
 	}
 };
