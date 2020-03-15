@@ -49,7 +49,7 @@ struct Object
 		}
 		// apply emission
 		if (conf.find("emission") != conf.end()) {
-			bool samplable = false;
+			bool samplable = true;
 			if (conf.find("sample") != conf.end()) {
 				samplable = conf["sample"];
 			}
