@@ -1,0 +1,24 @@
+#pragma once
+
+#include "trianglemesh.hpp"
+#include "sphere.hpp"
+#include "plane.hpp"
+#include "../lib/json.hpp"
+
+Primitive* newPrimitive(const Json& conf)
+{
+	Primitive* shape = NULL;
+	if (conf["type"] == "mesh") {
+		shape = new TriangleMesh(conf);
+	}
+	if (conf["type"] == "sphere") {
+		shape = new Sphere(json2vec3f(conf["origin"]), (double)conf["radius"]);
+	}
+	if (conf["type"] == "plane") {
+		shape = new Plane(json2vec3f(conf["normal"]), (double)conf["offset"]);
+	}
+	if (shape == NULL) {
+		throw std::runtime_error("Unrecognized Geometric type: " + std::string(conf["type"]));
+	}
+	return shape;
+}

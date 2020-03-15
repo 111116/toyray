@@ -32,6 +32,8 @@ bool is_number(const Json& o) {
 vec3f json2vec3f(const Json& o) {
 	if (is_number(o))
 		return vec3f(o);
+	if (o.type() != Json::value_t::array)
+		throw "failed convert json to vec3f";
 	std::vector<float> a = o;
 	assert(a.size()==3);
 	return vec3f(a[0], a[1], a[2]);

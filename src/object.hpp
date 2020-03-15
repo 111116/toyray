@@ -1,13 +1,11 @@
 #pragma once
 
 #include "jsonutil.hpp"
-#include "geometry/trianglemesh.hpp"
-#include "geometry/sphere.hpp"
-#include "geometry/plane.hpp"
-#include "geometry/transform.hpp"
 #include "bsdfs/materials.hpp"
 #include "lights/lighttypes.hpp"
 #include "transformparser.hpp"
+#include "geometry/transform.hpp"
+#include "geometry/geometrytypes.hpp"
 
 
 
@@ -26,18 +24,7 @@ struct Object
 			primitive = instancing;
 		}
 		else {
-			if (conf["type"] == "mesh") {
-				primitive = new TriangleMesh(conf);
-			}
-			if (conf["type"] == "sphere") {
-				primitive = new Sphere(json2vec3f(conf["origin"]), (double)conf["radius"]);
-			}
-			if (conf["type"] == "plane") {
-				primitive = new Plane(json2vec3f(conf["normal"]), (double)conf["offset"]);
-			}
-		}
-		if (!primitive) {
-			throw "unrecognized geometric primitive type";
+			primitive = newPrimitive(conf);
 		}
 		// apply transform
 		if (conf.find("transform") != conf.end()) {

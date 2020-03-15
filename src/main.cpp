@@ -227,8 +227,15 @@ int main(int argc, char* argv[])
 		std::cout << "Writing result to " << filename << "\n";
 		film.saveFile(filename);
 	}
-	} catch (const char* s) {
+	}
+	catch (const char* s)
+	{
 		std::cout << "FATAL: " << s << "\n";
+		return 1;
+	}
+	catch (std::runtime_error err)
+	{
+		std::cerr << "FATAL: " << err.what() << std::endl;
 		return 1;
 	}
 }
