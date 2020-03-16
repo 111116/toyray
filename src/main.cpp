@@ -33,7 +33,7 @@ std::vector<Light*> samplable_lights;
 std::vector<Light*> global_lights;
 Accelarator* acc;
 std::unordered_map<std::string, BSDF*> bsdf;
-int max_bounces = 0;
+int max_bounces = 16;
 // TODO don't use fixed eps
 const float geoEPS = 1e-3;
 
@@ -79,6 +79,13 @@ Color radiance(Ray ray, Sampler& sampler)
 			HitInfo shadowhit = acc->hit(shadowray);
 			if (!shadowhit || norm(shadowhit.p - shadowray.origin) > (1-geoEPS) * dist)
 				result += through * irr * fabs(dot(hit.Ns, dirToLight)) * bsdf->f(-ray.dir, dirToLight, hit.Ns, hit.Ng);
+			else { // DEBUG FALSE SHADOW
+				float p = norm(shadowhit.p - shadowray.origin) / dist;
+				// if (p > 0.99 && p<1)
+				// 	result += through * vec3f(1,0,1);
+				// else
+				// 	result += through * vec3f(0,1,1);
+			}
 		}
 		// indirect light (bsdf importance sampling)
 		vec3f newdir;
@@ -209,11 +216,14 @@ int main(int argc, char* argv[])
 		loadPrimitives(conf);
 		loadSources(conf);
 		acc = new BVH(objects);
-		max_bounces = conf["integrator"]["max_bounces"];
+		if (conf.find("integrator") != conf.end()) {
+			if (conf["integrator"].find("max_bounces") != conf["integrator"].end())
+				max_bounces = conf["integrator"]["max_bounces"];
+		}
 		int nspp = conf["renderer"]["spp"];
 		Camera* camera = newCamera(conf["camera"]);
-		Film film(camera->resx, camera->resy);
 
+		Film film(camera->resx, camera->resy);
 		fprintf(stdout, "Rendering at %d x %d x %d spp\n", camera->resx, camera->resy, nspp);
 		// start rendering
 		auto start = std::chrono::system_clock::now();
