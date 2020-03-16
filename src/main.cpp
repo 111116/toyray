@@ -33,7 +33,9 @@ std::vector<Light*> samplable_lights;
 std::vector<Light*> global_lights;
 Accelarator* acc;
 std::unordered_map<std::string, BSDF*> bsdf;
-int max_bounces = 16;
+int max_bounces = 0;
+// TODO don't use fixed eps
+const float geoEPS = 1e-3;
 
 
 Color normal(Ray ray, Sampler&) {
@@ -72,10 +74,10 @@ Color radiance(Ray ray, Sampler& sampler)
 			vec3f dirToLight;
 			float dist;
 			Color irr = l->sampleIrradiance(hit.p, dirToLight, dist, sampler);
-			// shadow ray test // TODO auto error instead of fixed 1e-3, 0.999
-			Ray shadowray(hit.p + 1e-3 * dirToLight, dirToLight);
+			// shadow ray test
+			Ray shadowray(hit.p + geoEPS * dirToLight, dirToLight);
 			HitInfo shadowhit = acc->hit(shadowray);
-			if (!shadowhit || norm(shadowhit.p - shadowray.origin) > 0.999 * dist)
+			if (!shadowhit || norm(shadowhit.p - shadowray.origin) > (1-geoEPS) * dist)
 				result += through * irr * fabs(dot(hit.Ns, dirToLight)) * bsdf->f(-ray.dir, dirToLight, hit.Ns, hit.Ng);
 		}
 		// indirect light (bsdf importance sampling)
@@ -83,8 +85,7 @@ Color radiance(Ray ray, Sampler& sampler)
 		Color f = bsdf->sample_f(-ray.dir, newdir, hit.Ns, hit.Ng, lastDirac, sampler); // already scaled by 1/pdf
 		through *= fabs(dot(newdir, hit.Ns)) * f;
 		if (through == vec3f() || !(sqrlen(through) < 1e20)) break;
-		// TODO auto error instead of fixed 1e-3
-		ray = Ray(hit.p + 1e-3*newdir, newdir);
+		ray = Ray(hit.p + geoEPS*newdir, newdir);
 	}
 	return result;
 }
@@ -208,6 +209,7 @@ int main(int argc, char* argv[])
 		loadPrimitives(conf);
 		loadSources(conf);
 		acc = new BVH(objects);
+		max_bounces = conf["integrator"]["max_bounces"];
 		int nspp = conf["renderer"]["spp"];
 		Camera* camera = newCamera(conf["camera"]);
 		Film film(camera->resx, camera->resy);
