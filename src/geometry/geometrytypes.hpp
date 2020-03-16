@@ -4,6 +4,7 @@
 #include "sphere.hpp"
 #include "plane.hpp"
 #include "quad.hpp"
+#include "cube.hpp"
 #include "../lib/json.hpp"
 #include "../transformparser.hpp"
 
@@ -18,6 +19,9 @@ Primitive* newPrimitive(const Json& conf)
 	}
 	if (conf["type"] == "plane") {
 		shape = new Plane(json2vec3f(conf["normal"]), (double)conf["offset"]);
+	}
+	if (conf["type"] == "cube") {
+		shape = new Cube();
 	}
 	if (conf["type"] == "quad") {
 		mat4f trans = mat4f::unit;

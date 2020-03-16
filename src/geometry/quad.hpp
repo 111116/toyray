@@ -2,7 +2,6 @@
 
 #include "geometry.hpp"
 #include "transform.hpp"
-#include "triangle.hpp"
 
 class Quad: public BasicPrimitive, public SurfaceSamplablePrimitive
 {
