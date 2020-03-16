@@ -178,6 +178,19 @@ void loadSources(const Json& conf) {
 	}
 }
 
+std::vector<std::string> getOutputFiles(const Json& conf)
+{
+	std::vector<std::string> v;
+	if (conf.find("output_files") != conf.end())
+		for (std::string s: conf["output_files"])
+			v.push_back(s);
+	if (conf.find("output_file") != conf.end())
+		v.push_back(conf["output_file"]);
+	if (conf.find("hdr_output_file") != conf.end())
+		v.push_back(conf["hdr_output_file"]);
+	return v;
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -225,7 +238,7 @@ int main(int argc, char* argv[])
 		std::chrono::duration<double> elapsed_seconds = end-start;
 		std::cout << "  " << elapsed_seconds.count() << "s\n";
 		// save files
-		for (std::string filename : conf["renderer"]["output_files"]) {
+		for (std::string filename : getOutputFiles(conf["renderer"])) {
 			std::cout << "Writing result to " << filename << "\n";
 			film.saveFile(filename);
 		}
