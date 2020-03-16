@@ -60,7 +60,7 @@ public:
 			}
 			tmax = std::min(tmax, (z1 - ray.origin.z) / ray.dir.z);
 		}
-		if (tmin <= tmax)
+		if (0<tmin && tmin <= tmax)
 		{
 			*result = Hit(ray.atParam(tmin), resN, resN);
 			return true;
