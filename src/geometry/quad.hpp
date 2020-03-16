@@ -40,7 +40,6 @@ public:
 
 	bool intersect(const Ray& ray, float& result) const
 	{
-		return t->intersect(ray,result);
 		Ray iray(Transformed::transformedPoint(invTrans, ray.origin),
 			(invTrans * vec4f(ray.dir,0)).xyz());
 		float t = -iray.origin.y / iray.dir.y;
@@ -55,19 +54,16 @@ public:
 
 	vec3f Ns(const point& p) const
 	{
-		// return t->Ns(p);
 		return normal;
 	}
 
 	vec3f Ng(const point& p) const
 	{
-		// return t->Ns(p);
 		return normal;
 	}
 
 	SampleInfo sampleSurface(Sampler& sampler) const
 	{
-		return t->sampleSurface(sampler);
 		vec2f t = sampler.get2f();
 		point p = v2 + t.x * (v1-v2) + t.y * (v3-v2);
 		return SampleInfo(p, normal, one_by_area);
@@ -75,7 +71,6 @@ public:
 
 	AABox boundingVolume() const
 	{
-		// return t->boundingVolume();
 		AABox v;
 		v.x1 = std::min(v1.x, std::min(v2.x, std::min(v3.x, v4.x)));
 		v.x2 = std::max(v1.x, std::max(v2.x, std::max(v3.x, v4.x)));

@@ -80,24 +80,6 @@ Color radiance(Ray ray, Sampler& sampler)
 			HitInfo shadowhit = acc->hit(shadowray);
 			if (!shadowhit || norm(shadowhit.p - shadowray.origin) > (1-geoEPS) * dist)
 				result += through * irr * fabs(dot(hit.Ns, dirToLight)) * bsdf->f(-ray.dir, dirToLight, hit.Ns, hit.Ng);
-			else { // DEBUG FALSE SHADOW
-				float p = norm(shadowhit.p - shadowray.origin) / dist;
-				if (hit.p.y < 1.8)
-				{
-					std::cerr << "  =====  \n";
-					std::cerr << "POINT " << hit.p << std::endl;
-					std::cerr << "Color " << bsdf->f(p,p,hit.Ns,hit.Ns) << std::endl;
-					std::cerr << "shadowray " << shadowray.origin << " " << shadowray.dir << std::endl;
-					std::cerr << "shadowray len " << norm(shadowray.dir) << std::endl;
-					std::cerr << "dist to light " << dist << std::endl;
-					std::cerr << "occluded @r " << p << std::endl;
-					throw "DEBUG STOPPED";
-				}
-				if (p > 0.99 && p<1)
-					result += through * vec3f(1,0,1);
-				else
-					result += through * vec3f(0,1,1);
-			}
 		}
 		// indirect light (bsdf importance sampling)
 		vec3f newdir;
