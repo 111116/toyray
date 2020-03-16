@@ -35,6 +35,16 @@ vec3f json2vec3f(const Json& o) {
 	if (o.type() != Json::value_t::array)
 		throw "failed convert json to vec3f";
 	std::vector<float> a = o;
-	assert(a.size()==3);
+	if (a.size()!=3) throw "vector size mismatched";
 	return vec3f(a[0], a[1], a[2]);
+}
+
+vec2f json2vec2f(const Json& o) {
+	if (is_number(o))
+		return vec2f(o);
+	if (o.type() != Json::value_t::array)
+		throw "failed convert json to vec2f";
+	std::vector<float> a = o;
+	if (a.size()!=2) throw "vector size mismatched";
+	return vec2f(a[0], a[1]);
 }
