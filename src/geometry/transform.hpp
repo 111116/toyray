@@ -10,13 +10,6 @@ class Transformed : public Primitive
 	const mat4f invTrans;
 	AABox bound;
 
-	static vec3f transformedDir(const mat4f& mat, const vec3f& v) {
-		return normalized((mat * vec4f(v, 0)).xyz());
-	}
-	static vec3f transformedPoint(const mat4f& mat, const vec3f& v) {
-		return (mat * vec4f(v, 1)).xyz();
-	}
-
 public:
 	// using singular matrix is strongly discouraged!
 	Transformed(Primitive* inner, const mat4f& m):
@@ -56,5 +49,12 @@ public:
 	AABox boundingVolume() const
 	{
 		return bound;
+	}
+
+	static vec3f transformedDir(const mat4f& mat, const vec3f& v) {
+		return normalized((mat * vec4f(v, 0)).xyz());
+	}
+	static vec3f transformedPoint(const mat4f& mat, const vec3f& v) {
+		return (mat * vec4f(v, 1)).xyz();
 	}
 };

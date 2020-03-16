@@ -36,7 +36,7 @@ std::unordered_map<std::string, BSDF*> bsdf;
 int max_bounces = 16;
 
 
-Color normal(Ray ray) {
+Color normal(Ray ray, Sampler&) {
 	HitInfo hit = acc->hit(ray);
 	if (!hit) {
 		return Color();

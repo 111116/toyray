@@ -6,8 +6,12 @@
 
 class Primitive
 {
+protected:
+	bool _internalTransform = false;
 public:
 	class Hit;
+	// whether it handles transform internally (shouldn't be wrapped with Transform)
+	bool const& internalTransform = _internalTransform;
 	// result shouldn't be changed if there's no hit
 	virtual bool intersect(const Ray& ray, Hit* result) const = 0;
 	// virtual point surface_uniform_sample(Sampler&) const = 0;
