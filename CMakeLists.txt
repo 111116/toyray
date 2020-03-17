@@ -15,10 +15,8 @@ message("Build type: " ${CMAKE_BUILD_TYPE})
 
 add_executable(${PROJECT_NAME} "src/main.cpp")
 add_library(saveexr STATIC "src/lib/saveexr.cpp")
+target_include_directories(toyray PUBLIC "src")
 target_link_libraries(toyray PUBLIC saveexr)
-add_library(geometry STATIC "src/geometry/geometrycollection.cpp")
-target_include_directories(geometry PUBLIC "src")
-target_link_libraries(toyray PUBLIC geometry)
 
 
 
