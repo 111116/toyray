@@ -1,6 +1,6 @@
+#include "consolelog.hpp"
 #define TINYEXR_IMPLEMENTATION
 #include "tinyexr.h"
-#include "consolelog.hpp"
 // See `examples/rgbe2exr/` for more details.
 int SaveEXR(const float* rgb, int width, int height, const char* outfilename) {
 
