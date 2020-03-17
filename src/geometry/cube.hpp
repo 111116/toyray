@@ -72,4 +72,9 @@ public:
 	{
 		return AABox(-0.5,0.5,-0.5,0.5,-0.5,0.5);
 	}
+
+	SampleInfo sampleSurface(Sampler& sampler) const
+	{
+		throw "Cube::sampleSurface unimplemented";
+	}
 };

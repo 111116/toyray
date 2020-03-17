@@ -3,7 +3,7 @@
 #include "geometry.hpp"
 #include "../math/matfloat.hpp"
 
-class Triangle: public BasicPrimitive, public SurfaceSamplablePrimitive
+class Triangle: public BasicPrimitive
 {
 	vec3f v1,v2,v3;
 	vec3f vn1, vn2, vn3;

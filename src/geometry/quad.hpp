@@ -5,7 +5,7 @@
 
 #include "triangle.hpp" // DEBUG
 
-class Quad: public BasicPrimitive, public SurfaceSamplablePrimitive
+class Quad: public BasicPrimitive
 {
 	const mat4f invTrans;
 	float one_by_area;
@@ -15,7 +15,6 @@ public:
 
 	Quad(const mat4f& transform): invTrans(inverse(transform))
 	{
-		_internalTransform = true;
 		// calculate area
         v1 = vec3f(-0.5f, 0.0f, -0.5f);
         v2 = vec3f( 0.5f, 0.0f, -0.5f);

@@ -2,7 +2,7 @@
 
 #include "geometry.hpp"
 
-class Sphere: public BasicPrimitive, public SurfaceSamplablePrimitive
+class Sphere: public BasicPrimitive
 {
 private:
 	point center;

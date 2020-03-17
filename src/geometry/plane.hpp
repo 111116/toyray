@@ -36,6 +36,11 @@ public:
     {
         return AABox::infAAB;
     }
+
+    SampleInfo sampleSurface(Sampler& sampler) const
+    {
+        throw "Plane::sampleSurface unimplemented";
+    }
 };
 
 #endif //PLANE_H

@@ -10,7 +10,7 @@
 #include "container.hpp"
 
 
-class TriangleMesh: public BasicContainer, public SurfaceSamplablePrimitive
+class TriangleMesh: public BasicContainer
 {
 public:
 	TriangleMesh(const Json& conf): BasicContainer(loadfromfile(getpath(conf["file"]).c_str())) {

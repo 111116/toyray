@@ -51,6 +51,11 @@ public:
 		return bound;
 	}
 
+	SampleInfo sampleSurface(Sampler& sampler) const
+	{
+		throw "Transformed::sampleSurface unimplemented";
+	}
+
 	static vec3f transformedDir(const mat4f& mat, const vec3f& v) {
 		return normalized((mat * vec4f(v, 0)).xyz());
 	}

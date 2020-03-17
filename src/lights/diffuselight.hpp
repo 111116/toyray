@@ -7,11 +7,11 @@ class DiffuseLight : public Light
 {
 private:
 	Color _radiance;
-	SurfaceSamplablePrimitive* base;
+	Primitive* base;
 
 public:
 	DiffuseLight(bool sample, const Color& color, Primitive* base):
-		Light(sample), _radiance(color), base(dynamic_cast<SurfaceSamplablePrimitive*>(base))
+		Light(sample), _radiance(color), base(dynamic_cast<Primitive*>(base))
 	{
 		if (base == NULL && samplable)
 			throw "DiffuseLight: primitive not samplable";

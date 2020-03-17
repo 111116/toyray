@@ -27,7 +27,7 @@ struct Object
 			primitive = newPrimitive(conf);
 		}
 		// apply transform
-		if (conf.find("transform") != conf.end() && !primitive->internalTransform)
+		if (conf.find("transform") != conf.end())
 		{
 			mat4f m = parseTransform(conf["transform"]);
 			if (m != mat4f::unit) {
