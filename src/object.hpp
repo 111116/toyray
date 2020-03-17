@@ -16,16 +16,10 @@ struct Object
 	// an object can contain either a primitive or a container of primitives
 	Primitive* primitive = NULL;
 
-	Object(const Json& conf, BSDF* bsdf, Primitive* instancing = NULL)
+	Object(const Json& conf, BSDF* bsdf)
 	{
 		this->bsdf = bsdf;
-		// primitive construct (use instancing if applicable)
-		if (instancing != NULL) {
-			primitive = instancing;
-		}
-		else {
-			primitive = newPrimitive(conf);
-		}
+		primitive = newPrimitive(conf);
 		// apply transform
 		if (conf.find("transform") != conf.end())
 		{
