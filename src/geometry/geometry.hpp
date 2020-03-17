@@ -1,7 +1,7 @@
 #pragma once
 
 #include "aabox.hpp"
-#include "../samplers/sampler.hpp"
+#include "samplers/sampler.hpp"
 
 
 class Primitive

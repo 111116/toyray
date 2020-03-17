@@ -1,7 +1,7 @@
 #pragma once
 
 #include "geometry.hpp"
-#include "../math/matfloat.hpp"
+#include "math/matfloat.hpp"
 
 class Transformed : public Primitive
 {
@@ -56,6 +56,7 @@ public:
 		throw "Transformed::sampleSurface unimplemented";
 	}
 
+private:
 	static vec3f transformedDir(const mat4f& mat, const vec3f& v) {
 		return normalized((mat * vec4f(v, 0)).xyz());
 	}

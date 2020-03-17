@@ -1,7 +1,7 @@
 #pragma once
 
 #include "geometry.hpp"
-#include "../math/matfloat.hpp"
+#include "math/matfloat.hpp"
 
 class Cube: public Primitive
 {

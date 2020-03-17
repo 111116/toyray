@@ -1,19 +1,62 @@
-#pragma once
-
+#include <unordered_map>
 #include "triangle.hpp"
 #include "trianglemesh.hpp"
 #include "sphere.hpp"
 #include "plane.hpp"
 #include "quad.hpp"
 #include "cube.hpp"
-#include "../jsonutil.hpp"
-#include "../transformparser.hpp"
+#include "jsonutil.hpp"
+
+
+
+namespace
+{
+	std::string encodemesh(const Json& o)
+	{
+		bool recompute_normals = true;
+		if (o.find("recompute_normals") != o.end()) {
+			recompute_normals = o["recompute_normals"];
+		}
+		return (recompute_normals?"1":"0") + std::string(o["file"]);
+	};
+	Json decodemesh(const std::string& s)
+	{
+		std::unordered_map<std::string, Json> t;
+		t["file"] = s;
+		t["recompute_normals"] = (s[0]=='1');
+		return t;
+	}
+	std::unordered_map<std::string, Primitive*> meshref;
+}
+
+
+void instantiateGeometry(const Json& conf)
+{
+	// auto instancing for meshes
+	for (auto o: conf["primitives"])
+	{
+		if (o["type"] == "mesh") {
+			meshref[encodemesh(o)] = NULL;
+		}
+	}
+	// flatten map elements for parallelization
+	std::vector<std::unordered_map<std::string, Primitive*>::iterator> v;
+	for (auto it = meshref.begin(); it != meshref.end(); ++it)
+		v.push_back(it);
+
+	// start instantiation
+#pragma omp parallel for schedule(dynamic)
+	for (auto p = v.begin(); p != v.end(); ++p) {
+		(*p)->second = new TriangleMesh(decodemesh((*p)->first.substr(1)));
+	}
+}
+
 
 Primitive* newPrimitive(const Json& conf)
 {
 	Primitive* shape = NULL;
 	if (conf["type"] == "mesh") {
-		shape = new TriangleMesh(conf);
+		shape = meshref[encodemesh(conf)];
 	}
 	if (conf["type"] == "sphere") {
 		shape = new Sphere(json2vec3f(conf["origin"]), (double)conf["radius"]);

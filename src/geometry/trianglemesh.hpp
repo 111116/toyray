@@ -4,11 +4,14 @@
 #include <sstream>
 #include <cstring>
 #include <vector>
+
+#include "jsonutil.hpp"
+#include "filepath.hpp"
+#include "lib/consolelog.hpp"
+
 #include "triangle.hpp"
-#include "../jsonutil.hpp"
-#include "../filepath.hpp"
 #include "container.hpp"
-#include "../lib/consolelog.hpp"
+
 
 
 class TriangleMesh: public BasicContainer

@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "geometry.hpp"
+#include "lib/consolelog.hpp"
 
 class BasicContainer: public Primitive
 {
