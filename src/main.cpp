@@ -17,6 +17,7 @@
 #include "lib/saveexr.h"
 #include "jsonutil.hpp"
 #include "filepath.hpp" // model directory
+#include "lib/consolelog.hpp"
 
 #include "object.hpp"
 #include "lights/lighttypes.hpp"
@@ -95,19 +96,20 @@ Color radiance(Ray ray, Sampler& sampler)
 
 void welcome(int argc, char* argv[]) {
 #ifndef NDEBUG
-	fprintf(stderr, "WARNING: running in DEBUG mode. EXTREMELY SLOW!\n");
+	console.warn("Running in DEBUG mode. EXTREMELY SLOW!\n");
 #endif
 #ifdef THREADED
 #pragma omp parallel
 	{
 	#pragma omp single
-		std::cerr << omp_get_num_threads() << " THREADS" << std::endl;
+		console.info(omp_get_num_threads(), "THREADS");
 	}
 #else
-	std::cerr << "Threading disabled" << std::endl;
+	console.info("Threading disabled");
 #endif
 	if (argc<=1) {
-		std::cerr << "Usage: " << argv[0] << " <json file>"<< std::endl;
+		console.info("Usage:", argv[0], "<json file>");
+		throw "scene not specified.";
 	}
 }
 
@@ -154,7 +156,7 @@ void loadPrimitives(const Json& conf) {
 			Object* newobj;
 			Primitive* instancing = (o["type"] == "mesh")? meshref[encode(o)]: NULL;
 			if (bsdf.find(std::string(o["bsdf"])) == bsdf.end())
-				std::cerr << "WARNING: UNDEFINED BSDF " + std::string(o["bsdf"]) << std::endl;
+				console.warn("Undefined BSDF", o["bsdf"]);
 			newobj = new Object(o, bsdf[o["bsdf"]], instancing);
 			objects.push_back(newobj);
 		// }
@@ -199,7 +201,6 @@ int main(int argc, char* argv[])
 	try {
 		welcome(argc, argv);
 		// parse commandline args
-		if (argc<=1) return 1;
 		std::ifstream fin(argv[1]);
 		if (!fin) throw "Failed reading scene file";
 		modelpath = directoryOf(argv[1]);
@@ -218,9 +219,9 @@ int main(int argc, char* argv[])
 		Camera* camera = newCamera(conf["camera"]);
 
 		Film film(camera->resx, camera->resy);
-		fprintf(stdout, "Rendering at %d x %d x %d spp\n", camera->resx, camera->resy, nspp);
+		console.info("Rendering at", camera->resx, 'x', camera->resy, 'x', nspp, "spp");
 		// start rendering
-		auto start = std::chrono::system_clock::now();
+		console.time("Rendered");
 		int line_finished = 0;
 #pragma omp parallel for schedule(dynamic)
 		for (int y=0; y<camera->resy; ++y) {
@@ -239,24 +240,21 @@ int main(int argc, char* argv[])
 			// report progress
 			fprintf(stderr, "\r%.1f%%", 100.0f*(++line_finished)/camera->resy);
 		}
-		// end timing
-		auto end = std::chrono::system_clock::now();
-		std::chrono::duration<double> elapsed_seconds = end-start;
-		std::cout << "  " << elapsed_seconds.count() << "s\n";
+		console.timeEnd("Rendered");
 		// save files
 		for (std::string filename : getOutputFiles(conf["renderer"])) {
-			std::cout << "Writing result to " << filename << "\n";
+			console.info("Writing result to", filename);
 			film.saveFile(filename);
 		}
 	}
 	catch (const char* s)
 	{
-		std::cout << "FATAL: " << s << "\n";
+		console.error("FATAL:", s);
 		return 1;
 	}
 	catch (std::runtime_error err)
 	{
-		std::cerr << "FATAL: " << err.what() << std::endl;
+		console.error("FATAL:", err.what());
 		return 1;
 	}
 }

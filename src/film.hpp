@@ -4,6 +4,7 @@
 #include "color.h"
 #include "lib/saveexr.h"
 #include "lib/writebmp.h"
+#include "lib/consolelog.hpp"
 
 class Film
 {
@@ -24,7 +25,7 @@ public:
 	{
 		int dotpos = filename.rfind(".");
 		if (dotpos == std::string::npos) {
-			std::cerr << "saveFile: unrecognized format\n";
+			console.warn("saveFile: unrecognized format");
 			return -1;
 		}
 		auto suffix = filename.substr(dotpos+1);
@@ -37,7 +38,7 @@ public:
 			writeBMP(filename.c_str(), pixels, w, h);
 			return 0;
 		}
-		std::cerr << "saveFile: unrecognized format\n";
+		console.warn("saveFile: unrecognized format", suffix);
 		return -1;
 	}
 };

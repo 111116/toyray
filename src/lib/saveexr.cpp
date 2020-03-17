@@ -1,5 +1,6 @@
 #define TINYEXR_IMPLEMENTATION
 #include "tinyexr.h"
+#include "consolelog.hpp"
 // See `examples/rgbe2exr/` for more details.
 int SaveEXR(const float* rgb, int width, int height, const char* outfilename) {
 
@@ -53,7 +54,7 @@ int SaveEXR(const float* rgb, int width, int height, const char* outfilename) {
     // FreeEXRErrorMessage(err); // free's buffer for an error message
     return ret;
   }
-  printf("Saved exr file. [ %s ] \n", outfilename);
+  console.info("Saved exr file ", outfilename);
 
   // free(rgb);
 

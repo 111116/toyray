@@ -22,7 +22,7 @@ public:
 	BasicContainer(const std::vector<BasicPrimitive*>& list): list(list)
 	{
 #pragma omp critical
-		std::cout << "building SAH BVH of " << list.size() << " primitives" << std::endl;
+		console.log("building SAH BVH of", list.size(), "primitives");
 		build(list, root);
 		bound = list[0]->boundingVolume();
 		for (int i=1; i<list.size(); ++i) {

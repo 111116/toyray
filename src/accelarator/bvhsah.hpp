@@ -1,6 +1,7 @@
 #pragma once
 
 #include "accelarator.hpp"
+#include "../lib/consolelog.hpp"
 
 struct BVH : public Accelarator {
 private:
@@ -108,7 +109,7 @@ private:
 public:
 	BVH(const std::vector<Object*>& list) {
 #pragma omp critical
-		std::cout << "building SAH BVH of " << list.size() << " objects" << std::endl;
+		console.log("building SAH BVH of", list.size(), "objects");
 		for (Object* o: list) {
 			this->list.push_back({o->primitive, o});
 		}

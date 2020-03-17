@@ -8,6 +8,7 @@
 #include "../jsonutil.hpp"
 #include "../filepath.hpp"
 #include "container.hpp"
+#include "../lib/consolelog.hpp"
 
 
 class TriangleMesh: public BasicContainer
@@ -42,7 +43,7 @@ private:
 	// only supports triangle mesh with 2d texture
 	std::vector<BasicPrimitive*> loadfromfile(const char* filename) {
 #pragma omp critical
-		std::cout << "Loading mesh: " << filename << std::endl;
+		console.log("Loading mesh:", filename);
 		if (strcmp(filename+strlen(filename)-4, ".obj") != 0)
 			throw "format must be obj";
 		std::ifstream fin(filename);
@@ -96,7 +97,6 @@ private:
 				        if (ivt < 0) ivt += vt.size()+1;
 				        if (ivn < 0) ivn += vn.size()+1;
 				    	vv.push_back(v[iv-1]);
-				    	// std::cout << "vv " << iv << " " << v[iv-1] << std::endl;
 				    	vvt.push_back(ivt? vt[ivt-1]: vec2f());
 				    	vvn.push_back(ivn? vn[ivn-1]: vec3f(0,1,0));
 				    }
@@ -104,7 +104,7 @@ private:
 				    	faces.push_back(new Triangle(vv[0], vv[1], vv[2], vvt[0], vvt[1], vvt[2], vvn[0], vvn[1], vvn[2]));
 				    }
 				    else {
-				    	throw "unexpected number of vertices";
+				    	throw "mesh face other than triangle not supported";
 				    }
 				} // end reading face
 			}

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <iostream>
+#include "../lib/consolelog.hpp"
 #include "bsdf.hpp"
 
 #include "matte.hpp" // lambert reflective
@@ -28,16 +28,16 @@ BSDF* newMaterial(const Json& conf)
 	}
 	catch (const char* err)
 	{
-		std::cerr << "ERROR: " << err << std::endl;
-		std::cerr << "Replacing with gray matte. Continueing..." << std::endl;
+		console.warn(err);
+		console.info("Replacing with gray matte. Continueing...");
 		delete bsdf;
 		bsdf = new BSDF();
 		bsdf->add_component(new LambertBRDF(Color(0.7)));
 	}
 	catch (std::runtime_error err)
 	{
-		std::cerr << "ERROR: " << err.what() << std::endl;
-		std::cerr << "Replacing with gray matte. Continueing..." << std::endl;
+		console.warn(err.what());
+		console.info("Replacing with gray matte. Continueing...");
 		delete bsdf;
 		bsdf = new BSDF();
 		bsdf->add_component(new LambertBRDF(Color(0.7)));
