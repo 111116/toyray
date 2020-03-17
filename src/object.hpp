@@ -5,7 +5,7 @@
 #include "lights/lighttypes.hpp"
 #include "transformparser.hpp"
 #include "geometry/transform.hpp"
-#include "geometry/geometrytypes.hpp"
+#include "geometry/geometrycollection.hpp"
 
 
 

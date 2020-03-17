@@ -119,33 +119,9 @@ void loadMaterials(const Json& conf) {
 		bsdf[o["name"]] = newMaterial(o);
 	}
 }
-void loadPrimitives(const Json& conf) {
-	// auto instancing for meshes
-	auto encode = [](const Json& o) {
-		bool recompute_normals = true;
-		if (o.find("recompute_normals") != o.end()) {
-			recompute_normals = o["recompute_normals"];
-		}
-		return (recompute_normals?"1":"0") + std::string(o["file"]);
-	};
-	std::unordered_map<std::string, Primitive*> meshref;
-	for (auto o: conf["primitives"]) {
-		if (o["type"] == "mesh") {
-			meshref[encode(o)] = NULL;
-		}
-	}
-	// flatten map elements for parallelization
-	std::vector<std::unordered_map<std::string, Primitive*>::iterator> v;
-	for (auto it = meshref.begin(); it != meshref.end(); ++it)
-		v.push_back(it);
-#pragma omp parallel for schedule(dynamic)
-	for (auto p = v.begin(); p != v.end(); ++p) {
-		// decode conf to json
-		std::unordered_map<std::string, Json> t;
-		t["file"] = (*p)->first.substr(1);
-		t["recompute_normals"] = ((*p)->first[0]=='1');
-		(*p)->second = new TriangleMesh(t);
-	}
+void loadPrimitives(const Json& conf)
+{
+	instantiateGeometry(conf);
 	for (auto o: conf["primitives"]) {
 		// if (o["type"] == "infinite_sphere") {
 		// 	// assume infinite_sphere will only be used for light probes
@@ -154,10 +130,9 @@ void loadPrimitives(const Json& conf) {
 		// }
 		// else {
 			Object* newobj;
-			Primitive* instancing = (o["type"] == "mesh")? meshref[encode(o)]: NULL;
 			if (bsdf.find(std::string(o["bsdf"])) == bsdf.end())
 				console.warn("Undefined BSDF", o["bsdf"]);
-			newobj = new Object(o, bsdf[o["bsdf"]], instancing);
+			newobj = new Object(o, bsdf[o["bsdf"]]);
 			objects.push_back(newobj);
 		// }
 	}
