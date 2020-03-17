@@ -25,10 +25,7 @@ Primitive* newPrimitive(const Json& conf)
 		shape = new Cube();
 	}
 	if (conf["type"] == "quad") {
-		mat4f trans = mat4f::unit;
-		if (conf.find("transform") != conf.end())
-			trans = parseTransform(conf["transform"]);
-		shape = new Quad(trans);
+		shape = new Quad();
 	}
 	if (conf["type"] == "triangle") {
 		vec3f v1,v2,v3,n1,n2,n3;
