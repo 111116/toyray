@@ -1,6 +1,7 @@
 
 #include "geometry.hpp"
 #include "util/jsonutil.hpp"
+#include "util/taskscheduler.hpp"
 
 #include <unordered_map>
 #include "triangle.hpp"
@@ -51,10 +52,12 @@ void instantiateGeometry(const Json& conf)
 		v.push_back(it);
 
 	// start instantiation
-#pragma omp parallel for schedule(dynamic)
-	for (auto p = v.begin(); p != v.end(); ++p) {
-		(*p)->second = new TriangleMesh(decodemesh((*p)->first));
-	}
+	TaskScheduler tasks;
+	for (auto p = v.begin(); p != v.end(); ++p)
+		tasks.add([&](){
+			(*p)->second = new TriangleMesh(decodemesh((*p)->first));
+		});
+	tasks.start();
 }
 
 

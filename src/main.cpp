@@ -1,10 +1,5 @@
 
 #include <assert.h>
-
-#ifdef THREADED
-#include <omp.h>
-#endif
-
 #include <algorithm>
 #include <unordered_map>
 #include <fstream>
@@ -16,6 +11,7 @@
 #include "lib/consolelog.hpp"
 #include "util/jsonutil.hpp"
 #include "util/filepath.hpp"
+#include "util/taskscheduler.hpp"
 
 #include "renderer.hpp"
 #include "film.hpp"
@@ -29,15 +25,6 @@
 void welcome(int argc, char* argv[]) {
 #ifndef NDEBUG
 	console.warn("Running in DEBUG mode. EXTREMELY SLOW!\n");
-#endif
-#ifdef THREADED
-#pragma omp parallel
-	{
-#pragma omp single
-		console.info(omp_get_num_threads(), "THREADS");
-	}
-#else
-	console.info("Threading disabled");
 #endif
 	if (argc<=1) {
 		console.info("Usage:", argv[0], "<json file>");
@@ -123,18 +110,19 @@ int main(int argc, char* argv[])
 		console.info("Rendering at", camera->resx, 'x', camera->resy, 'x', renderer.nspp, "spp");
 		// start rendering
 		console.time("Rendered");
-		int line_finished = 0;
-#pragma omp parallel for schedule(dynamic)
+		TaskScheduler tasks;
 		for (int y=0; y<camera->resy; ++y) {
-			for (int x=0; x<camera->resx; ++x) {
-				vec2f pixelsize = vec2f(1.0/camera->resx, 1.0/camera->resy);
-				vec2f pixelpos = vec2f(x,y) * pixelsize;
-				film.setPixel(x, y, renderer.render(pixelpos, pixelsize));
-			}
-#pragma omp critical
-			// report progress
-			fprintf(stderr, "\r%.1f%%", 100.0f*(++line_finished)/camera->resy);
+			tasks.add([&](){
+				for (int x=0; x<camera->resx; ++x) {
+					vec2f pixelsize = vec2f(1.0/camera->resx, 1.0/camera->resy);
+					vec2f pixelpos = vec2f(x,y) * pixelsize;
+					film.setPixel(x, y, renderer.render(pixelpos, pixelsize));
+				}
+			});
 		}
+		tasks.onprogress = [](int k, int n){
+			fprintf(stderr, "\r%.1f%%", 100.0f*k/n);
+		};
 		console.timeEnd("Rendered");
 		// save files
 		for (std::string filename : getOutputFiles(conf["renderer"])) {
