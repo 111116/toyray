@@ -113,3 +113,223 @@ vec3f cross(const vec3f& a, const vec3f& b);
 
 bool operator == (const vec3f& a, const vec3f& b);
 
+
+
+// inline implementations
+
+
+// single float operations
+
+inline vec2f operator * (float k, const vec2f& v) {
+	return vec2f(k*v.x, k*v.y);
+}
+inline vec2f operator * (const vec2f& v, float k) {
+	return vec2f(k*v.x, k*v.y);
+}
+inline vec2f operator / (const vec2f& v, float k) {
+	return vec2f(v.x/k, v.y/k);
+}
+
+inline vec3f operator * (float k, const vec3f& v) {
+	return vec3f(k*v.x, k*v.y, k*v.z);
+}
+inline vec3f operator * (const vec3f& v, float k) {
+	return vec3f(k*v.x, k*v.y, k*v.z);
+}
+inline vec3f operator / (const vec3f& v, float k) {
+	return vec3f(v.x/k, v.y/k, v.z/k);
+}
+
+inline vec4f operator * (float k, const vec4f& v) {
+	return vec4f(k*v.x, k*v.y, k*v.z, k*v.w);
+}
+inline vec4f operator * (const vec4f& v, float k) {
+	return vec4f(k*v.x, k*v.y, k*v.z, k*v.w);
+}
+inline vec4f operator / (const vec4f& v, float k) {
+	return vec4f(v.x/k, v.y/k, v.z/k, v.w/k);
+}
+
+inline vec2f& operator *= (vec2f& a, float k)
+{
+	a.x *= k;
+	a.y *= k;
+	return a;
+}
+inline vec3f& operator *= (vec3f& a, float k)
+{
+	a.x *= k;
+	a.y *= k;
+	a.z *= k;
+	return a;
+}
+inline vec4f& operator *= (vec4f& a, float k)
+{
+	a.x *= k;
+	a.y *= k;
+	a.z *= k;
+	a.w *= k;
+	return a;
+}
+
+
+
+// element-wise operations
+
+inline vec2f operator + (const vec2f& a, const vec2f& b) {
+	return vec2f(a.x + b.x, a.y + b.y);
+}
+inline vec3f operator + (const vec3f& a, const vec3f& b) {
+	return vec3f(a.x + b.x, a.y + b.y, a.z + b.z);
+}
+inline vec4f operator + (const vec4f& a, const vec4f& b) {
+	return vec4f(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
+}
+inline vec2f operator - (const vec2f& a, const vec2f& b) {
+	return vec2f(a.x - b.x, a.y - b.y);
+}
+inline vec3f operator - (const vec3f& a, const vec3f& b) {
+	return vec3f(a.x - b.x, a.y - b.y, a.z - b.z);
+}
+inline vec4f operator - (const vec4f& a, const vec4f& b) {
+	return vec4f(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
+}
+inline vec2f operator * (const vec2f& a, const vec2f& b) {
+	return vec2f(a.x*b.x, a.y*b.y);
+}
+inline vec3f operator * (const vec3f& a, const vec3f& b) {
+	return vec3f(a.x*b.x, a.y*b.y, a.z*b.z);
+}
+inline vec4f operator * (const vec4f& a, const vec4f& b) {
+	return vec4f(a.x*b.x, a.y*b.y, a.z*b.z, a.w*b.w);
+}
+
+inline vec2f& operator += (vec2f& a, const vec2f& b)
+{
+	a.x += b.x;
+	a.y += b.y;
+	return a;
+}
+inline vec3f& operator += (vec3f& a, const vec3f& b)
+{
+	a.x += b.x;
+	a.y += b.y;
+	a.z += b.z;
+	return a;
+}
+inline vec4f& operator += (vec4f& a, const vec4f& b)
+{
+	a.x += b.x;
+	a.y += b.y;
+	a.z += b.z;
+	a.w += b.w;
+	return a;
+}
+
+inline vec2f& operator -= (vec2f& a, const vec2f& b)
+{
+	a.x -= b.x;
+	a.y -= b.y;
+	return a;
+}
+inline vec3f& operator -= (vec3f& a, const vec3f& b)
+{
+	a.x -= b.x;
+	a.y -= b.y;
+	a.z -= b.z;
+	return a;
+}
+inline vec4f& operator -= (vec4f& a, const vec4f& b)
+{
+	a.x -= b.x;
+	a.y -= b.y;
+	a.z -= b.z;
+	a.w -= b.w;
+	return a;
+}
+
+inline vec2f& operator *= (vec2f& a, const vec2f& b)
+{
+	a.x *= b.x;
+	a.y *= b.y;
+	return a;
+}
+inline vec3f& operator *= (vec3f& a, const vec3f& b)
+{
+	a.x *= b.x;
+	a.y *= b.y;
+	a.z *= b.z;
+	return a;
+}
+inline vec4f& operator *= (vec4f& a, const vec4f& b)
+{
+	a.x *= b.x;
+	a.y *= b.y;
+	a.z *= b.z;
+	a.w *= b.w;
+	return a;
+}
+
+
+
+// unary operations
+inline vec2f operator-(const vec2f& v) {
+	return vec2f(-v.x, -v.y);
+}
+inline vec3f operator-(const vec3f& v) {
+	return vec3f(-v.x, -v.y, -v.z);
+}
+inline vec4f operator-(const vec4f& v) {
+	return vec4f(-v.x, -v.y, -v.z, -v.w);
+}
+inline float sqrlen(const vec2f& v) {
+	return v.x*v.x + v.y*v.y;
+}
+inline float sqrlen(const vec3f& v) {
+	return v.x*v.x + v.y*v.y + v.z*v.z;
+}
+inline float sqrlen(const vec4f& v) {
+	return v.x*v.x + v.y*v.y + v.z*v.z + v.w*v.w;
+}
+inline float norm(const vec2f& v) {
+	return sqrt(v.x*v.x + v.y*v.y);
+}
+inline float norm(const vec3f& v) {
+	return sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
+}
+inline float norm(const vec4f& v) {
+	return sqrt(v.x*v.x + v.y*v.y + v.z*v.z + v.w*v.w);
+}
+inline vec2f normalized(const vec2f& v)
+{
+	float lambda = 1/norm(v);
+	return vec2f(lambda*v.x, lambda*v.y);
+}
+inline vec3f normalized(const vec3f& v)
+{
+	float lambda = 1/norm(v);
+	return vec3f(lambda*v.x, lambda*v.y, lambda*v.z);
+}
+inline vec4f normalized(const vec4f& v)
+{
+	float lambda = 1/norm(v);
+	return vec4f(lambda*v.x, lambda*v.y, lambda*v.z, lambda*v.w);
+}
+
+
+
+// other operations
+
+inline float dot(const vec3f& a, const vec3f& b)
+{
+	return a.x*b.x + a.y*b.y + a.z*b.z;
+}
+
+inline vec3f cross(const vec3f& a, const vec3f& b)
+{
+	return vec3f(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
+}
+
+inline bool operator == (const vec3f& a, const vec3f& b) {
+	return a.x==b.x && a.y==b.y && a.z==b.z;
+}
