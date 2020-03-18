@@ -1,4 +1,3 @@
-#pragma once
 
 #include "renderer.hpp"
 #include "samplers/randomsampler.hpp"
