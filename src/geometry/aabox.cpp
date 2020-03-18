@@ -1,4 +1,5 @@
 
+#include <limits>
 #include "aabox.hpp"
 
 const AABox AABox::infAAB (
