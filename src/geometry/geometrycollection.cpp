@@ -28,7 +28,7 @@ namespace
 	Json decodemesh(const std::string& s)
 	{
 		std::unordered_map<std::string, Json> t;
-		t["file"] = s;
+		t["file"] = s.substr(1);
 		t["recompute_normals"] = (s[0]=='1');
 		return t;
 	}
@@ -53,7 +53,7 @@ void instantiateGeometry(const Json& conf)
 	// start instantiation
 #pragma omp parallel for schedule(dynamic)
 	for (auto p = v.begin(); p != v.end(); ++p) {
-		(*p)->second = new TriangleMesh(decodemesh((*p)->first.substr(1)));
+		(*p)->second = new TriangleMesh(decodemesh((*p)->first));
 	}
 }
 
