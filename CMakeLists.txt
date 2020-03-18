@@ -23,7 +23,7 @@ add_library(geometry STATIC "src/geometry/geometrycollection.cpp")
 target_include_directories(geometry PUBLIC "src")
 target_link_libraries(toyray PUBLIC geometry)
 
-add_library(tinyla STATIC "src/math/matfloat.cpp")
+add_library(tinyla STATIC "src/math/matfloat.cpp" "src/math/vecfloat.cpp")
 target_link_libraries(toyray PUBLIC tinyla)
 
 

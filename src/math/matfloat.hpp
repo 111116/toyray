@@ -1,11 +1,11 @@
 // mathematics stuff
 #pragma once
 
+#include <cstring>
 #include "vecfloat.hpp"
 
 struct mat3f;
 struct mat4f;
-
 
 
 // basic definitions
