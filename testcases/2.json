@@ -1,6 +1,6 @@
 {
 	"renderer": {
-        "spp": 4,
+        "spp": 8,
         "output_files": ["2.exr", "2.bmp"]
     },
 	"emissions": [
