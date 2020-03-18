@@ -1,10 +1,10 @@
 {
     "renderer": {
-        "spp": 4,
+        "spp": 1,
         "output_files": ["6.exr", "6.bmp"]
     },
     "camera": {
-        "resolution": [200,200],
+        "resolution": [3840,2160],
         "transform": {
             "position": [0, 0.8, 5],
             "look_at": [0, 0.8, 0],
