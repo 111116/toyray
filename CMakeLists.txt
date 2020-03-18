@@ -38,6 +38,9 @@ add_library(material STATIC "src/bsdfs/bsdf.cpp" "src/bsdfs/materials.cpp")
 target_include_directories(material PUBLIC "src")
 target_link_libraries(toyray PUBLIC material)
 
+add_library(camera STATIC "src/cameras/cameracollection.cpp")
+target_include_directories(camera PUBLIC "src")
+target_link_libraries(toyray PUBLIC camera)
 
 find_package(OpenMP)
 
