@@ -5,14 +5,8 @@
 #include <iosfwd>
 
 
-struct vec2f;
-struct vec3f;
-struct vec4f;
-
 const float PI = acos(-1);
 
-
-// basic definitions
 
 struct vec2f
 {

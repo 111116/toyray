@@ -4,11 +4,6 @@
 #include <cstring>
 #include "vecfloat.hpp"
 
-struct mat3f;
-struct mat4f;
-
-
-// basic definitions
 
 struct mat3f
 {
@@ -59,7 +54,6 @@ struct mat4f
 
 
 // element-wise operations
-
 mat3f operator + (const mat3f& a, const mat3f& b);
 mat3f& operator += (mat3f& a, const mat3f& b);
 mat4f operator + (const mat4f& a, const mat4f& b);

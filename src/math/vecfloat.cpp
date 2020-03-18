@@ -1,46 +1,7 @@
 
-#include <cmath>
 #include <cstring>
 #include <iostream>
-
-
-struct vec2f;
-struct vec3f;
-struct vec4f;
-
-const float PI = acos(-1);
-
-
-// basic definitions
-
-struct vec2f
-{
-	float x,y;
-	vec2f(): x(0), y(0) {}
-	vec2f(float p): x(p), y(p) {}
-	vec2f(float px, float py): x(px), y(py) {}
-	bool nonzero() const { return x || y; }
-};
-
-struct vec3f
-{
-	float x,y,z;
-	vec3f(): x(0), y(0), z(0) {}
-	vec3f(float p): x(p), y(p), z(p) {}
-	vec3f(float px, float py, float pz): x(px), y(py), z(pz) {}
-	bool nonzero() const { return x || y || z; }
-};
-
-struct vec4f
-{
-	float x,y,z,w;
-	vec4f(): x(0), y(0), z(0), w(0) {}
-	vec4f(float p): x(p), y(p), z(p), w(p) {}
-	vec4f(float px, float py, float pz, float pw): x(px), y(py), z(pz), w(pw) {}
-	vec4f(const vec3f& a, float pw): x(a.x), y(a.y), z(a.z), w(pw) {}
-	vec3f xyz() const { return vec3f(x,y,z); }
-	bool nonzero() const { return x || y || z || w; }
-};
+#include "vecfloat.hpp"
 
 
 
