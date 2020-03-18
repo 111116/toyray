@@ -108,7 +108,6 @@ private:
 
 public:
 	BVH(const std::vector<Object*>& list) {
-#pragma omp critical
 		console.log("building SAH BVH of", list.size(), "objects");
 		for (Object* o: list) {
 			this->list.push_back({o->primitive, o});

@@ -44,8 +44,8 @@ public:
 private:
 	// load mesh from an ascii Wavefront .obj file
 	// only supports triangle mesh with 2d texture
-	std::vector<BasicPrimitive*> loadfromfile(const char* filename) {
-#pragma omp critical
+	std::vector<BasicPrimitive*> loadfromfile(const char* filename)
+	{
 		console.log("Loading mesh:", filename);
 		if (strcmp(filename+strlen(filename)-4, ".obj") != 0)
 			throw "format must be obj";

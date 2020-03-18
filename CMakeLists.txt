@@ -42,12 +42,6 @@ add_library(camera STATIC "src/cameras/cameracollection.cpp")
 target_include_directories(camera PUBLIC "src")
 target_link_libraries(toyray PUBLIC camera)
 
-find_package(OpenMP)
-
-if(OpenMP_CXX_FOUND)
-    target_link_libraries(${PROJECT_NAME} PUBLIC OpenMP::OpenMP_CXX)
-    message("OpenMP installed")
-endif()
 
 
 
