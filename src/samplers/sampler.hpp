@@ -21,7 +21,7 @@ public:
 	virtual vec3f cosSampleHemisphereSurface()
 	{
 		vec2f t = sampleUnitDisk();
-		return vec3f(t.x,t.y,std::sqrt(std::max(0.0f, 1-t.x*t.x-t.y*t.y)));
+		return vec3f(t.x,t.y,std::sqrt(fmax(0.0f, 1-t.x*t.x-t.y*t.y)));
 	}
 };
 
