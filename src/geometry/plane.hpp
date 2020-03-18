@@ -1,7 +1,7 @@
 #ifndef PLANE_H
 #define PLANE_H
 
-#include "geometry.hpp"
+#include "geometrybasic.hpp"
 
 // infinite plane of ax+by+cz=d where (a,b,c) is normalized
 

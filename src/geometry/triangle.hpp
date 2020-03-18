@@ -1,6 +1,6 @@
 #pragma once
 
-#include "geometry.hpp"
+#include "geometrybasic.hpp"
 #include "math/matfloat.hpp"
 
 class Triangle: public BasicPrimitive

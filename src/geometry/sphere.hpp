@@ -1,6 +1,6 @@
 #pragma once
 
-#include "geometry.hpp"
+#include "geometrybasic.hpp"
 
 class Sphere: public BasicPrimitive
 {
