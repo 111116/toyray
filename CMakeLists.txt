@@ -26,7 +26,7 @@ target_link_libraries(toyray PUBLIC geometry)
 add_library(tinyla STATIC "src/math/matfloat.cpp" "src/math/vecfloat.cpp")
 target_link_libraries(toyray PUBLIC tinyla)
 
-add_library(util STATIC "src/util/jsonutil.cpp")
+add_library(util STATIC "src/util/jsonutil.cpp" "src/util/filepath.cpp")
 target_include_directories(util PUBLIC "src")
 target_link_libraries(toyray PUBLIC util)
 

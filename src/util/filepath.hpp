@@ -2,14 +2,8 @@
 
 #include <string>
 
-std::string modelpath;
+extern std::string modelpath;
 
-std::string getpath(std::string s) {
-	return modelpath + s;
-}
+std::string getpath(std::string s);
 
-std::string directoryOf(std::string filename) {
-	while (!filename.empty() && filename.back()!='\\' && filename.back()!='/')
-		filename.pop_back();
-	return filename;
-}
+std::string directoryOf(std::string filename);

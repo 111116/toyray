@@ -5,6 +5,7 @@
 
 namespace {
 // Copyright (c) 2014 Benedikt Bitterli <benedikt.bitterli@gmail.com>
+// https://github.com/tunabrain/tungsten/blob/master/LICENSE.txt
 // tunabrain/tungsten/src/core/math/Mat4f.cpp
 	mat4f rotYXZ(const vec3f &rot)
 	{
