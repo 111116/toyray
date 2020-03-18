@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 		console.time("Rendered");
 		TaskScheduler tasks;
 		for (int y=0; y<camera->resy; ++y) {
-			tasks.add([&](){
+			tasks.add([&,y](){
 				for (int x=0; x<camera->resx; ++x) {
 					vec2f pixelsize = vec2f(1.0/camera->resx, 1.0/camera->resy);
 					vec2f pixelpos = vec2f(x,y) * pixelsize;
@@ -121,8 +121,10 @@ int main(int argc, char* argv[])
 			});
 		}
 		tasks.onprogress = [](int k, int n){
-			fprintf(stderr, "\r%.1f%%", 100.0f*k/n);
+			fprintf(stderr, "\r    %.1f%% ", 100.0f*k/n);
 		};
+		tasks.start();
+		console.log(); // new line after progress
 		console.timeEnd("Rendered");
 		// save files
 		for (std::string filename : getOutputFiles(conf["renderer"])) {

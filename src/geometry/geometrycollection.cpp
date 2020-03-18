@@ -54,7 +54,7 @@ void instantiateGeometry(const Json& conf)
 	// start instantiation
 	TaskScheduler tasks;
 	for (auto p = v.begin(); p != v.end(); ++p)
-		tasks.add([&](){
+		tasks.add([p](){
 			(*p)->second = new TriangleMesh(decodemesh((*p)->first));
 		});
 	tasks.start();

@@ -4,7 +4,6 @@
 #include "lib/consolelog.hpp"
 #include "taskscheduler.hpp"
 
-#define SINGLE_THREADED
 void TaskScheduler::start()
 {
 	int total = tasks.size();
@@ -34,6 +33,7 @@ void TaskScheduler::start()
 	for (int i=0; i<n; ++i)
 		threads[i].join();
 #else
+	console.warn("Scheduler: Starting single threaded");
 	while (!tasks.empty()) {
 		task_t task = tasks.front();
 		tasks.pop();
