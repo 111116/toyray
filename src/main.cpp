@@ -19,7 +19,7 @@
 
 #include "renderer.hpp"
 #include "film.hpp"
-#include "lights/lighttypes.hpp"
+#include "lights/lightcollection.hpp"
 #include "accelarator/bruteforce.hpp"
 #include "accelarator/bvhsah.hpp"
 

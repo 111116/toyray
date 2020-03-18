@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../color.h"
-#include "../geometry/ray.hpp"
-#include "../samplers/sampler.hpp"
+#include "color.h"
+#include "geometry/ray.hpp"
+#include "samplers/sampler.hpp"
 
 
 // TODO: multiple importance sampling (which may require some refac)

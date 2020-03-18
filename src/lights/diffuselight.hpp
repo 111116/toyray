@@ -1,6 +1,7 @@
 #pragma once
 
 #include "light.hpp"
+#include "geometry/geometry.hpp"
 
 // area diffuse light source
 class DiffuseLight : public Light
@@ -11,10 +12,10 @@ private:
 
 public:
 	DiffuseLight(bool sample, const Color& color, Primitive* base):
-		Light(sample), _radiance(color), base(dynamic_cast<Primitive*>(base))
+		Light(sample), _radiance(color), base(base)
 	{
-		if (base == NULL && samplable)
-			throw "DiffuseLight: primitive not samplable";
+		// if (base == NULL && samplable)
+		// 	throw "DiffuseLight: primitive not samplable";
 	}
 
 	Color sampleIrradiance(const point& surface, vec3f& dirToLight, float& dist, Sampler& sampler) const

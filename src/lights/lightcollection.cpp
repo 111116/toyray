@@ -1,10 +1,11 @@
-#pragma once
+#include "lightcollection.hpp"
+#include "util/jsonutil.hpp"
 
 #include "pointlight.hpp"
 #include "constlight.hpp"
 #include "diffuselight.hpp"
 #include "directionallight.hpp"
-#include "util/jsonutil.hpp"
+
 
 Light* newLight(const Json& conf) {
 	if (conf["type"] == "point")

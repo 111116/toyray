@@ -2,10 +2,10 @@
 
 #include "util/jsonutil.hpp"
 #include "bsdfs/materials.hpp"
-#include "lights/lighttypes.hpp"
 #include "util/transformparser.hpp"
 #include "geometry/transform.hpp"
 #include "geometry/geometrycollection.hpp"
+#include "lights/diffuselight.hpp"
 
 
 
