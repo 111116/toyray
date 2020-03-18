@@ -1,7 +1,6 @@
 #pragma once
 
 #include "bxdf.hpp"
-#include "../jsonutil.hpp"
 
 
 class BSDF

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../jsonutil.hpp"
+#include "util/jsonutil.hpp"
 #include "../geometry/geometry.hpp"
 
 struct Camera

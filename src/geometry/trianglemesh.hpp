@@ -5,8 +5,8 @@
 #include <cstring>
 #include <vector>
 
-#include "jsonutil.hpp"
-#include "filepath.hpp"
+#include "util/jsonutil.hpp"
+#include "util/filepath.hpp"
 #include "lib/consolelog.hpp"
 
 #include "triangle.hpp"

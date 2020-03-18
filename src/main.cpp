@@ -15,8 +15,8 @@
 
 #include "color.h"
 #include "lib/saveexr.h"
-#include "jsonutil.hpp"
-#include "filepath.hpp" // model directory
+#include "util/jsonutil.hpp"
+#include "util/filepath.hpp" // model directory
 #include "lib/consolelog.hpp"
 
 #include "object.hpp"

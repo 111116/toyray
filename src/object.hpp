@@ -1,9 +1,9 @@
 #pragma once
 
-#include "jsonutil.hpp"
+#include "util/jsonutil.hpp"
 #include "bsdfs/materials.hpp"
 #include "lights/lighttypes.hpp"
-#include "transformparser.hpp"
+#include "util/transformparser.hpp"
 #include "geometry/transform.hpp"
 #include "geometry/geometrycollection.hpp"
 

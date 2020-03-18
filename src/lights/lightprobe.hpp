@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../lib/rgbe/rgbe.h"
-#include "../color.h"
-#include "../geometry/geometry.hpp"
-#include "../jsonutil.hpp"
+#include "lib/rgbe/rgbe.h"
+#include "color.h"
+#include "geometry/geometry.hpp"
+#include "util/jsonutil.hpp"
 
 class LightProbe : public Light
 {

@@ -1,6 +1,6 @@
 
 #include "geometry.hpp"
-#include "jsonutil.hpp"
+#include "util/jsonutil.hpp"
 
 #include <unordered_map>
 #include "triangle.hpp"
