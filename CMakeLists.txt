@@ -13,7 +13,7 @@ SET(CMAKE_CXX_STANDARD 14)
 message("Build type: " ${CMAKE_BUILD_TYPE})
 
 
-add_executable(${PROJECT_NAME} "src/main.cpp")
+add_executable(${PROJECT_NAME} "src/main.cpp" "src/renderer.cpp")
 target_include_directories(toyray PUBLIC "src")
 
 add_library(saveexr STATIC "src/lib/saveexr.cpp")
