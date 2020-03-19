@@ -16,8 +16,8 @@ message("Build type: " ${CMAKE_BUILD_TYPE})
 add_executable(${PROJECT_NAME} "src/main.cpp" "src/renderer.cpp")
 target_include_directories(toyray PUBLIC "src")
 
-add_library(exr STATIC "src/lib/exr_io.cpp")
-target_link_libraries(toyray PUBLIC exr)
+add_library(imgfmt STATIC "src/lib/stb_image.cpp" "src/lib/stb_image_write.cpp" "src/lib/exr_io.cpp")
+target_link_libraries(toyray PUBLIC imgfmt)
 
 add_library(geometry STATIC "src/geometry/geometrycollection.cpp" "src/geometry/aabox.cpp")
 target_include_directories(geometry PUBLIC "src")
