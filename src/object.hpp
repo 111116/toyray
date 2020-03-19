@@ -35,7 +35,11 @@ struct Object
 			if (conf.find("sample") != conf.end()) {
 				samplable = conf["sample"];
 			}
-			this->emission = new DiffuseLight(samplable, json2vec3f(conf["emission"]), primitive);
+			int sampled_side = 0;
+			if (conf.find("sampled_side") != conf.end()) {
+				sampled_side = conf["sampled_side"];
+			}
+			this->emission = new DiffuseLight(samplable, json2vec3f(conf["emission"]), primitive, sampled_side);
 		}
 	}
 	// point sample_point(float& pdf, Primitive*& shape) const {

@@ -9,10 +9,11 @@ class DiffuseLight : public Light
 private:
 	Color _radiance;
 	Primitive* base;
+	int sampleside;
 
 public:
-	DiffuseLight(bool sample, const Color& color, Primitive* base):
-		Light(sample), _radiance(color), base(base)
+	DiffuseLight(bool sample, const Color& color, Primitive* base, int sampleside):
+		Light(sample), _radiance(color), base(base), sampleside(sampleside)
 	{
 		// if (base == NULL && samplable)
 		// 	throw "DiffuseLight: primitive not samplable";
@@ -24,7 +25,9 @@ public:
 		auto info = base->sampleSurface(sampler);
 		dist = norm(info.p - surface);
 		dirToLight = normalized(info.p - surface);
-		return fabs(dot(info.normal, dirToLight)) / sqrlen(info.p - surface) / info.pdf * _radiance;
+		float t = dot(info.normal, dirToLight) / sqrlen(info.p - surface) / info.pdf;
+		t = sampleside? fmax(t*sampleside, 0): fabs(t);
+		return t * _radiance;
 	}
 
 	// caller MUST make sure the ray is intersecting the emitter mesh
