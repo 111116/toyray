@@ -2,7 +2,7 @@
 #define TINYEXR_IMPLEMENTATION
 #include "tinyexr.h"
 
-void LoadEXR(float** rgba, int* width, int* height, const char* filename)
+void LoadEXR_RGBA(float** rgba, int* width, int* height, const char* filename)
 {
   const char* err = NULL;
   int ret = LoadEXR(rgba, width, height, filename, &err);
@@ -14,6 +14,17 @@ void LoadEXR(float** rgba, int* width, int* height, const char* filename)
       throw "LoadEXR unknown error";
     }
   }
+}
+
+void LoadEXR_RGB(float** rgb, int* width, int* height, const char* filename)
+{
+  float* rgba;
+  LoadEXR_RGBA(&rgba, width, height, filename);
+  *rgb = new float[(*width)*(*height)*3];
+  for (int i=0; i<(*width)*(*height); ++i) {
+    memcpy(*rgb + 3*i, rgba + 4*i, 3 * sizeof(float));
+  }
+  free(rgba);
 }
 
 // See `examples/rgbe2exr/` for more details.

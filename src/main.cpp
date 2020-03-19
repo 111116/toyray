@@ -13,7 +13,7 @@
 #include "util/taskscheduler.hpp"
 
 #include "renderer.hpp"
-#include "film.hpp"
+#include "image.hpp"
 #include "cameras/cameracollection.hpp"
 #include "lights/lightcollection.hpp"
 #include "accelarator/bruteforce.hpp"
@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
 			camera->resy = std::max(1, camera->resy/2);
 		}
 
-		Film film(camera->resx, camera->resy);
+		Image film(camera->resx, camera->resy);
 		console.info("Rendering at", camera->resx, 'x', camera->resy, 'x', renderer.nspp, "spp");
 		// start rendering
 		console.time("Rendered");
