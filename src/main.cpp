@@ -21,6 +21,7 @@
 #include "accelarator/bvhsah.hpp"
 
 
+bool opt_preview = false;
 // return scene filename
 const char* cmdlineparse(int argc, char* argv[]) {
 #ifndef NDEBUG
@@ -30,6 +31,8 @@ const char* cmdlineparse(int argc, char* argv[]) {
 	for (int i=1; i<argc; ++i) {
 		if (std::string(argv[i]) == "--quiet")
 			console.loglevel = 2;
+		else if (std::string(argv[i]) == "--preview")
+			opt_preview = true;
 		else {
 			fileno = i;
 		}
@@ -114,6 +117,11 @@ int main(int argc, char* argv[])
 		renderer.nspp = conf["renderer"]["spp"];
 		Camera* camera = newCamera(conf["camera"]);
 		renderer.camera = camera;
+		if (opt_preview) {
+			renderer.nspp = std::max(1, int(sqrt(renderer.nspp)));
+			camera->resx = std::max(1, camera->resx/2);
+			camera->resy = std::max(1, camera->resy/2);
+		}
 
 		Film film(camera->resx, camera->resy);
 		console.info("Rendering at", camera->resx, 'x', camera->resy, 'x', renderer.nspp, "spp");
