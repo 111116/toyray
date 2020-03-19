@@ -3,17 +3,14 @@
 #include "../object.hpp"
 #include "../geometry/geometry.hpp"
 
-struct HitInfo {
-	Primitive* primitive = NULL;
-	Object* object = NULL;
-	point p;
-	operator bool() {
-		return primitive!=NULL;
-	}
+// used for scene-level (multi-object) intersection calculation
+
+class HitInfo : public Primitive::Hit {
+public:
+	Object const* object = NULL;
 	HitInfo(){}
-	HitInfo(Primitive* primitive, Object* object, point p):
-		primitive(primitive), object(object), p(p)
-	{}
+	HitInfo(const Primitive::Hit& hit, Object const* object):
+		Primitive::Hit(hit), object(object) {}
 };
 
 struct Accelarator {

@@ -1,0 +1,45 @@
+{
+	"renderer": {
+        "spp": 8,
+        "output_files": ["2.exr", "2.bmp"]
+    },
+    "integrator": {
+        "type": "path_tracer",
+        "max_bounces": 0
+    },
+	"emissions": [
+		{
+			"type": "constant",
+			"radiance": [0.029, 0, 0.325]
+		},
+		{
+			"type": "directional",
+			"irradiance": 2.8,
+			"direction": [ -0.5, -0.3, -1 ]
+		}
+	],
+	"bsdfs": [
+		{
+			"name": "0",
+			"type": "phong",
+			"Kd": [1,0,0]
+		}
+	],
+	"primitives": [
+		{
+			"type": "mesh",
+			"bsdf": "0",
+			"file": "mesh/cube.obj"
+		}
+	],
+	"camera": {
+		"type": "pinhole",
+		"fov": 30,
+		"transform": {
+			"position": [ 5, 5, 10 ],
+			"look_at": [ 0,0,0 ],
+			"up": [ 0, 1, 0 ]
+		},
+		"resolution": [200, 200]
+	}
+}

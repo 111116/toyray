@@ -1,76 +1,63 @@
 #pragma once
 
-#include "geometry.hpp"
+#include "geometrybasic.hpp"
 
-class Sphere: public Primitive
+class Sphere: public BasicPrimitive
 {
 private:
-	point origin;
+	point center;
 	float radius;
 
 public:
-	Sphere(point p, float r): origin(p), radius(r) {}
-
-	bool intersect(Ray ray, point* result)
+	Sphere(point p, float r): center(p), radius(r) {}
+	bool intersect(const Ray& ray, float& result) const
 	{
-		float l = norm(origin - ray.origin);
-		if (dot(ray.dir, origin - ray.origin) < 1e-4) return false;
-		if (norm(cross(ray.dir, origin - ray.origin)) >= radius) return false;
-
-		float lcos = dot(ray.dir, origin - ray.origin);
-		float tmp = lcos*lcos + radius*radius - l*l;
-#ifdef DEBUG
-		assert(abs(norm(ray.dir)-1) < 3e-6);
-#endif
-		// if (tmp <= -3e-5)
-		// {
-		// 	fprintf(stderr, "%f %f %f %f %f %f\n", ray.origin.x, ray.origin.y, ray.origin.z, ray.dir.x,ray.dir.y,ray.dir.z);
-		// 	fprintf(stderr, "l=%f\n", l);
-		// 	fprintf(stderr, "lcos=%f\n", lcos);
-		// 	fprintf(stderr, "l??=%f\n", lcos*lcos + radius*radius - l*l);
-		// }
-		assert(tmp > -6e-5);
-		if (tmp < 0) tmp = 0;
-		float a=lcos, b=sqrt(tmp);
-		float resl = a<b? a+b: a-b;
-		// fprintf(stderr, "l??=%f\n", lcos*lcos + radius*radius - l*l);
-		// fprintf(stderr, "resl=%f\n", resl);
-		vec3 tar = ray.origin + ray.dir * resl - origin;
-		// fprintf(stderr, "%f %f %f %f\n", tar.x, tar.y, tar.z, norm(tar));
-#ifdef DEBUG
-		assert(abs(norm(ray.origin + ray.dir * resl - origin) - radius) < 1e-4);
-#endif
-		*result = ray.origin + ray.dir * resl;
-		return true;
+        vec3f OC = center - ray.origin;
+        float midpointT = dot(OC, ray.dir);
+        vec3f midpoint = ray.atParam(midpointT);
+        float sqrRmid = sqrlen(midpoint - center);
+        if (sqrRmid >= radius * radius) return false;
+        float tanH = std::sqrt(radius * radius - sqrRmid);
+        float lambda = midpointT - tanH;
+        if (lambda >= 0) { // intersecting outer surface
+            result = lambda;
+            return true;
+        }
+        lambda = midpointT + tanH;
+        if (lambda >= 0) { // intersection inner surface
+            result = lambda;
+            return true;
+        }
+        return false;
 	}
 
-	vec3 normalAtPoint(point p)
+	vec3f Ns(const point& p) const
 	{
-#ifdef DEBUG
-		assert(abs(norm(p - origin) - radius) < 1e-4);
-#endif
-		return normalize(p - origin);
+		assert(fabs(norm(p - center) - radius) < 1e-2);
+		return normalized(p - center);
 	}
 
-	point surface_uniform_sample()
+	vec3f Ng(const point& p) const
 	{
-		throw "not yet implemented";
+		assert(fabs(norm(p - center) - radius) < 1e-2);
+		return normalized(p - center);
 	}
 
-	float surfaceArea()
+	SampleInfo sampleSurface(Sampler& sampler) const
 	{
-		throw "not yet implemented";
+		vec3f N = sampler.sampleUnitSphereSurface();
+		return SampleInfo(center + radius * N, N, 1.0 / (4*PI * radius * radius));
 	}
 
-	AABox boundingVolume()
+	AABox boundingVolume() const
 	{
-		Volume v;
-		v.x1 = origin.x - radius;
-		v.x2 = origin.x + radius;
-		v.y1 = origin.y - radius;
-		v.y2 = origin.y + radius;
-		v.z1 = origin.z - radius;
-		v.z2 = origin.z + radius;
+		AABox v;
+		v.x1 = center.x - radius;
+		v.x2 = center.x + radius;
+		v.y1 = center.y - radius;
+		v.y2 = center.y + radius;
+		v.z1 = center.z - radius;
+		v.z2 = center.z + radius;
 		return v;
 	}
 };

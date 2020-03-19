@@ -1,41 +1,56 @@
 #pragma once
 
-#include "lib/json.hpp"
-#include "env.hpp"
-#include "mesh.h"
-#include "bsdf/bsdf.hpp"
-#include "light.hpp"
+#include "util/jsonutil.hpp"
+#include "bsdfs/materials.hpp"
+#include "util/transformparser.hpp"
+#include "geometry/transform.hpp"
+#include "geometry/geometrycollection.hpp"
+#include "lights/diffuselight.hpp"
 
-using Json = nlohmann::json;
 
-struct Object {
+
+struct Object
+{
 	BSDF* bsdf = NULL;
-	Mesh* mesh = NULL;
 	Light* emission = NULL;
-	bool samplable = true; // flag for light sampling; only valid when emission!=NULL
-	Object(const Json& conf, BSDF* bsdf) {
-		assert(conf["type"] == "mesh");
-		this->mesh = new Mesh(getpath(conf["file"]).c_str());
+	// an object can contain either a primitive or a container of primitives
+	Primitive* primitive = NULL;
+
+	Object(const Json& conf, BSDF* bsdf)
+	{
 		this->bsdf = bsdf;
-		// emission
+		primitive = newPrimitive(conf);
+		// apply transform
+		if (conf.find("transform") != conf.end())
+		{
+			mat4f m = parseTransform(conf["transform"]);
+			if (m != mat4f::unit) {
+				Primitive* t = primitive;
+				primitive = new Transformed(t, m);
+			}
+		}
+		// apply emission
 		if (conf.find("emission") != conf.end()) {
-			this->emission = new DiffuseAreaLight(json2vec3(conf["emission"]));
+			bool samplable = true;
 			if (conf.find("sample") != conf.end()) {
 				samplable = conf["sample"];
 			}
-		}
-		// recompute normal
-		bool recompute_normals = true;
-		if (conf.find("recompute_normals") != conf.end()) {
-			recompute_normals = conf["recompute_normals"];
-		}
-		if (recompute_normals) {
-			mesh->recompute_normals();
+			int sampled_side = 0;
+			if (conf.find("sampled_side") != conf.end()) {
+				sampled_side = conf["sampled_side"];
+			}
+			this->emission = new DiffuseLight(samplable, json2vec3f(conf["emission"]), primitive, sampled_side);
 		}
 	}
-	point sample_point(float& pdf, Primitive*& shape) const {
-		shape = mesh->faces[rand() % mesh->faces.size()];
-		pdf = 1.0 / mesh->faces.size() / shape->surfaceArea();
-		return shape->surface_uniform_sample();
-	}
+	// point sample_point(float& pdf, Primitive*& shape) const {
+	// 	if (container) {
+	// 		shape = container->faces[rand() % container->faces.size()];
+	// 		pdf = 1.0 / container->faces.size() / shape->surfaceArea();
+	// 	}
+	// 	else {
+	// 		shape = primitive;
+	// 		pdf = 1.0 / shape->surfaceArea();
+	// 	}
+	// 	return shape->surface_uniform_sample();
+	// }
 };

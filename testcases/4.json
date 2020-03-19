@@ -1,0 +1,84 @@
+{
+	"renderer": {
+        "spp": 8,
+        "output_files": ["4.exr", "4.bmp"]
+    },
+    "integrator": {
+        "type": "path_tracer",
+        "max_bounces": 0
+    },
+	"emissions": [
+		{
+			"type": "directional",
+			"irradiance": 2.51,
+			"direction": [ -2,-4,-8 ]
+		}
+	],
+	"bsdfs": [
+		{
+			"name": "r",
+			"type": "phong",
+			"Kd": [1,0,0]
+		},
+		{
+			"name": "g",
+			"type": "phong",
+			"Kd": [0,1,0]
+		},
+		{
+			"name": "b",
+			"type": "phong",
+			"Kd": [0,0,1]
+		},
+		{
+			"name": "w",
+			"type": "phong",
+			"Kd": 1
+		}
+	],
+	"primitives": [
+		{
+			"type": "mesh",
+			"bsdf": "r",
+			"file": "mesh/cube.obj",
+			"transform": {
+				"scale": [5,0.2,0.2],
+				"position": [5,0,0]
+			}
+		},
+		{
+			"type": "mesh",
+			"bsdf": "g",
+			"file": "mesh/cube.obj",
+			"transform": {
+				"scale": [0.2,5,0.2],
+				"position": [0,5,0]
+			}
+		},
+		{
+			"type": "mesh",
+			"bsdf": "b",
+			"file": "mesh/cube.obj",
+			"transform": {
+				"scale": [0.2,0.2,5],
+				"position": [0,0,5]
+			}
+		},
+		{
+			"type": "mesh",
+			"bsdf": "w",
+			"file": "mesh/cube.obj",
+			"transform": [1.6276,-0.234923,1.02606,4,1.08768,0.411586,-0.489528,3,-0.409748,0.159398,2.77625,1,0,0,0,1]
+		}
+	],
+	"camera": {
+		"type": "pinhole",
+		"fov": 30,
+		"transform": {
+			"position": [ 13, 11, 30 ],
+			"look_at": [ -3,-1, -20 ],
+			"up": [ 0, 1, 0 ]
+		},
+		"resolution": [200, 200]
+	}
+}

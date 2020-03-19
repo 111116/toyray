@@ -1,6 +1,7 @@
 #pragma once
 
 #include "accelarator.hpp"
+#include "../lib/consolelog.hpp"
 
 struct BVH : public Accelarator {
 private:
@@ -10,13 +11,6 @@ private:
 		Primitive* shape = NULL;
 		Object* object = NULL;
 		AABox bound;
-	};
-	struct flatnode {
-		Primitive* shape = NULL;
-		Object* object = NULL;
-		AABox bound;
-		int loffset;
-		int roffset;
 	};
 	treenode* root = NULL;
 
@@ -70,8 +64,8 @@ private:
 			accu = accu + list[i].first->boundingVolume();
 			suffix_area[i] = accu.surfaceArea();
 		}
-		int rangemin = round(list.size()*0.1);
-		int rangemax = round(list.size()*0.9)-1;
+		int rangemin = round(list.size()*0.15);
+		int rangemax = round(list.size()*0.85)-1;
 		// limit split point from being too close to side
 		int best = rangemin;
 		for (int i=rangemin; i<rangemax; ++i) {
@@ -90,16 +84,16 @@ private:
 		if (!node->bound.intersect(ray)) return HitInfo();
 		if (node->shape != NULL) {
 			HitInfo hit;
-			point res;
-			if (node->shape->intersect(ray, &res)) {
-				hit = HitInfo(node->shape, node->object, res);
+			Primitive::Hit h;
+			if (node->shape->intersect(ray, &h)) {
+				hit = HitInfo(h, node->object);
 			}
 			return hit;
 		}
 		HitInfo resl = treehit(ray, node->lc);
 		if (!resl) return treehit(ray, node->rc);
 		HitInfo resr = treehit(ray, node->rc);
-		return (!resr || norm(resl.p - ray.origin) < norm(resr.p - ray.origin))? resl: resr;
+		return (!resr || sqrlen(resl.p - ray.origin) < sqrlen(resr.p - ray.origin))? resl: resr;
 	}
 
 	void printSA(treenode* node, int depth = 0) {
@@ -114,12 +108,10 @@ private:
 
 public:
 	BVH(const std::vector<Object*>& list) {
-		std::cout << "building accelarator of " << list.size() << " objects" << std::endl;
+		console.log("building SAH BVH of", list.size(), "objects");
 		for (Object* o: list) {
-			for (Primitive* p: o->mesh->faces)
-				this->list.push_back({p, o});
+			this->list.push_back({o->primitive, o});
 		}
-		std::cout << this->list.size() << " faces" << std::endl;
 		build(this->list, root);
 		// printSA(root);
 	}

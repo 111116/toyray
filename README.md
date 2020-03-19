@@ -5,6 +5,8 @@ working on a more complicated version on branch `dev`.
 supporting shape types:
 
 - triangle mesh
+- sphere
+- infinite plane
 
 supporting materials:
 
@@ -26,4 +28,4 @@ supporting input format:
 supporting output format:
 
 - OpenEXR
-
+- BMP

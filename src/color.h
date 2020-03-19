@@ -1,5 +1,5 @@
 #pragma once
 
-#include "la.h"
-typedef vec3 Color;
+#include "math/vecfloat.hpp"
+typedef vec3f Color;
 

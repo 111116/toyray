@@ -1,0 +1,91 @@
+{
+	"renderer": {
+        "spp": 8,
+        "output_files": ["1.exr", "1.bmp"]
+    },
+    "integrator": {
+        "type": "path_tracer",
+        "max_bounces": 0
+    },
+	"emissions": [
+		{
+			"type": "point",
+			"intensity": 80,
+			"position": [ 0, 5, 5 ]
+		}
+	],
+	"bsdfs": [
+		{
+			"name": "0",
+			"type": "phong",
+			"Kd": [1,0,0],
+			"Ks": [1,1,1],
+			"exp": 20
+		},
+		{
+			"name": "1",
+			"type": "phong",
+			"Kd": [0,1,0]
+		},
+		{
+			"name": "2",
+			"type": "phong",
+			"Kd": [0,0,1]
+		},
+		{
+			"name": "3",
+			"type": "phong",
+			"Kd": [1,1,1],
+			"Ks": [1,1,1],
+			"exp": 20
+		}
+	],
+	"primitives": [
+		{
+			"type": "sphere",
+			"bsdf": "0",
+			"origin": [0,0,0],
+			"radius": 1
+		},
+		{
+			"type": "sphere",
+			"bsdf": "1",
+			"origin": [1,1,1],
+			"radius": 0.75
+		},
+		{
+			"type": "sphere",
+			"bsdf": "1",
+			"origin": [-1,-1,1],
+			"radius": 0.75
+		},
+		{
+			"type": "sphere",
+			"bsdf": "2",
+			"origin": [-1,1,-1],
+			"radius": 0.75
+		},
+		{
+			"type": "sphere",
+			"bsdf": "2",
+			"origin": [1,-1,-1],
+			"radius": 0.75
+		},
+		{
+			"type": "plane",
+			"bsdf": "3",
+			"normal": [0,1,0],
+			"offset": -2
+		}
+	],
+	"camera": {
+		"type": "pinhole",
+		"fov": 30,
+		"transform": {
+			"position": [ 0, 0, 10 ],
+			"look_at": [ 0, 0, 0 ],
+			"up": [ 0, 1, 0 ]
+		},
+		"resolution": [200, 200]
+	}
+}

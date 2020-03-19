@@ -5,3 +5,7 @@ src/test
 src/*.o
 src/*.exr
 res
+build
+bin
+output
+hdroutput

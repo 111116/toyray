@@ -1,0 +1,53 @@
+{
+    "renderer": {
+        "spp": 8,
+        "output_files": ["5.exr", "5.bmp"]
+    },
+    "integrator": {
+        "type": "path_tracer",
+        "max_bounces": 0
+    },
+    "camera": {
+        "resolution": [200,200],
+        "transform": {
+            "position": [0.35,0.6,0.8],
+            "look_at": [0.05, 0.3, 0.2],
+            "up": [0,1,0]
+        },
+        "type": "pinhole",
+        "fov": 25
+    },
+    "bsdfs": [
+		{
+            "name": "r",
+			"type": "phong",
+            "Kd": [0.595, 0.4, 0.164],
+            "Ks": 1,
+            "exp": 20
+        }
+    ],
+    "emissions": [
+        {
+            "type": "constant",
+            "radiance": [0.0063, 0.456, 0.029]
+        },
+        {
+            "type": "directional",
+            "direction": [ 0.2, -1, -0.4 ],
+            "irradiance": 2.2
+        },
+        {
+            "type": "directional",
+            "direction": [ -7, -5, -5 ],
+            "irradiance": 0.94
+        }
+    ],
+    "primitives": [
+        {
+            "type": "mesh",
+            "recompute_normals": true,
+            "file": "mesh/bunny_200.obj",
+            "bsdf": "r"
+        }
+    ]
+}

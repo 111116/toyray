@@ -1,0 +1,148 @@
+{
+    "renderer": {
+        "spp": 8,
+        "output_files": ["7.exr", "7.bmp"]
+    },
+    "integrator": {
+        "type": "path_tracer",
+        "max_bounces": 0
+    },
+    "camera": {
+        "resolution": [200,200],
+        "transform": {
+            "position": [0,0,10],
+            "look_at": [0,0,0],
+            "up": [0,1,0]
+        },
+        "type": "pinhole",
+        "fov": 35
+    },
+    "emissions": [
+        {
+            "type": "directional",
+            "direction": [-1,-1,-1],
+            "irradiance": 2.826
+        }
+    ],
+    "bsdfs": [
+        {
+            "name": "0",
+            "type": "phong",
+            "Kd": [ 0.0063, 0.133, 0.0063 ],
+            "Ks": [ 0, 0, 0 ],
+            "exp": 1
+        },
+        {
+            "name": "1",
+            "type": "phong",
+            "Kd": [ 0.0063, 0.133, 0.0063 ],
+            "Ks": [ 0.6, 0.6, 0.6 ],
+            "exp": 1
+        },
+        {
+            "name": "2",
+            "type": "phong",
+            "Kd": [ 0.0063, 0.133, 0.0063 ],
+            "Ks": [ 0.6, 0.6, 0.6 ],
+            "exp": 2
+        },
+        {
+            "name": "3",
+            "type": "phong",
+            "Kd": [ 0.0063, 0.133, 0.0063 ],
+            "Ks": [ 0.6, 0.6, 0.6 ],
+            "exp": 4
+        },
+        {
+            "name": "4",
+            "type": "phong",
+            "Kd": [ 0.0063, 0.133, 0.0063 ],
+            "Ks": [ 0.6, 0.6, 0.6 ],
+            "exp": 8
+        },
+        {
+            "name": "5",
+            "type": "phong",
+            "Kd": [ 0.0063, 0.133, 0.0063 ],
+            "Ks": [ 0.6, 0.6, 0.6 ],
+            "exp": 16
+        },
+        {
+            "name": "6",
+            "type": "phong",
+            "Kd": [ 0.0063, 0.133, 0.0063 ],
+            "Ks": [ 0.6, 0.6, 0.6 ],
+            "exp": 32
+        },
+        {
+            "name": "7",
+            "type": "phong",
+            "Kd": [ 0.0063, 0.133, 0.0063 ],
+            "Ks": [ 0.6, 0.6, 0.6 ],
+            "exp": 64
+        },
+        {
+            "name": "8",
+            "type": "phong",
+            "Kd": [ 0.0063, 0.133, 0.0063 ],
+            "Ks": [ 0.6, 0.6, 0.6 ],
+            "exp": 128
+        }
+    ],
+    "primitives": [
+        {
+            "bsdf": "0",
+            "type": "sphere",
+            "origin": [-2,2,0],
+            "radius": 0.9
+        },
+        {
+            "bsdf": "1",
+            "type": "sphere",
+            "origin": [0,2,0],
+            "radius": 0.9
+        },
+        {
+            "bsdf": "2",
+            "type": "sphere",
+            "origin": [2,2,0],
+            "radius": 0.9
+        },
+        {
+            "bsdf": "3",
+            "type": "sphere",
+            "origin": [-2,0,0],
+            "radius": 0.9
+        },
+        {
+            "bsdf": "4",
+            "type": "sphere",
+            "origin": [0,0,0],
+            "radius": 0.9
+        },
+        {
+            "bsdf": "5",
+            "type": "sphere",
+            "origin": [2,0,0],
+            "radius": 0.9
+        },
+        {
+            "bsdf": "6",
+            "type": "sphere",
+            "origin": [-2,-2,0],
+            "radius": 0.9
+        },
+        {
+            "bsdf": "7",
+            "type": "sphere",
+            "origin": [0,-2,0],
+            "radius": 0.9
+        },
+        {
+            "bsdf": "8",
+            "type": "sphere",
+            "origin": [2,-2,0],
+            "radius": 0.9
+        }
+    ]
+}
