@@ -15,11 +15,15 @@ void TaskScheduler::start()
 	std::mutex ex,ex2;
 	auto work = [&](){
 		try {
-			while (!tasks.empty()) {
+			while (1) {
+				task_t task = NULL;
 				ex.lock();
-				task_t task = tasks.front();
-				tasks.pop();
+				if (!tasks.empty()) {
+					task = tasks.front();
+					tasks.pop();
+				}
 				ex.unlock();
+				if (task == NULL) break;
 				task();
 				if (onprogress) {
 					ex2.lock();
