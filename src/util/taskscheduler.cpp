@@ -14,18 +14,24 @@ void TaskScheduler::start()
 	std::vector<std::thread> threads;
 	std::mutex ex,ex2;
 	auto work = [&](){
-		while (!tasks.empty()) {
-			ex.lock();
-			task_t task = tasks.front();
-			tasks.pop();
-			ex.unlock();
-			task();
-			if (onprogress) {
-				ex2.lock();
-				finished += 1;
-				onprogress(finished, total);
-				ex2.unlock();
+		try {
+			while (!tasks.empty()) {
+				ex.lock();
+				task_t task = tasks.front();
+				tasks.pop();
+				ex.unlock();
+				task();
+				if (onprogress) {
+					ex2.lock();
+					finished += 1;
+					onprogress(finished, total);
+					ex2.unlock();
+				}
 			}
+		}
+		catch (const char* err) {
+			console.error(err);
+			throw err;
 		}
 	};
 	for (int i=0; i<n; ++i)
