@@ -21,15 +21,24 @@
 #include "accelarator/bvhsah.hpp"
 
 
-
-void welcome(int argc, char* argv[]) {
+// return scene filename
+const char* cmdlineparse(int argc, char* argv[]) {
 #ifndef NDEBUG
 	console.warn("Running in DEBUG mode. EXTREMELY SLOW!\n");
 #endif
-	if (argc<=1) {
+	int fileno = 0;
+	for (int i=1; i<argc; ++i) {
+		if (std::string(argv[i]) == "--quiet")
+			console.loglevel = 2;
+		else {
+			fileno = i;
+		}
+	}
+	if (!fileno) {
 		console.info("Usage:", argv[0], "<json file>");
 		throw "scene not specified.";
 	}
+	return argv[fileno];
 }
 
 
@@ -86,11 +95,11 @@ std::vector<std::string> getOutputFiles(const Json& conf)
 int main(int argc, char* argv[])
 {
 	try {
-		welcome(argc, argv);
+		const char* filename = cmdlineparse(argc, argv);
 		// parse commandline args
-		std::ifstream fin(argv[1]);
+		std::ifstream fin(filename);
 		if (!fin) throw "Failed reading scene file";
-		modelpath = directoryOf(argv[1]);
+		modelpath = directoryOf(filename);
 		// load scene conf file
 		Json conf;
 		fin >> conf;
@@ -124,7 +133,7 @@ int main(int argc, char* argv[])
 			fprintf(stderr, "\r    %.1f%% ", 100.0f*k/n);
 		};
 		tasks.start();
-		console.log(); // new line after progress
+		fprintf(stderr, "\n"); // new line after progress
 		console.timeEnd("Rendered");
 		// save files
 		for (std::string filename : getOutputFiles(conf["renderer"])) {
