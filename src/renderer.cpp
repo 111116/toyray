@@ -31,7 +31,7 @@ Color Renderer::radiance(Ray ray, Sampler& sampler)
 	Color through(1);
 	Color result;
 	bool lastDirac = true; // accept all light sources if directly into camera
-	for (int nbounce = 0;; ++nbounce)
+	for (int nbounce = 0; nbounce < max_bounces; nbounce++)
 	{
 		HitInfo hit = acc->hit(ray);
 		if (!hit) {
@@ -46,7 +46,6 @@ Color Renderer::radiance(Ray ray, Sampler& sampler)
 		}
 		BSDF* bsdf = hit.object->bsdf;
 		if (!bsdf) break;
-		if (nbounce == max_bounces) break;
 		// direct light (local) // TODO
 		for (Light* l: samplable_lights) {
 			vec3f dirToLight;
