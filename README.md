@@ -1,31 +1,33 @@
-working on a more complicated version on branch `dev`.
+a naive path tracer (course project).
 
+#### supporting shape types:
 
-
-supporting shape types:
-
+- triangle
 - triangle mesh
 - sphere
 - infinite plane
+- square
+- cube
+- transformed geometries
 
-supporting materials:
+##### supporting materials:
 
 - lambert reflective
+- mirror
 
-supporting light types:
+##### supporting light types:
 
 - diffuse area light
+- point light
+- directional light
+- constant environment light
 
-supporting integrators:
-
-- path tracer
-
-supporting input format:
+##### supporting input format:
 
 - Wavefront OBJ (ASCII) for shapes
 - Tungsten styled json for scene configuration
 
-supporting output format:
+##### supporting output format:
 
-- OpenEXR
+- EXR
 - BMP
