@@ -31,7 +31,7 @@ Color Renderer::radiance(Ray ray, Sampler& sampler)
 	Color through(1);
 	Color result;
 	bool lastDirac = true; // accept all light sources if directly into camera
-	for (int nbounce = 0; nbounce < max_bounces; nbounce++)
+	for (int nbounce = 0; nbounce <= max_bounces; nbounce++)
 	{
 		HitInfo hit = acc->hit(ray);
 		if (!hit) {

@@ -5,7 +5,7 @@
     },
     "integrator": {
         "type": "path_tracer",
-        "max_bounces": 1
+        "max_bounces": 0
     },
 	"emissions": [
 		{
