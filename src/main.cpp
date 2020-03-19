@@ -38,7 +38,10 @@ const char* cmdlineparse(int argc, char* argv[]) {
 		}
 	}
 	if (!fileno) {
-		console.info("Usage:", argv[0], "<json file>");
+		console.info("Usage:", argv[0], "[options] <scene json>");
+		console.log ("Options:");
+		console.log ("  --quiet          Only show warnings and errors");
+		console.log ("  --preview        Render with lower quality");
 		throw "scene not specified.";
 	}
 	return argv[fileno];
