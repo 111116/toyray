@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include "color.h"
-#include "lib/saveexr.h"
+#include "lib/exr_io.h"
 #include "lib/writebmp.h"
 #include "lib/consolelog.hpp"
 

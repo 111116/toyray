@@ -7,7 +7,6 @@
 #include <chrono>
 
 #include "color.h"
-#include "lib/saveexr.h"
 #include "lib/consolelog.hpp"
 #include "util/jsonutil.hpp"
 #include "util/filepath.hpp"
