@@ -3,6 +3,10 @@
         "spp": 8,
         "output_files": ["4.exr", "4.bmp"]
     },
+    "integrator": {
+        "type": "path_tracer",
+        "max_bounces": 1
+    },
 	"emissions": [
 		{
 			"type": "directional",

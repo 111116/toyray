@@ -3,6 +3,10 @@
         "spp": 8,
         "output_files": ["5.exr", "5.bmp"]
     },
+    "integrator": {
+        "type": "path_tracer",
+        "max_bounces": 1
+    },
     "camera": {
         "resolution": [200,200],
         "transform": {
