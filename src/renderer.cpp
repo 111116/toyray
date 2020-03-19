@@ -51,12 +51,14 @@ Color Renderer::radiance(Ray ray, Sampler& sampler)
 			vec3f dirToLight;
 			float dist;
 			Color irr = l->sampleIrradiance(hit.p, dirToLight, dist, sampler);
+			Color f = bsdf->f(-ray.dir, dirToLight, hit.Ns, hit.Ng);
+			if (f == vec3f(0)) continue;
 			dist -= geoEPS; // cancel amount that ray origin is moved forward
 			// shadow ray test
 			Ray shadowray(hit.p + geoEPS * dirToLight, dirToLight);
 			HitInfo shadowhit = acc->hit(shadowray);
 			if (!shadowhit || norm(shadowhit.p - shadowray.origin) > (1-geoEPS) * dist)
-				result += through * irr * fabs(dot(hit.Ns, dirToLight)) * bsdf->f(-ray.dir, dirToLight, hit.Ns, hit.Ng);
+				result += through * irr * f * fabs(dot(hit.Ns, dirToLight));
 		}
 		// indirect light (bsdf importance sampling)
 		vec3f newdir;
