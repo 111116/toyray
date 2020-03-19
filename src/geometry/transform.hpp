@@ -53,7 +53,12 @@ public:
 
 	SampleInfo sampleSurface(Sampler& sampler) const
 	{
-		throw "Transformed::sampleSurface unimplemented";
+		SampleInfo info = inner->sampleSurface(sampler);
+		vec3f N1,N2;
+		getLocalBasis(info.normal, N1, N2);
+		return SampleInfo(transformedPoint(trans, info.p),
+			transformedDir(transposed(invTrans), info.normal),
+			info.pdf / fabs(norm(cross((trans*vec4f(N1,0)).xyz(), (trans*vec4f(N2,0)).xyz()))));
 	}
 
 private:
@@ -62,5 +67,13 @@ private:
 	}
 	static vec3f transformedPoint(const mat4f& mat, const vec3f& v) {
 		return (mat * vec4f(v, 1)).xyz();
+	}
+	static void getLocalBasis(const vec3f& Ns, vec3f& N1, vec3f& N2)
+	{
+		// generate orthonormal basis [Ns,N1,N2]
+		N1 = cross(Ns,vec3f(0,0,1));
+		if (norm(N1)<0.1) N1 = cross(Ns,vec3f(0,1,0));
+		N1 = normalized(N1);
+		N2 = cross(Ns,N1);
 	}
 };
