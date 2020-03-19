@@ -21,6 +21,7 @@
 
 
 bool opt_preview = false;
+int opt_spp = 0;
 // return scene filename
 const char* cmdlineparse(int argc, char* argv[]) {
 #ifndef NDEBUG
@@ -32,6 +33,8 @@ const char* cmdlineparse(int argc, char* argv[]) {
 			console.loglevel = 2;
 		else if (std::string(argv[i]) == "--preview")
 			opt_preview = true;
+		else if (std::string(argv[i]) == "--spp")
+			opt_spp = atoi(argv[++i]);
 		else {
 			fileno = i;
 		}
@@ -41,6 +44,7 @@ const char* cmdlineparse(int argc, char* argv[]) {
 		console.log ("Options:");
 		console.log ("  --quiet          Only show warnings and errors");
 		console.log ("  --preview        Render with lower quality");
+		console.log ("  --spp <n>        Render with n samples per pixel");
 		throw "scene not specified.";
 	}
 	return argv[fileno];
@@ -123,6 +127,9 @@ int main(int argc, char* argv[])
 			renderer.nspp = std::max(1, int(sqrt(renderer.nspp)));
 			camera->resx = std::max(1, camera->resx/2);
 			camera->resy = std::max(1, camera->resy/2);
+		}
+		if (opt_spp) {
+			renderer.nspp = opt_spp;
 		}
 
 		Image film(camera->resx, camera->resy);
