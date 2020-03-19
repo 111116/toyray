@@ -1,6 +1,21 @@
 #include "consolelog.hpp"
 #define TINYEXR_IMPLEMENTATION
 #include "tinyexr.h"
+
+void LoadEXR(float** rgba, int* width, int* height, const char* filename)
+{
+  const char* err = NULL;
+  int ret = LoadEXR(rgba, width, height, filename, &err);
+  if (ret != TINYEXR_SUCCESS) {
+    if (err) {
+      throw err;
+    }
+    else {
+      throw "LoadEXR unknown error";
+    }
+  }
+}
+
 // See `examples/rgbe2exr/` for more details.
 int SaveEXR(const float* rgb, int width, int height, const char* outfilename) {
 
