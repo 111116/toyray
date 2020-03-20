@@ -43,7 +43,7 @@ make -j
 
 - shapes: Wavefront OBJ (ASCII)
 - scene configuration: Tungsten styled JSON
-- light probe: EXR
+- light probe: EXR, HDR
 
 #### output format:
 
