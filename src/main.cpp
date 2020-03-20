@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
 		const char* filename = cmdlineparse(argc, argv);
 		// parse commandline args
 		std::ifstream fin(filename);
-		if (!fin) throw "Failed reading scene file";
+		if (!fin) throw std::runtime_error(std::string("Failed reading scene file ") + filename);
 		modelpath = directoryOf(filename);
 		// load scene conf file
 		Json conf;
