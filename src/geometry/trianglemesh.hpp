@@ -104,7 +104,10 @@ private:
 				    	vvn.push_back(ivn? vn[ivn-1]: vec3f(0,1,0));
 				    }
 				    if (vv.size() == 3) {
-				    	faces.push_back(new Triangle(vv[0], vv[1], vv[2], vvt[0], vvt[1], vvt[2], vvn[0], vvn[1], vvn[2]));
+				    	// ignore triangles of zero surface area
+						if (cross(vv[1]-vv[0],vv[2]-vv[0]) != vec3f(0)) {
+				    		faces.push_back(new Triangle(vv[0], vv[1], vv[2], vvt[0], vvt[1], vvt[2], vvn[0], vvn[1], vvn[2]));
+				    	}
 				    }
 				    else {
 				    	throw "mesh face other than triangle not supported";

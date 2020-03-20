@@ -112,6 +112,7 @@ float dot(const vec3f& a, const vec3f& b);
 vec3f cross(const vec3f& a, const vec3f& b);
 
 bool operator == (const vec3f& a, const vec3f& b);
+bool operator != (const vec3f& a, const vec3f& b);
 
 
 
@@ -332,4 +333,8 @@ inline vec3f cross(const vec3f& a, const vec3f& b)
 
 inline bool operator == (const vec3f& a, const vec3f& b) {
 	return a.x==b.x && a.y==b.y && a.z==b.z;
+}
+
+inline bool operator != (const vec3f& a, const vec3f& b) {
+	return a.x!=b.x || a.y!=b.y || a.z!=b.z;
 }

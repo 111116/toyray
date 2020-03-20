@@ -23,7 +23,7 @@ public:
 		assert(norm(v1-v2)>0);
 		assert(norm(v1-v3)>0);
 		assert(norm(v2-v3)>0);
-		assert(norm(cross(normalized(v2-v1), normalized(v3-v1))) > 1e-5);
+		assert(norm(cross(normalized(v2-v1), normalized(v3-v1))) > 1e-9);
 
 		planeNormal = normalized(cross(v2-v1, v3-v1));
 		// make sure plane normal points outward
