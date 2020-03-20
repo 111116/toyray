@@ -38,14 +38,3 @@ protected:
 };
 
 
-// class DiffuseAreaLight: public Light {
-// 	Color color;
-// 	DiffuseAreaLight(Color color): color(color) {
-// 	}
-// 	Color radiance(const Ray& shadowray) {
-// 		return color;
-// 	}
-// };
-
-
-

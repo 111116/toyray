@@ -40,13 +40,12 @@ Color Renderer::radiance(Ray ray, Sampler& sampler)
 			break;
 		}
 		if (hit.object->emission) {
-			// TODO
 			if (lastDirac || !hit.object->emission->samplable)
 				result += through * hit.object->emission->radiance(ray);
 		}
 		BSDF* bsdf = hit.object->bsdf;
 		if (!bsdf) break;
-		// direct light (local) // TODO
+		// direct light
 		for (Light* l: samplable_lights) {
 			vec3f dirToLight;
 			float dist;
