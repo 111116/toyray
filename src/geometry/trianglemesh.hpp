@@ -91,8 +91,12 @@ private:
 				            else
 				                break;
 				        }
-				        if (!indices[0])
+				        while (isspace(in.peek()))
+			                in.get();
+				        if (!indices[0]) {
+				        	console.log("Obj line:", line);
 				        	throw "error parsing obj";
+				        }
 				        int iv = indices[0];
 				        int ivt = indices[1];
 				        int ivn = indices[2];
