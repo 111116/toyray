@@ -3,6 +3,7 @@
 
 #include "pointlight.hpp"
 #include "constlight.hpp"
+#include "envmaplight.hpp"
 #include "diffuselight.hpp"
 #include "directionallight.hpp"
 
@@ -14,5 +15,7 @@ Light* newLight(const Json& conf) {
 		return new DirectionalLight(json2vec3f(conf["irradiance"]), json2vec3f(conf["direction"]));
 	if (conf["type"] == "constant")
 		return new ConstEnvLight(json2vec3f(conf["radiance"]));
+	if (conf["type"] == "envmap")
+		return new EnvLight(new Image(conf["radiance"]));
 	throw "unrecognized type of light source";
 }

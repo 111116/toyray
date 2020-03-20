@@ -26,6 +26,15 @@ public:
 		throw "Image load: unrecognized format";
 	}
 
+	Color getPixel(int x, int y) {
+		return Color(pixels[3*(y*w+x)], pixels[3*(y*w+x)+1], pixels[3*(y*w+x)+2]);
+	}
+
+	// nearest neighbor sample; position is modulated to [0,1]x[0,1]
+	Color sample(const vec2f& uv) {
+		return getPixel( (int(uv.x*w)%w+w)%w, (int(uv.y*h)%h+h)%h );
+	}
+
 	void setPixel(int x, int y, const Color& val) {
 		int pxid = y*w + x;
 		pixels[3*pxid+0] = val.x;
