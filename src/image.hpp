@@ -3,6 +3,7 @@
 #include <iostream>
 #include "color.h"
 #include "lib/exr_io.h"
+#include "lib/stb_image.h"
 #include "lib/writebmp.h"
 #include "lib/consolelog.hpp"
 
@@ -22,6 +23,12 @@ public:
 		console.log("Loading image:", filename);
 		if (ext == "exr") {
 			LoadEXR_RGB(&pixels, &w, &h, filename.c_str());
+			return;
+		}
+		if (ext == "hdr") {
+			int n;
+			pixels = stbi_loadf(filename.c_str(), &w, &h, &n, 3);
+			if (n != 3) throw "hdr: must contain exactly 3 components";
 			return;
 		}
 		throw "Image load: unrecognized format";

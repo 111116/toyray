@@ -2,12 +2,6 @@
    writes out PNG/BMP/TGA/JPEG/HDR images to C stdio - Sean Barrett 2010-2015
                                      no warranty implied; use at your own risk
 
-   Before #including,
-
-       #define STB_IMAGE_WRITE_IMPLEMENTATION
-
-   in the file that you want to have the implementation.
-
    Will probably not work correctly with strict-aliasing optimizations.
 
 ABOUT:
