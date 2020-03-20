@@ -109,6 +109,7 @@ private:
 public:
 	BVH(const std::vector<Object*>& list) {
 		console.log("building SAH BVH of", list.size(), "objects");
+		if (list.size() == 0) throw "BVH: Object list empty!";
 		for (Object* o: list) {
 			this->list.push_back({o->primitive, o});
 		}
