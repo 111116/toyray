@@ -1,6 +1,6 @@
 
 #include "lib/consolelog.hpp"
-#include "bsdf.hpp"
+#include "singlebsdf.hpp"
 #include "util/jsonutil.hpp"
 
 #include "matte.hpp" // lambert reflective
@@ -13,42 +13,38 @@
 
 BSDF* newMaterial(const Json& conf)
 {
-	BSDF* bsdf = new BSDF();
+	BSDF* bsdf = NULL;
 	try {
 		if (conf["type"] == "null")
-			return bsdf;
+			return new SingleBSDF(NULL);
 		if (conf["type"] == "lambert")
-			bsdf->add_component(new LambertBRDF(json2vec3f(conf["albedo"])));
+			bsdf = new SingleBSDF(new LambertBRDF(json2vec3f(conf["albedo"])));
 		if (conf["type"] == "phong")
-			bsdf->add_component(new Phong(conf));
+			bsdf = new SingleBSDF(new Phong(conf));
 		if (conf["type"] == "mirror")
-			bsdf->add_component(new MirrorBRDF(json2vec3f(conf["albedo"])));
+			bsdf = new SingleBSDF(new MirrorBRDF(json2vec3f(conf["albedo"])));
 		if (conf["type"] == "invisible")
-			bsdf->add_component(new InvisibleBTDF());
+			bsdf = new SingleBSDF(new InvisibleBTDF());
 		if (conf["type"] == "conductor")
-			bsdf->add_component(new ConductorBRDF(conf["material"], json2vec3f(conf["albedo"])));
-		if (conf["type"] == "dielectric") {
-			bsdf->add_component(new DielectricBRDF(conf["ior"], json2vec3f(conf["albedo"])));
-			bsdf->add_component(new DielectricBTDF(conf["ior"], json2vec3f(conf["albedo"])));
-		}
-		if (bsdf->empty())
+			bsdf = new SingleBSDF(new ConductorBRDF(conf["material"], json2vec3f(conf["albedo"])));
+		// if (conf["type"] == "dielectric") {
+		// 	bsdf->add_component(new DielectricBRDF(conf["ior"], json2vec3f(conf["albedo"])));
+		// 	bsdf->add_component(new DielectricBTDF(conf["ior"], json2vec3f(conf["albedo"])));
+		// }
+		if (bsdf == NULL)
 			throw std::runtime_error("Unrecognized BSDF type " + std::string(conf["type"]));
 	}
 	catch (const char* err)
 	{
 		console.warn(err);
 		console.info("Replacing with gray matte. Continueing...");
-		delete bsdf;
-		bsdf = new BSDF();
-		bsdf->add_component(new LambertBRDF(Color(0.7)));
+		bsdf = new SingleBSDF(new LambertBRDF(Color(0.7)));
 	}
 	catch (std::runtime_error err)
 	{
 		console.warn(err.what());
 		console.info("Replacing with gray matte. Continueing...");
-		delete bsdf;
-		bsdf = new BSDF();
-		bsdf->add_component(new LambertBRDF(Color(0.7)));
+		bsdf = new SingleBSDF(new LambertBRDF(Color(0.7)));
 	}
 	return bsdf;
 }
