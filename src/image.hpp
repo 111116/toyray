@@ -19,6 +19,7 @@ public:
 
 	Image(const std::string& filename) {
 		std::string ext = suffix(filename);
+		console.log("Loading image:", filename);
 		if (ext == "exr") {
 			LoadEXR_RGB(&pixels, &w, &h, filename.c_str());
 			return;

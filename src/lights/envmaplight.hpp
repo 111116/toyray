@@ -21,7 +21,7 @@ public:
 	{
 		return texture->sample(vec2f(
 			0.5+(0.5/PI)*atan2(ray.dir.z, ray.dir.x),
-			0.5+(1/PI)*acos(ray.dir.y)
+			(1/PI)*acos(ray.dir.y)
 		));
 	}
 };
