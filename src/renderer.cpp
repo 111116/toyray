@@ -1,12 +1,12 @@
 
 #include "renderer.hpp"
-#include "samplers/randomsampler.hpp"
+#include "samplers/mt19937sampler.hpp"
 
 
 Color Renderer::render(const vec2f& pixelpos, const vec2f& pixelsize) {
 	Color res;
 	for (int i=0; i<nspp; ++i) {
-		Sampler* sampler = new RandomSampler();
+		Sampler* sampler = new MT19937Sampler(std::hash<double>{}(pixelpos.x*PI+pixelpos.y), i);
 		vec2f uv = pixelpos + sampler->get2f() * pixelsize;
 		Ray ray = camera->sampleray(uv);
 		Color tres = radiance(ray, *sampler);

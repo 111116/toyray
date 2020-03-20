@@ -1,23 +1,27 @@
 #pragma once
 
-// TODO thread-safe random
-
+#include <random>
+#include <functional>
 #include <cstdlib>
 #include "sampler.hpp"
 
-using std::rand;
 
-class RandomSampler : public Sampler
+class MT19937Sampler : public Sampler
 {
+	std::mt19937 generator;
 public:
+	MT19937Sampler(unsigned seed, int sampleID):
+		generator(seed ^ (std::hash<int>{}(sampleID) << 1)) {}
+	
 	float get1f() {
-		return (float)rand() / RAND_MAX;
+		return (float)generator() / generator.max();
 	}
 	vec2f get2f() {
 		return vec2f(get1f(), get1f());
 	}
+	// limit shouldn't be loo large
 	unsigned get1u(unsigned limit) {
-		return rand() % limit;
+		return generator() % limit;
 	}
 	vec3f sampleUnitSphereSurface() {
 		// TODO optimize
