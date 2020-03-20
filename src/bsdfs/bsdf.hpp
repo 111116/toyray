@@ -5,6 +5,7 @@
 class BxDF;
 class Sampler;
 
+// wrapper of low-level BxDFs
 class BSDF
 {
 private:

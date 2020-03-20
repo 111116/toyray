@@ -8,6 +8,7 @@
 #include "invisible.hpp" // specular (no bending) refractive
 #include "phong.hpp" // phong reflective
 #include "conductor.hpp"
+#include "dielectric.hpp"
 
 
 BSDF* newMaterial(const Json& conf)
@@ -24,11 +25,11 @@ BSDF* newMaterial(const Json& conf)
 			bsdf->add_component(new MirrorBRDF(json2vec3f(conf["albedo"])));
 		if (conf["type"] == "invisible")
 			bsdf->add_component(new InvisibleBTDF());
-		if (conf["type"] == "conductor") {
-			Color albedo(1);
-			if (conf.find("albedo") != conf.end())
-				albedo = json2vec3f(conf["albedo"]);
-			bsdf->add_component(new ConductorBRDF(conf["material"], albedo));
+		if (conf["type"] == "conductor")
+			bsdf->add_component(new ConductorBRDF(conf["material"], json2vec3f(conf["albedo"])));
+		if (conf["type"] == "dielectric") {
+			bsdf->add_component(new DielectricBRDF(conf["ior"], json2vec3f(conf["albedo"])));
+			bsdf->add_component(new DielectricBTDF(conf["ior"], json2vec3f(conf["albedo"])));
 		}
 		if (bsdf->empty())
 			throw std::runtime_error("Unrecognized BSDF type " + std::string(conf["type"]));

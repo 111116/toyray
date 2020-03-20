@@ -8,7 +8,7 @@
 class BxDF
 {
 protected:
-	bool _isDirac;
+	bool _isDirac = false;
 	bool _isRefractive;
 public:
 	bool const& isDirac = _isDirac;
