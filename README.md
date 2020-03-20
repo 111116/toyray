@@ -33,6 +33,7 @@ make -j
 - point light
 - directional light
 - constant environment light
+- environment map (light probe)
 
 ##### supporting input format:
 
