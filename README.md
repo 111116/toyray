@@ -12,7 +12,7 @@ make -j
 
 ## Implemented functions
 
-##### supporting shape types:
+#### shape types:
 
 - triangle
 - triangle mesh
@@ -22,12 +22,12 @@ make -j
 - cube
 - transformed geometries
 
-##### supporting materials:
+#### materials:
 
 - lambert reflective
 - mirror
 
-##### supporting light types:
+#### light types:
 
 - diffuse area light
 - point light
@@ -35,12 +35,17 @@ make -j
 - constant environment light
 - environment map (light probe)
 
-##### supporting input format:
+#### samplers
 
-- Wavefront OBJ (ASCII) for shapes
-- Tungsten styled json for scene configuration
+- std::mt19937
 
-##### supporting output format:
+#### input format:
+
+- shapes: Wavefront OBJ (ASCII)
+- scene configuration: Tungsten styled JSON
+- light probe: EXR
+
+#### output format:
 
 - EXR
 - BMP
