@@ -11,6 +11,7 @@ Color Renderer::render(const vec2f& pixelpos, const vec2f& pixelsize) {
 		Ray ray = camera->sampleray(uv);
 		Color tres = radiance(ray, *sampler);
 		/*if (norm(tres)<1e8)*/ res += tres;
+		delete sampler;
 	}
 	return res / nspp;
 }
