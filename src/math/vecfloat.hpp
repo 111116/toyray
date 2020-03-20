@@ -75,6 +75,9 @@ vec4f operator - (const vec4f& a, const vec4f& b);
 vec2f operator * (const vec2f& a, const vec2f& b);
 vec3f operator * (const vec3f& a, const vec3f& b);
 vec4f operator * (const vec4f& a, const vec4f& b);
+vec2f operator / (const vec2f& a, const vec2f& b);
+vec3f operator / (const vec3f& a, const vec3f& b);
+vec4f operator / (const vec4f& a, const vec4f& b);
 
 vec2f& operator += (vec2f& a, const vec2f& b);
 vec3f& operator += (vec3f& a, const vec3f& b);
@@ -203,6 +206,15 @@ inline vec3f operator * (const vec3f& a, const vec3f& b) {
 }
 inline vec4f operator * (const vec4f& a, const vec4f& b) {
 	return vec4f(a.x*b.x, a.y*b.y, a.z*b.z, a.w*b.w);
+}
+inline vec2f operator / (const vec2f& a, const vec2f& b) {
+	return vec2f(a.x/b.x, a.y/b.y);
+}
+inline vec3f operator / (const vec3f& a, const vec3f& b) {
+	return vec3f(a.x/b.x, a.y/b.y, a.z/b.z);
+}
+inline vec4f operator / (const vec4f& a, const vec4f& b) {
+	return vec4f(a.x/b.x, a.y/b.y, a.z/b.z, a.w/b.w);
 }
 
 inline vec2f& operator += (vec2f& a, const vec2f& b)
