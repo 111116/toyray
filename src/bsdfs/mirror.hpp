@@ -19,6 +19,6 @@ public:
 	{
 		wi = vec3f(-wo.x, -wo.y, wo.z);
 		pdf = 1;
-		return 1 / fabs(wo.z) * albedo;
+		return 1 / fabs(wi.z) * albedo;
 	}
 };

@@ -1,6 +1,7 @@
 
 #include "lib/consolelog.hpp"
 #include "singlebsdf.hpp"
+#include "glassbsdf.hpp"
 #include "util/jsonutil.hpp"
 
 #include "matte.hpp" // lambert reflective
@@ -27,10 +28,8 @@ BSDF* newMaterial(const Json& conf)
 			bsdf = new SingleBSDF(new InvisibleBTDF());
 		if (conf["type"] == "conductor")
 			bsdf = new SingleBSDF(new ConductorBRDF(conf["material"], json2vec3f(conf["albedo"])));
-		// if (conf["type"] == "dielectric") {
-		// 	bsdf->add_component(new DielectricBRDF(conf["ior"], json2vec3f(conf["albedo"])));
-		// 	bsdf->add_component(new DielectricBTDF(conf["ior"], json2vec3f(conf["albedo"])));
-		// }
+		if (conf["type"] == "dielectric")
+			bsdf = new GlassBSDF(conf["ior"]);
 		if (bsdf == NULL)
 			throw std::runtime_error("Unrecognized BSDF type " + std::string(conf["type"]));
 	}
