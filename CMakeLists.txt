@@ -11,7 +11,7 @@ ENDIF()
 
 SET(CMAKE_CXX_STANDARD 14)
 message("Build type: " ${CMAKE_BUILD_TYPE})
-set(CMAKE_CXX_FLAGS_DEBUG "-DSINGLE_THREADED")
+set(CMAKE_CXX_FLAGS_DEBUG "-DSINGLE_THREADED -g")
 
 
 add_executable(${PROJECT_NAME} "src/main.cpp" "src/renderer.cpp")
