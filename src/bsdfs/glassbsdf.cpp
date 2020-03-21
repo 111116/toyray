@@ -30,8 +30,8 @@ Color GlassBSDF::sample_f(const vec3f& wo, vec3f& wi, const vec3f& Ns, const vec
 	}
 	else {
 		wiL = vec3f(-woL.x/ior, -woL.y/ior, -woL.z*cost/cosi);
-		f = 1 / fabs(wiL.z) / ior;
-		// the 1/ior coefficient is used to convert energy to radiance.
+		f = 1 / (fabs(wiL.z) * ior * ior);
+		// the 1/ior^2 coefficient is used to convert energy to radiance.
 		// it might not make a difference if light sources and camera are in media of the same IOR
 	}
 	wi = wiL.x * N1 + wiL.y * N2 + wiL.z * Ns;
