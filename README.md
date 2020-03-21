@@ -26,6 +26,8 @@ make -j
 
 - lambert reflective
 - mirror
+- conductor (specular)
+- dielectric (specular)
 
 #### light types:
 
