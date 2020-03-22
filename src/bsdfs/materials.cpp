@@ -1,14 +1,14 @@
 
+#include "util/jsonutil.hpp"
 #include "lib/consolelog.hpp"
 #include "singlebsdf.hpp"
-#include "glassbsdf.hpp"
-#include "util/jsonutil.hpp"
 
 #include "matte.hpp" // lambert reflective
 #include "mirror.hpp" // specular reflective
 #include "invisible.hpp" // specular (no bending) refractive
 #include "phong.hpp" // phong reflective
 #include "conductor.hpp"
+#include "dielectric.hpp"
 #include "rough_conductor.hpp"
 #include "dielectric.hpp"
 
@@ -29,10 +29,10 @@ BSDF* newMaterial(const Json& conf)
 			bsdf = new SingleBSDF(new InvisibleBTDF());
 		if (conf["type"] == "conductor")
 			bsdf = new SingleBSDF(new ConductorBRDF(conf["material"], json2vec3f(conf["albedo"])));
+		if (conf["type"] == "dielectric")
+			bsdf = new SingleBSDF(new DielectricBRDF(conf["ior"], json2vec3f(conf["albedo"])));
 		if (conf["type"] == "rough_conductor")
 			bsdf = new SingleBSDF(new RoughConductorBRDF(conf));
-		if (conf["type"] == "dielectric")
-			bsdf = new GlassBSDF(conf["ior"]);
 		if (bsdf == NULL)
 			throw std::runtime_error("Unrecognized BSDF type " + std::string(conf["type"]));
 	}
