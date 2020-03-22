@@ -11,8 +11,7 @@ private:
 public:
 	MirrorBRDF(Color r): albedo(r)
 	{
-		assert(isDirac);
-		assert(!isRefractive);
+		flags = Type(DIRAC | REFLECT);
 	}
 
 	Color sample_f(const vec3f& wo, vec3f& wi, float& pdf, Sampler& sampler) const override

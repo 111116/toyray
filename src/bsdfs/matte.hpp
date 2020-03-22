@@ -11,7 +11,7 @@ private:
 public:
 	LambertBRDF(Color r): albedo(r)
 	{
-		_isDirac = false;
+		flags = Type(REFLECT);
 	}
 
 	Color f(const vec3f& wo, const vec3f& wi) const

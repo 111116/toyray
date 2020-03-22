@@ -12,7 +12,7 @@ private:
 public:
 	Phong(const Json& conf)
 	{
-		_isDirac = false;
+		flags = REFLECT;
 		if (conf.find("Ka") != conf.end()) Ka = json2vec3f(conf["Ka"]);
 		if (conf.find("Kd") != conf.end()) Kd = json2vec3f(conf["Kd"]);
 		if (conf.find("Ks") != conf.end()) Ks = json2vec3f(conf["Ks"]);

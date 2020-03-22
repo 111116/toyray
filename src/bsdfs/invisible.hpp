@@ -12,8 +12,7 @@ class InvisibleBTDF : public BTDF, public DiracBxDF
 public:
 	InvisibleBTDF()
 	{
-		assert(isDirac);
-		assert(isRefractive);
+		flags = Type(TRANSMIT | DIRAC);
 	}
 
 	Color sample_f(const vec3f& wo, vec3f& wi, float& pdf, Sampler& sampler) const override

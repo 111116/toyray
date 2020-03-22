@@ -12,8 +12,7 @@ private:
 public:
 	ConductorBRDF(Color eta, Color k, Color albedo): eta(eta), k(k), albedo(albedo)
 	{
-		assert(isDirac);
-		assert(!isRefractive);
+		flags = Type(DIRAC | REFLECT);
 	}
 	ConductorBRDF(std::string name, Color albedo): albedo(albedo)
 	{
