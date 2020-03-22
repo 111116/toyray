@@ -10,7 +10,7 @@ class MT19937Sampler : public Sampler
 {
 	std::mt19937 generator;
 public:
-	MT19937Sampler(unsigned seed, int sampleID):
+	MT19937Sampler(unsigned seed = 0, int sampleID = 0):
 		generator(seed ^ (std::hash<int>{}(sampleID) << 1)) {}
 	
 	float get1f() {
