@@ -10,7 +10,7 @@
 #include "conductor.hpp"
 #include "dielectric.hpp"
 #include "rough_conductor.hpp"
-#include "dielectric.hpp"
+#include "plastic.hpp"
 
 
 BSDF* newMaterial(const Json& conf)
@@ -33,6 +33,8 @@ BSDF* newMaterial(const Json& conf)
 			bsdf = new SingleBSDF(new DielectricBRDF(conf["ior"], json2vec3f(conf["albedo"])));
 		if (conf["type"] == "rough_conductor")
 			bsdf = new SingleBSDF(new RoughConductorBRDF(conf));
+		if (conf["type"] == "plastic")
+			bsdf = new PlasticBSDF(conf["ior"], json2vec3f(conf["albedo"]));
 		if (bsdf == NULL)
 			throw std::runtime_error("Unrecognized BSDF type " + std::string(conf["type"]));
 	}
