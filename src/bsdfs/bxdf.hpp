@@ -11,9 +11,9 @@ class BxDF
 {
 public:
 	enum Type {
-		DIRAC = 1,
-		REFLECT = 2,
-		TRANSMIT = 4
+		DIRAC = 1, // whether light sampling is invalid (f always returning 0)
+		REFLECT = 2, // whether acceptable with rays in same side of geometric surface
+		TRANSMIT = 4 // whether acceptable with rays passing through geometric surface
 	};
 	Type flags;
 	bool isDirac() const { return flags & DIRAC; }
