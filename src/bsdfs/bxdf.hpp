@@ -6,7 +6,6 @@
 // BxDF should work on both hemispheres
 
 
-
 class BxDF
 {
 public:
@@ -20,9 +19,10 @@ public:
 	bool isReflective() const { return flags & REFLECT; }
 	bool isTransmissive() const { return flags & TRANSMIT; }
 	// assuming normal N = (0,0,1)
-	// for Dirac f should always return 0
+	// return BxDF value (dL/dI) (except with Dirac)
 	virtual Color f(const vec3f& wo, const vec3f& wi) const = 0;
-	// for Dirac f, returns dI/dI, pdf is always assigned 1
+	// return BxDF value, while providing a sample wi with pdf,
+	// of which integral over surface of unit sphere is 1 (except with Dirac)
 	virtual Color sample_f(const vec3f& wo, vec3f& wi, float& pdf, Sampler&) const = 0;
 };
 
@@ -52,7 +52,7 @@ public:
 	{
 		flags = TRANSMIT;
 	}
-	// default implementation for diffuse refractives
+	// default implementation for diffuse transmissives
 	Color sample_f(const vec3f& wo, vec3f& wi, float& pdf, Sampler& sampler) const
 	{
 		wi = sampler.cosSampleHemisphereSurface();
@@ -63,7 +63,6 @@ public:
 };
 
 
-
 class DiracBxDF : virtual public BxDF
 {
 public:
@@ -71,8 +70,10 @@ public:
 	{
 		flags = DIRAC;
 	}
+	// for Dirac, f always return 0. Instead, bounces to light sources should not be discarded.
 	Color f(const vec3f& wo, const vec3f& wi) const final
 	{
 		return Color(0);
 	}
+	// for Dirac, sample_f returns dI/dI, pdf is discrete probability
 };
