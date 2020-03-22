@@ -13,13 +13,10 @@ private:
 	
 public:
 	RoughConductorBRDF(Color eta, Color k, float roughness, Color albedo):
-		alpha(roughness), eta(eta), k(k), albedo(albedo)
-	{
-		assert(!isDirac);
-	}
+		alpha(roughness), eta(eta), k(k), albedo(albedo) {}
+		
 	RoughConductorBRDF(const Json& conf)
 	{
-		assert(!isDirac);
 		std::string name = "Cu";
 		if (conf.find("material") != conf.end())
 			name = conf["material"];
