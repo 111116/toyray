@@ -44,9 +44,10 @@ private:
 	}
 
 public:
-	RoughPlasticBSDF(float IOR, Color albedo, float alpha):
-		IOR(IOR), albedo(albedo), alpha(alpha)
+	RoughPlasticBSDF(const Json& conf): BSDF(conf)
 	{
+		IOR = conf["IOR"];
+		alpha = conf["roughness"];
 		// precompute outRatio
 		// here bruteforcing to demonstrate its physical meaning
 		// you can optimize by using approximating polynormial

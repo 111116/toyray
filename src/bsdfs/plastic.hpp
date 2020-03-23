@@ -55,9 +55,9 @@ private:
 	}
 
 public:
-	PlasticBSDF(float IOR, Color albedo):
-		IOR(IOR), albedo(albedo)
+	PlasticBSDF(const Json& conf): BSDF(conf)
 	{
+		IOR = conf["IOR"];
 		// precompute outRatio
 		// here bruteforcing to demonstrate its physical meaning
 		// you can optimize by using approximating polynormial

@@ -1,13 +1,33 @@
 #pragma once
 
 #include "color.h"
+#include "image.hpp"
+#include "util/jsonutil.hpp"
 
 class Sampler;
 
 class BSDF
 {
+	Image* albedoTexture = NULL;
+	Color albedoConst = Color(1);
+
+protected:
+	Color albedo(vec2f& uv)
+	{
+		return albedoTexture? albedoTexture->sample(uv): albedoConst;
+	}
 
 public:
+	BSDF(const Json& conf)
+	{
+		if (conf.find("albedo") != conf.end())
+		{
+			if (conf["albedo"].type() == Json::value_t::string)
+				albedoTexture = new Image(conf["albedo"]);
+			else
+				albedoConst = json2vec3f(conf["albedo"]);
+		}
+	}
 	// bidirectional scattering distribution function value of non-Dirac components
 	// wo: direction of outgoing ray (normalized)
 	// wi: directoin of incoming ray (inverted, normalized)
