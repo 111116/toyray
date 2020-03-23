@@ -5,7 +5,7 @@
 
 #include <unordered_map>
 #include "triangle.hpp"
-// #include "trianglemesh.hpp"
+#include "trianglemesh.hpp"
 #include "sphere.hpp"
 #include "plane.hpp"
 #include "quad.hpp"
