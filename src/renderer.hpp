@@ -25,7 +25,9 @@ public:
 	
 	// assume rendered pixel by pixel
 	Color normal(Ray, Sampler&);
+	Color normal2(Ray, Sampler&);
 	Color albedo(Ray, Sampler&);
+	Color albedo2(Ray, Sampler&);
 	Color radiance(Ray, Sampler&);
 	Image render(decltype(&Renderer::radiance) func, bool reportProgress = true);
 private:

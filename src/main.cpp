@@ -20,6 +20,8 @@
 
 
 bool opt_preview = false;
+bool opt_albedo = false;
+bool opt_normal = false;
 int opt_spp = 0;
 // return scene filename
 const char* cmdlineparse(int argc, char* argv[]) {
@@ -32,6 +34,10 @@ const char* cmdlineparse(int argc, char* argv[]) {
 			console.loglevel = 2;
 		else if (std::string(argv[i]) == "--preview")
 			opt_preview = true;
+		else if (std::string(argv[i]) == "--albedo")
+			opt_albedo = true;
+		else if (std::string(argv[i]) == "--normal")
+			opt_normal = true;
 		else if (std::string(argv[i]) == "--spp")
 			opt_spp = atoi(argv[++i]);
 		else {
@@ -44,6 +50,8 @@ const char* cmdlineparse(int argc, char* argv[]) {
 		console.log ("  --quiet          Only show warnings and errors");
 		console.log ("  --preview        Render with lower quality");
 		console.log ("  --spp <n>        Render with n samples per pixel");
+		console.log ("  --albedo         Output albedo buffer to albedo-[filename]");
+		console.log ("  --normal         Output normal buffer to normal-[filename]");
 		throw "scene not specified.";
 	}
 	return argv[fileno];
@@ -133,10 +141,15 @@ int main(int argc, char* argv[])
 		// start rendering
 		console.info("Rendering at", renderer.camera->resx, 'x', renderer.camera->resy, 'x', renderer.nspp, "spp");
 		console.time("Rendered");
-		Image film = renderer.render(&Renderer::radiance);
+		auto func = &Renderer::radiance;
+		if (opt_albedo) func = &Renderer::albedo;
+		if (opt_normal) func = &Renderer::normal;
+		Image film = renderer.render(func);
 		console.timeEnd("Rendered");
 		// save files
 		for (std::string filename : getOutputFiles(conf["renderer"])) {
+			if (opt_albedo) filename = "albedo-" + filename;
+			if (opt_normal) filename = "normal-" + filename;
 			console.info("Writing result to", filename);
 			film.saveFile(filename);
 		}

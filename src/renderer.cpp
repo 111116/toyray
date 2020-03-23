@@ -6,7 +6,7 @@
 
 Image Renderer::render(decltype(&Renderer::radiance) func, bool reportProgress) {
 	Image film(camera->resx, camera->resy);
-	auto gfunc = std::bind(&Renderer::radiance, this, std::placeholders::_1, std::placeholders::_2);
+	auto gfunc = std::bind(func, this, std::placeholders::_1, std::placeholders::_2);
 	TaskScheduler tasks;
 	for (int y=0; y<camera->resy; ++y) {
 		tasks.add([&,y](){
@@ -48,7 +48,16 @@ Color Renderer::normal(Ray ray, Sampler&) {
 	if (!hit) {
 		return Color();
 	}
-	return Color(0.5,0.5,0.5) + 0.5 * hit.Ns;
+	return hit.Ns;
+}
+
+Color Renderer::albedo(Ray ray, Sampler&) {
+	HitInfo hit = acc->hit(ray);
+	if (!hit) {
+		return Color();
+	}
+	vec3f t(0,0,1);
+	return PI * hit.object->bsdf->f(t,t,t,t);
 }
 
 

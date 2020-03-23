@@ -38,7 +38,8 @@ public:
 			k = json2vec3f(conf["k"]);
 	}
 
-	Color f(const vec3f& wo, const vec3f& wi) const override {
+	Color f(const vec3f& wo, const vec3f& wi) const override
+	{
 		vec3f wm = normalized(wo+wi); // microfacet normal
 		float cos = dot(wm,wo);
 		Color t1 = (eta*eta + k*k) * (cos*cos);
@@ -49,9 +50,17 @@ public:
 		return EDX::GGX_D(wm,alpha) * EDX::Smith_G(wo,wi,wm,alpha) / (4 * dot(wo,wm) * dot(wi,wm)) * Fres * albedo;
 	}
 
-	// TODO importance sampling
 	// Color sample_f(const vec3f& wo, vec3f& wi, float& pdf, Sampler& sampler) const override
 	// {
+	// 	// https://agraphicsguy.wordpress.com/2015/11/01/sampling-microfacet-brdf/
+	// 	float e = sampler.get1f();
+	// 	float theta = atan(alpha*sqrtf(fmax(0,e/(1-e))));
+	// 	float phi = 2*PI * sampler.get1f();
+	// 	// convert to cartesian coordinates
+	// 	vec3f wm (cos(theta)*sin(phi), cos(theta)*cos(phi), sin(theta));
+	// 	wi = 2*dot(wm,wo)*wm-wo;
+		// calculate pdf
+		
 	// 	// wi = vec3f(-wo.x, -wo.y, wo.z);
 	// 	// float cos = fabs(wo.z);
 	// 	// pdf = 1;
