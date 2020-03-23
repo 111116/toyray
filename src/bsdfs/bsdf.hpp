@@ -20,6 +20,13 @@ protected:
 public:
 	BSDF(const Json& conf)
 	{
+		if (conf.find("Kd") != conf.end())
+		{
+			if (conf["Kd"].type() == Json::value_t::string)
+				albedoTexture = new Image(conf["Kd"]);
+			else
+				albedoConst = json2vec3f(conf["Kd"]);
+		}
 		if (conf.find("albedo") != conf.end())
 		{
 			if (conf["albedo"].type() == Json::value_t::string)

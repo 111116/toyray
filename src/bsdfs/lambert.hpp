@@ -5,16 +5,13 @@
 
 class LambertBRDF : public BRDF
 {
-private:
-	Color albedo;
-	
 public:
-	LambertBRDF(Color r): albedo(r)
+	LambertBRDF()
 	{
 		flags = Type(REFLECT);
 	}
 
-	Color f(const vec3f& wo, const vec3f& wi) const
+	Color f(const Color& albedo, const vec3f& wo, const vec3f& wi) const override
 	{
 		return 1/PI * albedo;
 	}

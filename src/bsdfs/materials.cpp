@@ -3,7 +3,7 @@
 #include "lib/consolelog.hpp"
 #include "singlebsdf.hpp"
 
-#include "matte.hpp" // lambert reflective
+#include "lambert.hpp" // lambert reflective
 #include "mirror.hpp" // specular reflective
 #include "invisible.hpp" // specular (no bending) refractive
 #include "phong.hpp" // phong reflective
@@ -21,17 +21,17 @@ BSDF* newMaterial(const Json& conf)
 		if (conf["type"] == "null")
 			return new SingleBSDF(conf, NULL);
 		if (conf["type"] == "lambert")
-			bsdf = new SingleBSDF(conf, new LambertBRDF(json2vec3f(conf["albedo"])));
+			bsdf = new SingleBSDF(conf, new LambertBRDF());
 		if (conf["type"] == "phong")
 			bsdf = new SingleBSDF(conf, new Phong(conf));
 		if (conf["type"] == "mirror")
-			bsdf = new SingleBSDF(conf, new MirrorBRDF(json2vec3f(conf["albedo"])));
+			bsdf = new SingleBSDF(conf, new MirrorBRDF());
 		if (conf["type"] == "invisible")
 			bsdf = new SingleBSDF(conf, new InvisibleBTDF());
 		if (conf["type"] == "conductor")
-			bsdf = new SingleBSDF(conf, new ConductorBRDF(conf["material"], json2vec3f(conf["albedo"])));
+			bsdf = new SingleBSDF(conf, new ConductorBRDF(conf["material"]));
 		if (conf["type"] == "dielectric")
-			bsdf = new SingleBSDF(conf, new DielectricBRDF(conf["ior"], json2vec3f(conf["albedo"])));
+			bsdf = new SingleBSDF(conf, new DielectricBRDF(conf["ior"]));
 		if (conf["type"] == "rough_conductor") {
 			console.warn("rough_conductor using naive sampling");
 			bsdf = new SingleBSDF(conf, new RoughConductorBRDF(conf));

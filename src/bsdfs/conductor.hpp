@@ -7,14 +7,14 @@
 class ConductorBRDF : public BRDF, public DiracBxDF
 {
 private:
-	Color eta, k, albedo;
+	Color eta, k;
 	
 public:
-	ConductorBRDF(Color eta, Color k, Color albedo): eta(eta), k(k), albedo(albedo)
+	ConductorBRDF(Color eta, Color k): eta(eta), k(k)
 	{
 		flags = Type(DIRAC | REFLECT);
 	}
-	ConductorBRDF(std::string name, Color albedo): albedo(albedo)
+	ConductorBRDF(std::string name)
 	{
 		bool found = false;
 		for (int i=0; i<ComplexIorCount; ++i)
@@ -26,7 +26,7 @@ public:
 		if (!found) throw "conductor material not found";
 	}
 
-	Color sample_f(const vec3f& wo, vec3f& wi, float& pdf, Sampler& sampler) const override
+	Color sample_f(const Color& albedo, const vec3f& wo, vec3f& wi, float& pdf, Sampler& sampler) const override
 	{
 		wi = vec3f(-wo.x, -wo.y, wo.z);
 		float cos = fabs(wo.z);

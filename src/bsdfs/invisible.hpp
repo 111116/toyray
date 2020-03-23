@@ -15,7 +15,7 @@ public:
 		flags = Type(TRANSMIT | DIRAC);
 	}
 
-	Color sample_f(const vec3f& wo, vec3f& wi, float& pdf, Sampler& sampler) const override
+	Color sample_f(const Color& albedo, const vec3f& wo, vec3f& wi, float& pdf, Sampler& sampler) const override
 	{
 		wi = -wo;
 		pdf = 1;

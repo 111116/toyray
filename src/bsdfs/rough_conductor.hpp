@@ -3,17 +3,18 @@
 #include "bxdf.hpp"
 #include "microfacet.hpp"
 #include "util/jsonutil.hpp"
+#include "complexiordata.hpp"
 
 
 class RoughConductorBRDF : public BRDF
 {
 private:
-	Color eta, k, albedo;
+	Color eta, k;
 	float alpha;
 	
 public:
-	RoughConductorBRDF(Color eta, Color k, float roughness, Color albedo):
-		alpha(roughness), eta(eta), k(k), albedo(albedo) {}
+	RoughConductorBRDF(Color eta, Color k, float roughness):
+		alpha(roughness), eta(eta), k(k) {}
 		
 	RoughConductorBRDF(const Json& conf)
 	{
@@ -21,9 +22,6 @@ public:
 		if (conf.find("material") != conf.end())
 			name = conf["material"];
 		alpha = conf["roughness"];
-		albedo = 1;
-		if (conf.find("albedo") != conf.end())
-			albedo = json2vec3f(conf["albedo"]);
 		bool found = false;
 		for (int i=0; i<ComplexIorCount; ++i)
 			if (complexIorList[i].name == name) {
@@ -38,7 +36,7 @@ public:
 			k = json2vec3f(conf["k"]);
 	}
 
-	Color f(const vec3f& wo, const vec3f& wi) const override
+	Color f(const Color& albedo, const vec3f& wo, const vec3f& wi) const override
 	{
 		vec3f wm = normalized(wo+wi); // microfacet normal
 		float cos = dot(wm,wo);
