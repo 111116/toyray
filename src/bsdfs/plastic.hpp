@@ -10,14 +10,13 @@
 class PlasticBSDF : public BSDF
 {
 private:
-	Color albedo;
 	float IOR;
 	float outRatio;
 	// portion of transmitted energy after first lambertian bounce
 	// is used to scale non-Dirac component to account for multiple inter-reflections
 	// i.e. (1-outRatio)*albedo is rescattered every time
 	
-	Color f(const vec3f& wo, const vec3f& wi) const
+	Color f(const Color& albedo, const vec3f& wo, const vec3f& wi) const
 	{
 		// non-Dirac component only
 		float energy = 1;
@@ -30,7 +29,7 @@ private:
 		return energy / (1 - albedo * (1-outRatio)) * ratio2 * 1/PI * albedo;
 	}
 
-	Color sample_f(const vec3f& wo, vec3f& wi, float& pdf, bool& isDirac, Sampler& sampler) const
+	Color sample_f(const Color& albedo, const vec3f& wo, vec3f& wi, float& pdf, bool& isDirac, Sampler& sampler) const
 	{
 		float r = DielectricBRDF::reflectivity(fabs(wo.z), IOR);
 		// specular reflection
@@ -46,7 +45,7 @@ private:
 		wi = sampler.cosSampleHemisphereSurface();
 		pdf = (1-r) * wi.z / PI;
 		if (wo.z<0) wi.z *= -1;
-		return f(wo, wi);
+		return f(albedo, wo, wi);
 		// wi = sampler.cosSampleHemisphereSurface();
 		// pdf = wi.z/PI;
 		// if (wo.z<0) wi.z *= -1;
@@ -57,7 +56,7 @@ private:
 public:
 	PlasticBSDF(const Json& conf): BSDF(conf)
 	{
-		IOR = conf["IOR"];
+		IOR = conf["ior"];
 		// precompute outRatio
 		// here bruteforcing to demonstrate its physical meaning
 		// you can optimize by using approximating polynormial
@@ -72,32 +71,32 @@ public:
 	}
 
 	// wrapper function f
-	Color f(const vec3f& wo, const vec3f& wi, const vec3f& Ns, const vec3f& Ng) const
+	Color f(const vec3f& wo, const vec3f& wi, const HitInfo& hit) const
 	{
 		vec3f N1,N2;
-		getLocalBasis(Ns, N1, N2);
+		getLocalBasis(hit.Ns, N1, N2);
 		// transform wo, wi to local surface Ns' = (0,0,1)
-		vec3f woL = vec3f(dot(wo,N1), dot(wo,N2), dot(wo,Ns));
-		vec3f wiL = vec3f(dot(wi,N1), dot(wi,N2), dot(wi,Ns));
+		vec3f woL = vec3f(dot(wo,N1), dot(wo,N2), dot(wo,hit.Ns));
+		vec3f wiL = vec3f(dot(wi,N1), dot(wi,N2), dot(wi,hit.Ns));
 		// use Ng to determine whether BRDF or BTDF is used
-		bool through = (dot(wo, Ng)>0) ^ (dot(wi, Ng)>0);
+		bool through = (dot(wo, hit.Ng)>0) ^ (dot(wi, hit.Ng)>0);
 		BxDF::Type allowed = through? BxDF::TRANSMIT : BxDF::REFLECT;
-		return (BxDF::REFLECT & allowed)? f(woL, wiL): 0;
+		return (BxDF::REFLECT & allowed)? f(albedo(hit.uv), woL, wiL): 0;
 	}
 
 	// wrapper function sample_f
-	Color sample_f(const vec3f& wo, vec3f& wi, const vec3f& Ns, const vec3f& Ng, bool& isDirac, Sampler& sampler) const
+	Color sample_f(const vec3f& wo, vec3f& wi, const HitInfo& hit, bool& isDirac, Sampler& sampler) const
 	{
 		// generate sample
 		vec3f N1,N2;
-		getLocalBasis(Ns, N1, N2);
-		vec3f wiL, woL = vec3f(dot(wo,N1), dot(wo,N2), dot(wo,Ns));
+		getLocalBasis(hit.Ns, N1, N2);
+		vec3f wiL, woL = vec3f(dot(wo,N1), dot(wo,N2), dot(wo,hit.Ns));
 		float pdf;
-		Color f0 = sample_f(woL, wiL, pdf, isDirac, sampler);
-		wi = wiL.x * N1 + wiL.y * N2 + wiL.z * Ns;
+		Color f0 = sample_f(albedo(hit.uv), woL, wiL, pdf, isDirac, sampler);
+		wi = wiL.x * N1 + wiL.y * N2 + wiL.z * hit.Ns;
 		// recalculate to make sure
 		// Ng is used to determine whether BRDF or BTDF is used
-		bool through = (dot(wo, Ng)>0) ^ (dot(wi, Ng)>0);
+		bool through = (dot(wo, hit.Ng)>0) ^ (dot(wi, hit.Ng)>0);
 		BxDF::Type allowed = through? BxDF::TRANSMIT : BxDF::REFLECT;
 		Color val = (BxDF::REFLECT & allowed)? f0: 0;
 		return val / pdf;

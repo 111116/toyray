@@ -37,8 +37,8 @@ BSDF* newMaterial(const Json& conf)
 			console.warn("rough_conductor using naive sampling");
 			bsdf = new SingleBSDF(conf, new RoughConductorBRDF(conf));
 		}
-		// if (conf["type"] == "plastic")
-		// 	bsdf = new PlasticBSDF(conf);
+		if (conf["type"] == "plastic")
+			bsdf = new PlasticBSDF(conf);
 		// if (conf["type"] == "rough_plastic") {
 		// 	console.warn("plastic roughness is faked");
 		// 	bsdf = new RoughPlasticBSDF(conf);
@@ -54,13 +54,17 @@ BSDF* newMaterial(const Json& conf)
 	{
 		console.warn(err);
 		console.info("Replacing with gray matte. Continueing...");
-		// bsdf = new SingleBSDF(conf, new LambertBRDF(Color(0.7)));
+		Json tmp;
+		tmp["albedo"] = 0.7;
+		bsdf = new SingleBSDF(conf, new LambertBRDF());
 	}
 	catch (std::runtime_error err)
 	{
 		console.warn(err.what());
 		console.info("Replacing with gray matte. Continueing...");
-		// bsdf = new SingleBSDF(conf, new LambertBRDF(Color(0.7)));
+		Json tmp;
+		tmp["albedo"] = 0.7;
+		bsdf = new SingleBSDF(conf, new LambertBRDF());
 	}
 	return bsdf;
 }
