@@ -4,6 +4,7 @@
 #include "image.hpp"
 #include "accelarator/accelarator.hpp"
 #include "util/jsonutil.hpp"
+#include "util/filepath.hpp"
 
 class Sampler;
 
@@ -24,14 +25,14 @@ public:
 		if (conf.find("Kd") != conf.end())
 		{
 			if (conf["Kd"].type() == Json::value_t::string)
-				albedoTexture = new Image(conf["Kd"]);
+				albedoTexture = new Image(getpath(conf["Kd"]));
 			else
 				albedoConst = json2vec3f(conf["Kd"]);
 		}
 		if (conf.find("albedo") != conf.end())
 		{
 			if (conf["albedo"].type() == Json::value_t::string)
-				albedoTexture = new Image(conf["albedo"]);
+				albedoTexture = new Image(getpath(conf["albedo"]));
 			else
 				albedoConst = json2vec3f(conf["albedo"]);
 		}
