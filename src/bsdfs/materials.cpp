@@ -39,10 +39,10 @@ BSDF* newMaterial(const Json& conf)
 		}
 		if (conf["type"] == "plastic")
 			bsdf = new PlasticBSDF(conf);
-		// if (conf["type"] == "rough_plastic") {
-		// 	console.warn("plastic roughness is faked");
-		// 	bsdf = new RoughPlasticBSDF(conf);
-		// }
+		if (conf["type"] == "rough_plastic") {
+			console.warn("plastic roughness is faked");
+			bsdf = new RoughPlasticBSDF(conf);
+		}
 		if (conf["type"] == "rough_dielectric") {
 			console.warn("dielectric roughness unsupported");
 			bsdf = new SingleBSDF(conf, new DielectricBRDF(conf["ior"]));
@@ -56,7 +56,7 @@ BSDF* newMaterial(const Json& conf)
 		console.info("Replacing with gray matte. Continueing...");
 		Json tmp;
 		tmp["albedo"] = 0.7;
-		bsdf = new SingleBSDF(conf, new LambertBRDF());
+		bsdf = new SingleBSDF(tmp, new LambertBRDF());
 	}
 	catch (std::runtime_error err)
 	{
@@ -64,7 +64,7 @@ BSDF* newMaterial(const Json& conf)
 		console.info("Replacing with gray matte. Continueing...");
 		Json tmp;
 		tmp["albedo"] = 0.7;
-		bsdf = new SingleBSDF(conf, new LambertBRDF());
+		bsdf = new SingleBSDF(tmp, new LambertBRDF());
 	}
 	return bsdf;
 }
