@@ -43,6 +43,11 @@ public:
 		return normalized(p - center);
 	}
 
+	vec2f uv(const point& p) const
+	{
+		return 0; // TODO texture
+	}
+
 	SampleInfo sampleSurface(Sampler& sampler) const
 	{
 		vec3f N = sampler.sampleUnitSphereSurface();
