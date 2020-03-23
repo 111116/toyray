@@ -31,10 +31,20 @@ BSDF* newMaterial(const Json& conf)
 			bsdf = new SingleBSDF(new ConductorBRDF(conf["material"], json2vec3f(conf["albedo"])));
 		if (conf["type"] == "dielectric")
 			bsdf = new SingleBSDF(new DielectricBRDF(conf["ior"], json2vec3f(conf["albedo"])));
-		if (conf["type"] == "rough_conductor")
+		if (conf["type"] == "rough_conductor") {
+			console.warn("rough_conductor using naive sampling");
 			bsdf = new SingleBSDF(new RoughConductorBRDF(conf));
+		}
 		if (conf["type"] == "plastic")
 			bsdf = new PlasticBSDF(conf["ior"], json2vec3f(conf["albedo"]));
+		if (conf["type"] == "rough_plastic") {
+			console.warn("plastic roughness unsupported");
+			bsdf = new PlasticBSDF(conf["ior"], json2vec3f(conf["albedo"]));
+		}
+		if (conf["type"] == "rough_dielectric") {
+			console.warn("dielectric roughness unsupported");
+			bsdf = new SingleBSDF(new DielectricBRDF(conf["ior"], json2vec3f(conf["albedo"])));
+		}
 		if (bsdf == NULL)
 			throw std::runtime_error("Unrecognized BSDF type " + std::string(conf["type"]));
 	}

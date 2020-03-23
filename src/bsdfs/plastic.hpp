@@ -69,7 +69,6 @@ public:
 			energy += 1 - DielectricBRDF::reflectivity(lambert_out.z, 1/IOR);
 		}
 		outRatio = energy / nsample;
-		console.info("plastic out ratio", outRatio);
 	}
 
 	// wrapper function f
