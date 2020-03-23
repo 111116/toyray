@@ -3,6 +3,7 @@
 #include "renderer.hpp"
 #include "samplers/mt19937sampler.hpp"
 #include "util/taskscheduler.hpp"
+#include "bsdfs/bsdf.hpp"
 
 Image Renderer::render(decltype(&Renderer::radiance) func, bool reportProgress) {
 	Image film(camera->resx, camera->resy);
@@ -57,7 +58,7 @@ Color Renderer::albedo(Ray ray, Sampler&) {
 		return Color();
 	}
 	vec3f t(0,0,1);
-	return PI * hit.object->bsdf->f(t,t,t,t);
+	return PI * hit.object->bsdf->f(t,t,hit);
 }
 
 
@@ -86,7 +87,7 @@ Color Renderer::radiance(Ray ray, Sampler& sampler)
 			vec3f dirToLight;
 			float dist;
 			Color irr = l->sampleIrradiance(hit.p, dirToLight, dist, sampler);
-			Color f = bsdf->f(-ray.dir, dirToLight, hit.Ns, hit.Ng);
+			Color f = bsdf->f(-ray.dir, dirToLight, hit);
 			if (f == vec3f(0)) continue;
 			dist -= geoEPS; // cancel amount that ray origin is moved forward
 			// shadow ray test
@@ -97,7 +98,7 @@ Color Renderer::radiance(Ray ray, Sampler& sampler)
 		}
 		// indirect light (bsdf importance sampling)
 		vec3f newdir;
-		Color f = bsdf->sample_f(-ray.dir, newdir, hit.Ns, hit.Ng, lastDirac, sampler); // already scaled by 1/pdf
+		Color f = bsdf->sample_f(-ray.dir, newdir, hit, lastDirac, sampler); // already scaled by 1/pdf
 		through *= fabs(dot(newdir, hit.Ns)) * f;
 		if (through == vec3f() || !(sqrlen(through) < 1e20)) break;
 		ray = Ray(hit.p + geoEPS*newdir, newdir);

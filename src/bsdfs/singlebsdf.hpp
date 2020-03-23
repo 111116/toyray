@@ -13,7 +13,7 @@ private:
 
 public:
 	SingleBSDF(const Json& conf, BxDF const* component): BSDF(conf), component(component) {}
-	Color f(const vec3f& wo, const vec3f& wi, const vec3f& Ns, const vec3f& Ng) const final;
-	Color sample_f(const vec3f& wo, vec3f& wi, const vec3f& Ns, const vec3f& Ng, bool& isDirac, Sampler&) const final;
+	Color f(const vec3f& wo, const vec3f& wi, const HitInfo& hit) const final;
+	Color sample_f(const vec3f& wo, vec3f& wi, const HitInfo& hit, bool& isDirac, Sampler&) const final;
 
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bsdf.hpp"
 #include "util/jsonutil.hpp"
+class BSDF;
 
 BSDF* newMaterial(const Json& conf);

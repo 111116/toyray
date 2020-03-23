@@ -2,6 +2,7 @@
 
 #include "color.h"
 #include "image.hpp"
+#include "accelarator/accelarator.hpp"
 #include "util/jsonutil.hpp"
 
 class Sampler;
@@ -12,7 +13,7 @@ class BSDF
 	Color albedoConst = Color(1);
 
 protected:
-	Color albedo(vec2f& uv)
+	Color albedo(const vec2f& uv) const
 	{
 		return albedoTexture? albedoTexture->sample(uv): albedoConst;
 	}
@@ -42,12 +43,12 @@ public:
 	// Ng: direction of geometry normal vector (outward, normalized)
 	// Note that Ng will be used to determine whether BRDF or BTDF component is used,
 	// while Ns is passed to BRDF/BTDF which works on both sides
-	virtual Color f(const vec3f& wo, const vec3f& wi, const vec3f& Ns, const vec3f& Ng) const = 0;
+	virtual Color f(const vec3f& wo, const vec3f& wi, const HitInfo& hit) const = 0;
 
 	// bidirectional scattering distribution function value with importance sampling
 	// integrator without MIS should be unaware of pdf
 	// so for now we scale sampled f with 1/pdf internally
-	virtual Color sample_f(const vec3f& wo, vec3f& wi, const vec3f& Ns, const vec3f& Ng, bool& isDirac, Sampler&) const = 0;
+	virtual Color sample_f(const vec3f& wo, vec3f& wi, const HitInfo& hit, bool& isDirac, Sampler&) const = 0;
 
 protected:
 	static void getLocalBasis(const vec3f& Ns, vec3f& N1, vec3f& N2)

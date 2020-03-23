@@ -42,7 +42,8 @@ public:
 		*result = Hit(
 			transformedPoint(trans, iresult.p),
 			transformedDir(transposed(invTrans), iresult.Ns),
-			transformedDir(transposed(invTrans), iresult.Ng));
+			transformedDir(transposed(invTrans), iresult.Ng),
+			iresult.uv);
 		return true;
 	}
 

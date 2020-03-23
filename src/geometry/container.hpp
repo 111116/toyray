@@ -35,7 +35,7 @@ public:
 		HitTmp tmp = treehit(ray, root);
 		if (!tmp) return false;
 		point p = ray.atParam(tmp.t);
-		*result = Hit(p, tmp.primitive->Ns(p), tmp.primitive->Ng(p));
+		*result = Hit(p, tmp.primitive->Ns(p), tmp.primitive->Ng(p), tmp.primitive->uv(p));
 		return true;
 	}
 	 

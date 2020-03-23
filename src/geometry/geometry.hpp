@@ -23,11 +23,12 @@ class Primitive::Hit
 {
 public:
 	bool hit = false;
-	point p;
-	vec3f Ns, Ng;
+	point p; // hit point coordinate
+	vec3f Ns, Ng; // shading normal, geometric normal
+	vec2f uv; // texture coordinate
 	Hit(){}
-	Hit(const point& p, const vec3f& Ns, const vec3f& Ng):
-		hit(true), p(p), Ns(Ns), Ng(Ng) {}
+	Hit(const point& p, const vec3f& Ns, const vec3f& Ng, const vec2f& uv):
+		hit(true), p(p), Ns(Ns), Ng(Ng), uv(uv) {}
 	operator bool() {
 		return hit;
 	}

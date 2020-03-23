@@ -62,7 +62,7 @@ public:
 		}
 		if (0<tmin && tmin <= tmax)
 		{
-			*result = Hit(ray.atParam(tmin), resN, resN);
+			*result = Hit(ray.atParam(tmin), resN, resN, 0); // TODO Cube texture
 			return true;
 		}
 		return false;
