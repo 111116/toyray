@@ -58,7 +58,7 @@ Color Renderer::albedo(Ray ray, Sampler&) {
 		return Color();
 	}
 	vec3f t(0,0,1);
-	return PI * hit.object->bsdf->f(t,t,hit);
+	return hit.object->bsdf->albedo(hit.uv);
 }
 
 

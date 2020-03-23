@@ -13,13 +13,12 @@ class BSDF
 	Image* albedoTexture = NULL;
 	Color albedoConst = Color(1);
 
-protected:
+public:
 	Color albedo(const vec2f& uv) const
 	{
 		return albedoTexture? albedoTexture->sample(uv): albedoConst;
 	}
 
-public:
 	BSDF(const Json& conf)
 	{
 		if (conf.find("Kd") != conf.end())
