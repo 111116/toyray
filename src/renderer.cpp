@@ -1,15 +1,41 @@
 
+#include <cstdio>
 #include "renderer.hpp"
 #include "samplers/mt19937sampler.hpp"
+#include "util/taskscheduler.hpp"
 
+Image Renderer::render(decltype(&Renderer::radiance) func, bool reportProgress) {
+	Image film(camera->resx, camera->resy);
+	auto gfunc = std::bind(&Renderer::radiance, this, std::placeholders::_1, std::placeholders::_2);
+	TaskScheduler tasks;
+	for (int y=0; y<camera->resy; ++y) {
+		tasks.add([&,y](){
+			for (int x=0; x<camera->resx; ++x) {
+				vec2f pixelsize = vec2f(1.0/camera->resx, 1.0/camera->resy);
+				vec2f pixelpos = vec2f(x,y) * pixelsize;
+				film.setPixel(x, y, renderPixel(gfunc, pixelpos, pixelsize));
+			}
+		});
+	}
+	if (reportProgress) {
+		tasks.onprogress = [](int k, int n){
+			fprintf(stderr, "\r    %.1f%% ", 100.0f*k/n);
+		};
+	}
+	tasks.start();
+	if (reportProgress) {
+		fprintf(stderr, "\n"); // new line after progress
+	}
+	return film;
+}
 
-Color Renderer::render(const vec2f& pixelpos, const vec2f& pixelsize) {
+Color Renderer::renderPixel(std::function<Color(Ray, Sampler&)> func, const vec2f& pixelpos, const vec2f& pixelsize) {
 	Color res;
 	for (int i=0; i<nspp; ++i) {
 		Sampler* sampler = new MT19937Sampler(std::hash<float>{}(pixelpos.x*PI+pixelpos.y), i);
 		vec2f uv = pixelpos + sampler->get2f() * pixelsize;
 		Ray ray = camera->sampleray(uv);
-		Color tres = radiance(ray, *sampler);
+		Color tres = func(ray, *sampler);
 		/*if (norm(tres)<1e8)*/ res += tres;
 		delete sampler;
 	}

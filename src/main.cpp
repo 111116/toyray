@@ -10,7 +10,6 @@
 #include "lib/consolelog.hpp"
 #include "util/jsonutil.hpp"
 #include "util/filepath.hpp"
-#include "util/taskscheduler.hpp"
 
 #include "renderer.hpp"
 #include "image.hpp"
@@ -121,36 +120,20 @@ int main(int argc, char* argv[])
 				renderer.max_bounces = conf["integrator"]["max_bounces"];
 		}
 		renderer.nspp = conf["renderer"]["spp"];
-		Camera* camera = newCamera(conf["camera"]);
-		renderer.camera = camera;
+		renderer.camera = newCamera(conf["camera"]);
 		if (opt_preview) {
 			renderer.nspp = std::max(1, int(sqrt(renderer.nspp)));
-			camera->resx = std::max(1, camera->resx/2);
-			camera->resy = std::max(1, camera->resy/2);
+			renderer.camera->resx = std::max(1, renderer.camera->resx/2);
+			renderer.camera->resy = std::max(1, renderer.camera->resy/2);
 		}
 		if (opt_spp) {
 			renderer.nspp = opt_spp;
 		}
 
-		Image film(camera->resx, camera->resy);
-		console.info("Rendering at", camera->resx, 'x', camera->resy, 'x', renderer.nspp, "spp");
 		// start rendering
+		console.info("Rendering at", renderer.camera->resx, 'x', renderer.camera->resy, 'x', renderer.nspp, "spp");
 		console.time("Rendered");
-		TaskScheduler tasks;
-		for (int y=0; y<camera->resy; ++y) {
-			tasks.add([&,y](){
-				for (int x=0; x<camera->resx; ++x) {
-					vec2f pixelsize = vec2f(1.0/camera->resx, 1.0/camera->resy);
-					vec2f pixelpos = vec2f(x,y) * pixelsize;
-					film.setPixel(x, y, renderer.render(pixelpos, pixelsize));
-				}
-			});
-		}
-		tasks.onprogress = [](int k, int n){
-			fprintf(stderr, "\r    %.1f%% ", 100.0f*k/n);
-		};
-		tasks.start();
-		fprintf(stderr, "\n"); // new line after progress
+		Image film = renderer.render(&Renderer::radiance);
 		console.timeEnd("Rendered");
 		// save files
 		for (std::string filename : getOutputFiles(conf["renderer"])) {

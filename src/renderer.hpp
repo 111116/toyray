@@ -6,6 +6,8 @@
 #include "lights/light.hpp"
 #include "accelarator/accelarator.hpp"
 #include "cameras/camera.hpp"
+#include "image.hpp"
+#include <functional>
 
 class Renderer
 {
@@ -20,12 +22,12 @@ public:
 	std::vector<Light*> global_lights;
 	Accelarator* acc;
 	Camera* camera;
-
+	
 	// assume rendered pixel by pixel
-	Color render(const vec2f& pixelpos, const vec2f& pixelsize);
-
-private:
 	Color normal(Ray, Sampler&);
+	Color albedo(Ray, Sampler&);
 	Color radiance(Ray, Sampler&);
-
+	Image render(decltype(&Renderer::radiance) func, bool reportProgress = true);
+private:
+	Color renderPixel(std::function<Color(Ray, Sampler&)> func, const vec2f& pixelpos, const vec2f& pixelsize);
 };
