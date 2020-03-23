@@ -53,7 +53,7 @@ Color Renderer::normal(Ray ray, Sampler&) {
 
 Color Renderer::albedo(Ray ray, Sampler&) {
 	HitInfo hit = acc->hit(ray);
-	if (!hit) {
+	if (!hit || !hit.object->bsdf) {
 		return Color();
 	}
 	vec3f t(0,0,1);
