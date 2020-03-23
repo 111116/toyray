@@ -6,11 +6,10 @@
 class DielectricBRDF : public DiracBxDF
 {
 private:
-	Color albedo;
 	float IOR;
 	
 public:
-	DielectricBRDF(float IOR, Color albedo): IOR(IOR), albedo(albedo)
+	DielectricBRDF(float IOR): IOR(IOR)
 	{
 		flags = Type(DIRAC | TRANSMIT | REFLECT);
 	}
@@ -31,7 +30,7 @@ public:
 		return reflectivity(cosi, cost, ior);
 	}
 
-	Color sample_f(const vec3f& wo, vec3f& wi, float& pdf, Sampler& sampler) const override
+	Color sample_f(const Color& albedo, const vec3f& wo, vec3f& wi, float& pdf, Sampler& sampler) const override
 	{
 		float ior = wo.z>0? IOR: 1/IOR;
 		float cost;
