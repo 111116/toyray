@@ -10,6 +10,7 @@
 #include "conductor.hpp"
 #include "dielectric.hpp"
 #include "rough_conductor.hpp"
+#include "rough_plastic.hpp"
 #include "plastic.hpp"
 
 
@@ -38,8 +39,8 @@ BSDF* newMaterial(const Json& conf)
 		if (conf["type"] == "plastic")
 			bsdf = new PlasticBSDF(conf["ior"], json2vec3f(conf["albedo"]));
 		if (conf["type"] == "rough_plastic") {
-			console.warn("plastic roughness unsupported");
-			bsdf = new PlasticBSDF(conf["ior"], json2vec3f(conf["albedo"]));
+			console.warn("plastic roughness is faked");
+			bsdf = new RoughPlasticBSDF(conf["ior"], json2vec3f(conf["albedo"]), conf["roughness"]);
 		}
 		if (conf["type"] == "rough_dielectric") {
 			console.warn("dielectric roughness unsupported");
