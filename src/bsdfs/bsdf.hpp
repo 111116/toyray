@@ -16,7 +16,7 @@ class BSDF
 public:
 	Color albedo(const vec2f& uv) const
 	{
-		return albedoTexture? albedoTexture->sample(uv): albedoConst;
+		return albedoTexture? albedoTexture->sample(vec2f(uv.x,-uv.y)): albedoConst;
 	}
 
 	BSDF(const Json& conf)

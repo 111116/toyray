@@ -51,6 +51,10 @@ BSDF* newMaterial(const Json& conf)
 			console.warn("oren_nayar unsupported");
 			bsdf = new SingleBSDF(conf, new LambertBRDF());
 		}
+		if (conf["type"] == "transparency") {
+			console.warn("transparency unsupported");
+			bsdf = newMaterial(conf["base"]);
+		}
 		if (bsdf == NULL)
 			throw std::runtime_error("Unrecognized BSDF type " + std::string(conf["type"]));
 	}
