@@ -69,9 +69,15 @@ void loadObjects(const Json& conf, Renderer& renderer)
 	instantiateGeometry(conf);
 	for (auto o: conf["primitives"]) {
 		Object* newobj;
-		if (bsdf.find(std::string(o["bsdf"])) == bsdf.end())
-			console.warn("Undefined BSDF", o["bsdf"]);
-		newobj = new Object(o, bsdf[o["bsdf"]]);
+		BSDF* sd;
+		if (o["bsdf"].type() == Json::value_t::object)
+			sd = newMaterial(o["bsdf"]);
+		else {
+			if (bsdf.find(std::string(o["bsdf"])) == bsdf.end())
+				console.warn("Undefined BSDF", o["bsdf"]);
+			sd = bsdf[o["bsdf"]];
+		}
+		newobj = new Object(o, sd);
 		renderer.objects.push_back(newobj);
 	}
 }

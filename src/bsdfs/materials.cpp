@@ -47,6 +47,10 @@ BSDF* newMaterial(const Json& conf)
 			console.warn("dielectric roughness unsupported");
 			bsdf = new SingleBSDF(conf, new DielectricBRDF(conf["ior"]));
 		}
+		if (conf["type"] == "oren_nayar") {
+			console.warn("oren_nayar unsupported");
+			bsdf = new SingleBSDF(conf, new LambertBRDF());
+		}
 		if (bsdf == NULL)
 			throw std::runtime_error("Unrecognized BSDF type " + std::string(conf["type"]));
 	}
