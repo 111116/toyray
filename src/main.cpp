@@ -117,7 +117,6 @@ std::vector<std::string> getOutputFiles(const Json& conf)
 int main(int argc, char* argv[])
 {
 	try {
-		Image("i.png").saveFile("o.exr");
 		const char* filename = cmdlineparse(argc, argv);
 		// parse commandline args
 		std::ifstream fin(filename);
