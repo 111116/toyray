@@ -10,6 +10,7 @@ struct Camera
 	vec3f look_at; // the point being looked at
 	vec3f up; // upward vector
 	float fov; // in radians
+	bool mirror = false; // horizontally mirrored
 
 	Camera(const Json& conf) {
 		std::vector<int> resolution = conf["resolution"];
@@ -18,6 +19,8 @@ struct Camera
 		position = json2vec3f(conf["transform"]["position"]);
 		look_at = json2vec3f(conf["transform"]["look_at"]);
 		up = normalized(json2vec3f(conf["transform"]["up"]));
+		if (conf["transform"].find("mirror") != conf["transform"].end())
+			mirror = conf["transform"]["mirror"];
 		float fov_degree = conf["fov"];
 		fov = fov_degree / 180 * PI;
 	}
