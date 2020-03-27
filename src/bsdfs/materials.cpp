@@ -5,6 +5,7 @@
 #include "lib/consolelog.hpp"
 #include "bsdf.hpp"
 #include "singlebsdf.hpp"
+#include "transparency.hpp"
 
 #include "lambert.hpp" // lambert reflective
 #include "mirror.hpp" // specular reflective
@@ -59,8 +60,7 @@ BSDF* newMaterial(const Json& conf, const std::unordered_map<std::string, BSDF*>
 			bsdf = new SingleBSDF(conf, new LambertBRDF());
 		}
 		if (conf["type"] == "transparency") {
-			console.warn("transparency unsupported");
-			bsdf = newMaterial(conf["base"], bsdfref);
+			bsdf = new Transparency(conf, newMaterial(conf["base"], bsdfref));
 		}
 		if (bsdf == NULL)
 			throw std::runtime_error("Unrecognized BSDF type " + std::string(conf["type"]));
