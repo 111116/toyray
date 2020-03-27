@@ -64,14 +64,14 @@ std::unordered_map<std::string, BSDF*> bsdf;
 void loadObjects(const Json& conf, Renderer& renderer)
 {
 	for (auto o: conf["bsdfs"]) {
-		bsdf[o["name"]] = newMaterial(o);
+		bsdf[o["name"]] = newMaterial(o, bsdf);
 	}
 	instantiateGeometry(conf);
 	for (auto o: conf["primitives"]) {
 		Object* newobj;
 		BSDF* sd;
 		if (o["bsdf"].type() == Json::value_t::object)
-			sd = newMaterial(o["bsdf"]);
+			sd = newMaterial(o["bsdf"], bsdf);
 		else {
 			if (bsdf.find(std::string(o["bsdf"])) == bsdf.end())
 				console.warn("Undefined BSDF", o["bsdf"]);

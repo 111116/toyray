@@ -1,4 +1,6 @@
 
+#include <unordered_map>
+#include <string>
 #include "util/jsonutil.hpp"
 #include "lib/consolelog.hpp"
 #include "bsdf.hpp"
@@ -15,8 +17,13 @@
 #include "plastic.hpp"
 
 
-BSDF* newMaterial(const Json& conf)
+BSDF* newMaterial(const Json& conf, const std::unordered_map<std::string, BSDF*>& bsdfref)
 {
+	if (conf.type() == Json::value_t::string) {
+		if (bsdfref.find(conf) == bsdfref.end())
+			throw "undefined bsdf referenced";
+		return bsdfref.find(conf)->second;
+	}
 	BSDF* bsdf = NULL;
 	try {
 		if (conf["type"] == "null")
@@ -53,7 +60,7 @@ BSDF* newMaterial(const Json& conf)
 		}
 		if (conf["type"] == "transparency") {
 			console.warn("transparency unsupported");
-			bsdf = newMaterial(conf["base"]);
+			bsdf = newMaterial(conf["base"], bsdfref);
 		}
 		if (bsdf == NULL)
 			throw std::runtime_error("Unrecognized BSDF type " + std::string(conf["type"]));
