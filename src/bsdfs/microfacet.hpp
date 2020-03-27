@@ -36,6 +36,7 @@ inline float GGX_D(vec3f wm, float alpha) // alpha为粗糙度
 
 inline float Smith_G(vec3f wo, vec3f wi, vec3f wm, float alpha)
 {
+	if (wm.z < 0) wm = -wm;
 	auto SmithG1 = [&](vec3f v, vec3f wm)
 	{
 		float tanTheta = fabs(TanTheta(v));
