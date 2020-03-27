@@ -89,7 +89,7 @@ private:
 			if (bsdf == NULL || !bsdf->isTransparent(h->uv))
 				return true;
 			do {
-				ray.origin = h->p + 1e-3 * ray.dir;
+				ray.origin = h->p + 1e-2 * ray.dir;
 			}
 			while (node->shape->intersect(ray, h) && bsdf->isTransparent(h->uv));
 		}
