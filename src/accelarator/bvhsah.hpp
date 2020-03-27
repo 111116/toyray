@@ -1,7 +1,8 @@
 #pragma once
 
 #include "accelarator.hpp"
-#include "../lib/consolelog.hpp"
+#include "lib/consolelog.hpp"
+#include "bsdfs/transparency.hpp"
 
 struct BVH : public Accelarator {
 private:
@@ -79,13 +80,29 @@ private:
 
 	std::vector<std::pair<Primitive*, Object*>> list;
 
+	// WARN: this function doesn't guarantee that *h is unchanged if not hit
+	static inline bool opaqueHit(treenode* node, Ray ray, Primitive::Hit* h)
+	{
+		if (node->shape->intersect(ray, h))
+		{
+			Transparency* bsdf = dynamic_cast<Transparency*>(node->object->bsdf);
+			if (bsdf == NULL || !bsdf->isTransparent(h->uv))
+				return true;
+			do {
+				ray.origin = h->p + 1e-3 * ray.dir;
+			}
+			while (node->shape->intersect(ray, h) && bsdf->isTransparent(h->uv));
+		}
+		return false;
+	}
+
 	HitInfo treehit(const Ray& ray, treenode* node) {
 		if (node == NULL) return HitInfo();
 		if (!node->bound.intersect(ray)) return HitInfo();
 		if (node->shape != NULL) {
 			HitInfo hit;
 			Primitive::Hit h;
-			if (node->shape->intersect(ray, &h)) {
+			if (opaqueHit(node, ray, &h)) {
 				hit = HitInfo(h, node->object);
 			}
 			return hit;
