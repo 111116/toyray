@@ -31,7 +31,32 @@ struct AABox
 		else
 			tmin = fmax(tmin, (z2 - r.origin.z) / r.dir.z),
 			tmax = fmin(tmax, (z1 - r.origin.z) / r.dir.z);
-		return tmin <= tmax;
+		return tmin <= tmax && tmax > 0;
+	}
+	bool intersect(const Ray& r, float& t)
+	{
+		float tmin, tmax;
+		if (r.dir.x > 0)
+			tmin = (x1 - r.origin.x) / r.dir.x,
+			tmax = (x2 - r.origin.x) / r.dir.x;
+		else
+			tmin = (x2 - r.origin.x) / r.dir.x,
+			tmax = (x1 - r.origin.x) / r.dir.x;
+		if (r.dir.y > 0)
+			tmin = fmax(tmin, (y1 - r.origin.y) / r.dir.y),
+			tmax = fmin(tmax, (y2 - r.origin.y) / r.dir.y);
+		else
+			tmin = fmax(tmin, (y2 - r.origin.y) / r.dir.y),
+			tmax = fmin(tmax, (y1 - r.origin.y) / r.dir.y);
+		if (r.dir.z > 0)
+			tmin = fmax(tmin, (z1 - r.origin.z) / r.dir.z),
+			tmax = fmin(tmax, (z2 - r.origin.z) / r.dir.z);
+		else
+			tmin = fmax(tmin, (z2 - r.origin.z) / r.dir.z),
+			tmax = fmin(tmax, (z1 - r.origin.z) / r.dir.z);
+		if (tmin > tmax || tmax <= 0) return false;
+		t = tmin;
+		return true;
 	}
 	float surfaceArea() {
 		float dx = x2 - x1;
