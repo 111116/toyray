@@ -21,6 +21,7 @@ make -j
 - square
 - cube
 - transformed geometries
+- alpha-masked geometries
 
 #### materials:
 
@@ -28,6 +29,8 @@ make -j
 - mirror
 - conductor (specular)
 - dielectric (specular)
+- plastic
+- rough conductor (partial support)
 
 #### light types:
 
@@ -45,7 +48,7 @@ make -j
 
 - shapes: Wavefront OBJ (ASCII)
 - scene configuration: Tungsten styled JSON
-- light probe: EXR, HDR
+- light probe / texture: EXR, HDR, PNG, JPG
 
 #### output format:
 
