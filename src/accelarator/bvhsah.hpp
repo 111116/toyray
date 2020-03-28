@@ -92,6 +92,7 @@ private:
 				ray.origin = h->p + 1e-2 * ray.dir;
 			}
 			while (node->shape->intersect(ray, h) && bsdf->isTransparent(h->uv));
+			return !bsdf->isTransparent(h->uv);
 		}
 		return false;
 	}
