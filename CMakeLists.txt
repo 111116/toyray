@@ -33,6 +33,7 @@ target_link_libraries(toyray PUBLIC util)
 
 add_library(lights STATIC "src/lights/lightcollection.cpp")
 target_include_directories(lights PUBLIC "src")
+target_link_libraries(lights PUBLIC imgfmt)
 target_link_libraries(toyray PUBLIC lights)
 
 add_library(material STATIC "src/bsdfs/singlebsdf.cpp" "src/bsdfs/materials.cpp" "src/bsdfs/transparency.cpp")
@@ -44,5 +45,7 @@ target_include_directories(camera PUBLIC "src")
 target_link_libraries(toyray PUBLIC camera)
 
 
+find_package(Threads REQUIRED)
+target_link_libraries(toyray PUBLIC pthread)
 
 
