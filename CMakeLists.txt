@@ -33,6 +33,7 @@ target_link_libraries(toyray PUBLIC util)
 
 add_library(lights STATIC "src/lights/lightcollection.cpp")
 target_include_directories(lights PUBLIC "src")
+target_link_libraries(lights PUBLIC imgfmt)
 target_link_libraries(toyray PUBLIC lights)
 
 add_library(material STATIC "src/bsdfs/bsdf.cpp" "src/bsdfs/materials.cpp")
