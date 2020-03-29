@@ -1,3 +1,7 @@
+# Toyray
+
+[![Build Status](https://travis-ci.org/111116/toyray.svg?branch=master)](https://travis-ci.org/111116/toyray)
+
 a naive path tracer (CG course project). **under active development**
 
 ## Compile and Run
