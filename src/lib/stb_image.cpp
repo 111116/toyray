@@ -911,8 +911,6 @@ STBIDEF float *stbi_loadf_from_file(FILE *f, int *x, int *y, int *comp, int req_
    stbi__start_file(&s,f);
    return stbi__loadf_main(&s,x,y,comp,req_comp);
 }
-#else
-WTF!
 #endif // !STBI_NO_STDIO
 
 #endif // !STBI_NO_LINEAR
