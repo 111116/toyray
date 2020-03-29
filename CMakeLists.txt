@@ -13,6 +13,7 @@ SET(CMAKE_CXX_STANDARD 14)
 message("Build type: " ${CMAKE_BUILD_TYPE})
 set(CMAKE_CXX_FLAGS_DEBUG "-DSINGLE_THREADED")
 
+find_package(Threads REQUIRED)
 
 add_executable(${PROJECT_NAME} "src/main.cpp" "src/renderer.cpp")
 target_include_directories(toyray PUBLIC "src")
