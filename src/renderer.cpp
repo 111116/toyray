@@ -33,7 +33,7 @@ Image Renderer::render(decltype(&Renderer::radiance) func, bool reportProgress) 
 Color Renderer::renderPixel(std::function<Color(Ray, Sampler&)> func, const vec2f& pixelpos, const vec2f& pixelsize) {
 	Color res;
 	for (int i=0; i<nspp; ++i) {
-		Sampler* sampler = new MT19937Sampler(std::hash<float>{}(pixelpos.x*PI+pixelpos.y), i);
+		Sampler* sampler = new MT19937Sampler((std::hash<float>{}(pixelpos.x)<<2)^std::hash<float>{}(PI*pixelpos.y), i);
 		vec2f uv = pixelpos + sampler->get2f() * pixelsize;
 		Ray ray = camera->sampleray(uv);
 		Color tres = func(ray, *sampler);
