@@ -16,6 +16,7 @@ public:
 	}
 	ConductorBRDF(std::string name)
 	{
+		flags = Type(DIRAC | REFLECT);
 		bool found = false;
 		for (int i=0; i<ComplexIorCount; ++i)
 			if (complexIorList[i].name == name) {
