@@ -101,6 +101,13 @@ Color Renderer::radiance(Ray ray, Sampler& sampler)
 		Color f = bsdf->sample_f(-ray.dir, newdir, hit, lastDirac, sampler); // already scaled by 1/pdf
 		through *= fabs(dot(newdir, hit.Ns)) * f;
 		if (through == vec3f() || !(sqrlen(through) < 1e20)) break;
+		// russian roulette
+		float t = fmax(fmax(through.x, through.y), through.z);
+		if (t < 0.1) {
+			float p = t / 0.3;
+			if (sampler.get1f() >= p) break;
+			through = through / p;
+		}
 		ray = Ray(hit.p + geoEPS*newdir, newdir);
 	}
 	return result;
