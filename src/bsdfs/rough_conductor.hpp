@@ -44,7 +44,7 @@ public:
 		Color r1 = (t1 - 2*eta*cos + 1) / (t1 + 2*eta*cos + 1);
 		Color t2 = eta*eta + k*k;
 		Color r2 = (t2 - 2*eta*cos + Color(cos*cos)) / (t2 + 2*eta*cos + Color(cos*cos));
-		Color Fres = 0.5 * (r1*r1 + r2*r2); // reflected energy
+		Color Fres = 0.5 * (r1 + r2); // reflected energy
 		return EDX::GGX_D(wm,alpha) * EDX::Smith_G(wo,wi,wm,alpha) / (4 * dot(wo,wm) * dot(wi,wm)) * Fres * albedo;
 	}
 
