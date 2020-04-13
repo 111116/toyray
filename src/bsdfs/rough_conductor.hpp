@@ -48,13 +48,28 @@ public:
 		return EDX::GGX_D(wm,alpha) * EDX::Smith_G(wo,wi,wm,alpha) / (4 * wo.z * wi.z) * Fres * albedo;
 	}
 
+	static vec3f diffEval(std::function<vec3f(vec2f)> f, vec2f x, float& dd)
+	{
+		const float delta = 1e-3;
+		vec2f x1 = x, x2 = x;
+		x1.x += delta * (x1.x < 1-delta? 1: -1);
+		x2.y += delta * (x1.y < 1-delta? 1: -1);
+		vec3f r = f(x);
+		vec3f r1 = f(x1);
+		vec3f r2 = f(x2);
+		dd = norm(cross(r1-r,r2-r))/(delta*delta);
+		return r;
+	}
+
 	Color sample_f(const Color& albedo, const vec3f& wo, vec3f& wi, float& pdf, Sampler& sampler) const override
 	{
-		vec2f u = sampler.get2f();
-    	vec3f wm = schuttejoe::GgxVndf(wo, alpha, u.x, u.y);
-    	wi = schuttejoe::Reflect(wm, wo);
-    	// if (sampler.get1f() < 0.0001) console.log(wi,wm,wo);
-    	pdf = EDX::GGX_D(wm,alpha) * fabs(wm.z) / 4 / fabs(dot(wo, wm));
+		float dd;
+		wi = diffEval([wo,this](vec2f u){
+    		vec3f wm = schuttejoe::GgxVndf(wo, alpha, u.x, u.y);
+    		return schuttejoe::Reflect(wm, wo);
+		}, sampler.get2f(), dd);
+		pdf = 1/dd;
+    	// pdf = EDX::GGX_D(wm,alpha) * fabs(wm.z) / 4 / fabs(dot(wo, wm));
     	if (wi.z<0 ^ wo.z<0) return 0;
     	return f(albedo, wo, wi);
 	}
