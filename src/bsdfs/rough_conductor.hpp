@@ -45,7 +45,7 @@ public:
 		Color t2 = eta*eta + k*k;
 		Color r2 = (t2 - 2*eta*cos + Color(cos*cos)) / (t2 + 2*eta*cos + Color(cos*cos));
 		Color Fres = 0.5 * (r1 + r2); // reflected energy
-		return EDX::GGX_D(wm,alpha) * EDX::Smith_G(wo,wi,wm,alpha) / (4 * dot(wo,wm) * dot(wi,wm)) * Fres * albedo;
+		return EDX::GGX_D(wm,alpha) * EDX::Smith_G(wo,wi,wm,alpha) / (4 * wo.z * wi.z) * Fres * albedo;
 	}
 
 	// Color sample_f(const vec3f& wo, vec3f& wi, float& pdf, Sampler& sampler) const override

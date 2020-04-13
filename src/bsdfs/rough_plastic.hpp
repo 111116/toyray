@@ -28,7 +28,7 @@ private:
 		vec3f wm = normalized(wo+wi); // microfacet normal
 		float cos = dot(wm,wo);
 		Color Fres = DielectricBRDF::reflectivity(cos, IOR); // reflected energy
-		vec3f refl = EDX::GGX_D(wm,alpha) * EDX::Smith_G(wo,wi,wm,alpha) / (4 * dot(wo,wm) * dot(wi,wm)) * Fres;
+		vec3f refl = EDX::GGX_D(wm,alpha) * EDX::Smith_G(wo,wi,wm,alpha) / (4 * wo.z * wi.z) * Fres;
 		// console.log(refl, diff);
 		return refl + diff;
 	}
