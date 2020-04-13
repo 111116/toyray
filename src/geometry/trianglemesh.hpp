@@ -17,19 +17,8 @@
 class TriangleMesh: public BasicContainer
 {
 public:
-	TriangleMesh(const Json& conf): BasicContainer(loadfromfile(getpath(conf["file"]).c_str())) {
-		// recompute normal
-		bool recompute_normals = true;
-		if (conf.find("recompute_normals") != conf.end()) {
-			recompute_normals = conf["recompute_normals"];
-		}
-		if (recompute_normals) {
-			for (Primitive* t: list) {
-				Triangle* o = dynamic_cast<Triangle*>(t);
-				o->recompute_normal();
-			}
-		}
-	}
+	TriangleMesh(std::string filename):
+		BasicContainer(loadfromfile(getpath(filename).c_str())) {}
 
 	SampleInfo sampleSurface(Sampler& sampler) const
 	{
@@ -80,6 +69,7 @@ private:
 				if (cmd == "f") { // polygon face
 					std::vector<vec3f> vv, vvn;
 					std::vector<vec2f> vvt;
+					bool recompute_normal = false;
 					while (!in.fail() && !in.eof()) {					
 						// code from tungsten ObjLoader::loadFace
 						int indices[] = {0, 0, 0};
@@ -106,11 +96,14 @@ private:
 						vv.push_back(v[iv-1]);
 						vvt.push_back(ivt? vt[ivt-1]: vec2f());
 						vvn.push_back(ivn? vn[ivn-1]: vec3f(0,1,0));
+						recompute_normal |= !ivn;
 					}
 					if (vv.size() == 3) {
 						// ignore triangles of zero surface area
 						if (cross(vv[1]-vv[0],vv[2]-vv[0]) != vec3f(0)) {
 							faces.push_back(new Triangle(vv[0], vv[1], vv[2], vvt[0], vvt[1], vvt[2], vvn[0], vvn[1], vvn[2]));
+							if (recompute_normal)
+								dynamic_cast<Triangle*>(faces.back())->recompute_normal();
 						}
 					}
 					else {
