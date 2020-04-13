@@ -48,26 +48,16 @@ public:
 		return EDX::GGX_D(wm,alpha) * EDX::Smith_G(wo,wi,wm,alpha) / (4 * wo.z * wi.z) * Fres * albedo;
 	}
 
-	// Color sample_f(const vec3f& wo, vec3f& wi, float& pdf, Sampler& sampler) const override
-	// {
-	// 	// https://agraphicsguy.wordpress.com/2015/11/01/sampling-microfacet-brdf/
-	// 	float e = sampler.get1f();
-	// 	float theta = atan(alpha*sqrtf(fmax(0,e/(1-e))));
-	// 	float phi = 2*PI * sampler.get1f();
-	// 	// convert to cartesian coordinates
-	// 	vec3f wm (cos(theta)*sin(phi), cos(theta)*cos(phi), sin(theta));
-	// 	wi = 2*dot(wm,wo)*wm-wo;
-		// calculate pdf
-		
-	// 	// wi = vec3f(-wo.x, -wo.y, wo.z);
-	// 	// float cos = fabs(wo.z);
-	// 	// pdf = 1;
-	// 	// Color t1 = (eta*eta + k*k) * (cos*cos);
-	// 	// Color r1 = (t1 - 2*eta*cos + 1) / (t1 + 2*eta*cos + 1);
-	// 	// Color t2 = eta*eta + k*k;
-	// 	// Color r2 = (t2 - 2*eta*cos + Color(cos*cos)) / (t2 + 2*eta*cos + Color(cos*cos));
-	// 	// return 0.5 / cos * (r1 + r2) * albedo;
-	// }
+	Color sample_f(const Color& albedo, const vec3f& wo, vec3f& wi, float& pdf, Sampler& sampler) const override
+	{
+		vec2f u = sampler.get2f();
+    	vec3f wm = schuttejoe::GgxVndf(wo, alpha, u.x, u.y);
+    	wi = schuttejoe::Reflect(wm, wo);
+    	// if (sampler.get1f() < 0.0001) console.log(wi,wm,wo);
+    	pdf = EDX::GGX_D(wm,alpha) * fabs(wm.z) / 4 / fabs(dot(wo, wm));
+    	if (wi.z<0 ^ wo.z<0) return 0;
+    	return f(albedo, wo, wi);
+	}
 };
 
 

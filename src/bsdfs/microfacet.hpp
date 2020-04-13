@@ -87,11 +87,16 @@ float SmithGGXMaskingShadowing(vec3f wi, vec3f wo, float a2)
 // https://hal.archives-ouvertes.fr/hal-01509746/document
 vec3f GgxVndf(vec3f wo, float roughness, float u1, float u2)
 {
+    float ttt = 1;
+    if (wo.z < 0) {
+        wo.z = -wo.z;
+        ttt = -1;
+    }
     // -- Stretch the view vector so we are sampling as though
     // -- roughness==1
     vec3f v = normalized(vec3f(wo.x * roughness,
-                                wo.y,
-                                wo.z * roughness));
+                                wo.y * roughness,
+                                wo.z ));
 
     // -- Build an orthonormal basis with v, t1, and t2
     vec3f t1 = (v.y < 0.999f) ? normalized(cross(v, vec3f(0,1,0))) : vec3f(1,0,0);
@@ -99,12 +104,12 @@ vec3f GgxVndf(vec3f wo, float roughness, float u1, float u2)
 
     // -- Choose a point on a disk with each half of the disk weighted
     // -- proportionally to its projection onto direction v
-    float a = 1.0f / (1.0f + v.y);
+    float a = 1.0f / (1.0f + v.z);
     float r = sqrtf(u1);
     float phi = (u2 < a) ? (u2 / a) * PI 
                          : PI + (u2 - a) / (1.0f - a) * PI;
     float p1 = r * cos(phi);
-    float p2 = r * sin(phi) * ((u2 < a) ? 1.0f : v.y);
+    float p2 = r * sin(phi) * ((u2 < a) ? 1.0f : v.z);
 
     // -- Calculate the normal in this stretched tangent space
     vec3f n = p1 * t1 + p2 * t2
@@ -112,11 +117,11 @@ vec3f GgxVndf(vec3f wo, float roughness, float u1, float u2)
 
     // -- unstretch and normalize the normal
     return normalized(vec3f(roughness * n.x,
-                            fmax(0.0f, n.y),
-                            roughness * n.z));
+                            roughness * n.y,
+                            fmax(0.0f, n.z) * ttt));
 }
 
-inline vec3f Reflect(const vec3f& wm, const vec3f& wo) {
+vec3f Reflect(const vec3f& wm, const vec3f& wo) {
 	return 2*dot(wm,wo)*wm-wo;
 }
 
