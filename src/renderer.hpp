@@ -12,7 +12,7 @@
 class Renderer
 {
 	// TODO don't use fixed eps
-	const float geoEPS = 1e-3;
+	const float geoEPS = 8e-4;
 public:
 	int max_bounces = 16;
 	int nspp = 1;
