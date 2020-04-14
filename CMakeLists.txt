@@ -36,7 +36,7 @@ target_include_directories(lights PUBLIC "src")
 target_link_libraries(lights PUBLIC imgfmt)
 target_link_libraries(toyray PUBLIC lights)
 
-add_library(material STATIC "src/bsdfs/singlebsdf.cpp" "src/bsdfs/materials.cpp" "src/bsdfs/transparency.cpp")
+add_library(material STATIC "src/bsdfs/singlebsdf.cpp" "src/bsdfs/materials.cpp" "src/bsdfs/transparency.cpp" "src/bsdfs/twosidemix.cpp")
 target_include_directories(material PUBLIC "src")
 target_link_libraries(toyray PUBLIC material)
 

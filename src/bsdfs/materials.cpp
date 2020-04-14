@@ -16,6 +16,8 @@
 #include "rough_conductor.hpp"
 #include "rough_plastic.hpp"
 #include "plastic.hpp"
+#include "twosidemix.hpp"
+
 
 
 BSDF* newMaterial(const Json& conf, const std::unordered_map<std::string, BSDF*>& bsdfref)
@@ -41,7 +43,7 @@ BSDF* newMaterial(const Json& conf, const std::unordered_map<std::string, BSDF*>
 			bsdf = new SingleBSDF(conf, new InvisibleBTDF());
 		if (conf["type"] == "conductor")
 			bsdf = new SingleBSDF(conf, new ConductorBRDF(conf["material"]));
-		if (conf["type"] == "dielectric")
+		if (conf["type"] == "glass" || conf["type"] == "dielectric")
 			bsdf = new SingleBSDF(conf, new DielectricBRDF(conf["ior"]));
 		if (conf["type"] == "rough_conductor") {
 			console.warn("rough_conductor using naive sampling");
@@ -65,13 +67,20 @@ BSDF* newMaterial(const Json& conf, const std::unordered_map<std::string, BSDF*>
 			bsdf = new Transparency(conf, newMaterial(conf["base"], bsdfref));
 		}
 		if (conf["type"] == "translucent") {
-			if (json2vec3f(conf["reflect"]) != vec3f(0)) throw "translucent unsupported";
-			if (json2vec3f(conf["transmit"]) != vec3f(1)) throw "translucent unsupported";
+			if (json2vec3f(conf["reflect"]) != vec3f(0))
+				throw "translucent unsupported";
+			if (json2vec3f(conf["transmit"]) != vec3f(1))
+				throw "translucent unsupported";
 			bsdf = new SingleBSDF(conf, new LambertBTDF());
 		}
 		if (conf["type"] == "uber") {
 			console.warn("uber unsupported");
 			bsdf = new SingleBSDF(conf, new LambertBRDF());
+		}
+		if (conf["type"] == "mix") {
+			bsdf = new TwoSideMix(conf,
+				newMaterial(conf["material1"], bsdfref),
+				newMaterial(conf["material2"], bsdfref));
 		}
 		if (bsdf == NULL)
 			throw std::runtime_error("Unrecognized BSDF type " + std::string(conf["type"]));
