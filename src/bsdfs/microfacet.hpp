@@ -35,24 +35,25 @@ inline float GGX_D(vec3f wm, float alpha) // alpha为粗糙度
 	return 1/PI * (root * root);
 }
 
+inline float Smith_G1(vec3f v, vec3f wm, float alpha)
+{
+    if (wm.z < 0) wm = -wm;
+
+    float tanTheta = fabs(TanTheta(v));
+
+    if (tanTheta == 0.0f)
+        return 1.0f;
+
+    if (dot(v, wm) * CosTheta(v) <= 0)
+        return 0.0f;
+
+    float root = alpha * tanTheta;
+    return 2.0f / (1.0f + sqrtf(1.0f + root*root));
+}
+
 inline float Smith_G(vec3f wo, vec3f wi, vec3f wm, float alpha)
 {
-	if (wm.z < 0) wm = -wm;
-	auto SmithG1 = [&](vec3f v, vec3f wm)
-	{
-		float tanTheta = fabs(TanTheta(v));
-
-		if (tanTheta == 0.0f)
-			return 1.0f;
-
-		if (dot(v, wm) * CosTheta(v) <= 0)
-			return 0.0f;
-
-		float root = alpha * tanTheta;
-		return 2.0f / (1.0f + sqrtf(1.0f + root*root));
-	};
-
-	return SmithG1(wo, wm) * SmithG1(wi, wm);
+	return Smith_G1(wo, wm, alpha) * Smith_G1(wi, wm, alpha);
 }
 
 }
