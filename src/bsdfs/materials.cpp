@@ -31,6 +31,8 @@ BSDF* newMaterial(const Json& conf, const std::unordered_map<std::string, BSDF*>
 			return new SingleBSDF(conf, NULL);
 		if (conf["type"] == "lambert")
 			bsdf = new SingleBSDF(conf, new LambertBRDF());
+		if (conf["type"] == "lambert_transmit")
+			bsdf = new SingleBSDF(conf, new LambertBTDF());
 		if (conf["type"] == "phong")
 			bsdf = new SingleBSDF(conf, new Phong(conf));
 		if (conf["type"] == "mirror")
@@ -61,6 +63,15 @@ BSDF* newMaterial(const Json& conf, const std::unordered_map<std::string, BSDF*>
 		}
 		if (conf["type"] == "transparency") {
 			bsdf = new Transparency(conf, newMaterial(conf["base"], bsdfref));
+		}
+		if (conf["type"] == "translucent") {
+			if (json2vec3f(conf["reflect"]) != vec3f(0)) throw "translucent unsupported";
+			if (json2vec3f(conf["transmit"]) != vec3f(1)) throw "translucent unsupported";
+			bsdf = new SingleBSDF(conf, new LambertBTDF());
+		}
+		if (conf["type"] == "uber") {
+			console.warn("uber unsupported");
+			bsdf = new SingleBSDF(conf, new LambertBRDF());
 		}
 		if (bsdf == NULL)
 			throw std::runtime_error("Unrecognized BSDF type " + std::string(conf["type"]));
