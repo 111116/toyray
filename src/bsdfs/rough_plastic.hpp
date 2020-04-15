@@ -30,7 +30,7 @@ private:
 		Color Fres = DielectricBRDF::reflectivity(cos, IOR); // reflected energy
 		vec3f refl = EDX::GGX_D(wm,alpha) * EDX::Smith_G(wo,wi,wm,alpha) / (4 * wo.z * wi.z) * Fres;
 		// console.log(refl, diff);
-		return refl + diff;
+		return refl * Ks + diff;
 	}
 
 	Color sample_f(const Color& albedo, const vec3f& wo, vec3f& wi, float& pdf, bool& isDirac, Sampler& sampler) const
@@ -43,6 +43,8 @@ private:
 	}
 
 public:
+	Color Ks = 1;
+	
 	RoughPlasticBSDF(const Json& conf): BSDF(conf)
 	{
 		IOR = conf["ior"];

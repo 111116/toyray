@@ -3,9 +3,8 @@
 #include "color.h"
 #include "bsdf.hpp"
 
-class BxDF;
 
-// wrapper of low-level BxDFs
+// mixture of non-overlapping BSDFs
 class TwoSideMix : public BSDF
 {
 private:
@@ -23,10 +22,6 @@ public:
 		amount = vamount.x;
 		if (componentA == NULL || componentB == NULL) throw "mix: invalid components";
 		if (!(amount>=0 && amount<1)) throw "mix: invalid amount";
-		// if (bool(componentA->flags & BxDF::REFLECT) && bool(componentB->flags & BxDF::REFLECT))
-		// 	throw "mixing conflicting components";
-		// if (bool(componentA->flags & BxDF::TRANSMIT) && bool(componentB->flags & BxDF::TRANSMIT))
-		// 	throw "mixing conflicting components";
 	}
 	Color f(const vec3f& wo, const vec3f& wi, const HitInfo& hit) const final;
 	Color sample_f(const vec3f& wo, vec3f& wi, const HitInfo& hit, bool& isDirac, Sampler&) const final;

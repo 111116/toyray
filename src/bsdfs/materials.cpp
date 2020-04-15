@@ -17,6 +17,7 @@
 #include "rough_plastic.hpp"
 #include "plastic.hpp"
 #include "twosidemix.hpp"
+#include "uber.hpp"
 
 
 
@@ -74,8 +75,7 @@ BSDF* newMaterial(const Json& conf, const std::unordered_map<std::string, BSDF*>
 			bsdf = new SingleBSDF(conf, new LambertBTDF());
 		}
 		if (conf["type"] == "uber") {
-			console.warn("uber unsupported");
-			bsdf = new SingleBSDF(conf, new LambertBRDF());
+			bsdf = new Uber(conf);
 		}
 		if (conf["type"] == "mix") {
 			bsdf = new TwoSideMix(conf,
