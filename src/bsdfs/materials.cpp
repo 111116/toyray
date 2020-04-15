@@ -17,8 +17,6 @@
 #include "rough_plastic.hpp"
 #include "plastic.hpp"
 #include "twosidemix.hpp"
-#include "uber.hpp"
-#include "translucent.hpp"
 
 
 
@@ -73,7 +71,7 @@ BSDF* newMaterial(const Json& conf, const std::unordered_map<std::string, BSDF*>
 				throw "translucent unsupported";
 			if (json2vec3f(conf["transmit"]) != vec3f(1))
 				throw "translucent unsupported";
-			bsdf = new Translucent(conf);
+			bsdf = new SingleBSDF(conf, new LambertBTDF());
 		}
 		if (conf["type"] == "uber") {
 			bsdf = new SingleBSDF(conf, new LambertBRDF());
