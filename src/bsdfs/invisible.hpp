@@ -3,9 +3,7 @@
 #include "bxdf.hpp"
 
 
-// DO NOT USE in production! Debug use ONLY.
-// Objects of bsdf of solely this bxdf are completely invisible.
-// The only effect is that efficiency of sampling is reduced.
+// specular transmission
 
 class InvisibleBTDF : public BTDF, public DiracBxDF
 {
@@ -19,6 +17,6 @@ public:
 	{
 		wi = -wo;
 		pdf = 1;
-		return 1 / fabs(wo.z);
+		return 1 / fabs(wo.z) * albedo;
 	}
 };

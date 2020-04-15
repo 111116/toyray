@@ -21,7 +21,7 @@ public:
 		if (vamount.x != vamount.y || vamount.x != vamount.z) throw "mix: invalid amount";
 		amount = vamount.x;
 		if (componentA == NULL || componentB == NULL) throw "mix: invalid components";
-		if (!(amount>=0 && amount<1)) throw "mix: invalid amount";
+		if (!(amount>=0 && amount<=1)) throw "mix: invalid amount";
 	}
 	Color f(const vec3f& wo, const vec3f& wi, const HitInfo& hit) const final;
 	Color sample_f(const vec3f& wo, vec3f& wi, const HitInfo& hit, bool& isDirac, Sampler&) const final;

@@ -3,6 +3,8 @@
 #include "bxdf.hpp"
 
 
+// specular reflection
+
 class MirrorBRDF : public BRDF, public DiracBxDF
 {
 	
