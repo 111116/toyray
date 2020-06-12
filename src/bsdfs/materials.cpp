@@ -74,6 +74,7 @@ BSDF* newMaterial(const Json& conf, const std::unordered_map<std::string, BSDF*>
 			bsdf = new SingleBSDF(conf, new LambertBTDF());
 		}
 		if (conf["type"] == "uber") {
+			// TODO
 			bsdf = new SingleBSDF(conf, new LambertBRDF());
 		}
 		if (conf["type"] == "mix") {

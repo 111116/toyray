@@ -35,7 +35,7 @@ Color Renderer::renderPixel(std::function<Color(Ray, Sampler&)> func, const vec2
 	for (int i=0; i<nspp; ++i) {
 		Sampler* sampler = new MT19937Sampler((std::hash<float>{}(pixelpos.x)<<2)^std::hash<float>{}(PI*pixelpos.y), i);
 		vec2f uv = pixelpos + sampler->get2f() * pixelsize;
-		Ray ray = camera->sampleray(uv);
+		Ray ray = camera->sampleray(uv, *sampler);
 		Color tres = func(ray, *sampler);
 		/*if (norm(tres)<1e8)*/ res += tres;
 		delete sampler;

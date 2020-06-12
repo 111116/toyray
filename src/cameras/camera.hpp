@@ -26,5 +26,5 @@ struct Camera
 	}
 	// u: 0..1 left-right
 	// v: 0..1 up-down
-	virtual Ray sampleray(vec2f pos) const = 0;
+	virtual Ray sampleray(vec2f pos, Sampler&) const = 0;
 };

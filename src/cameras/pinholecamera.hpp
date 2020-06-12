@@ -12,7 +12,7 @@ struct PinholeCamera : public Camera
 		if (mirror) lefthalf = -lefthalf;
 	}
 	
-	Ray sampleray(vec2f pos) const {
+	Ray sampleray(vec2f pos, Sampler&) const {
 		return Ray(position, normalized(dir + (1-pos.x*2) * lefthalf + (1-pos.y*2) * uphalf));
 	}
 };
