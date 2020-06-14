@@ -43,6 +43,14 @@ public:
 	{
 		return bound;
 	}
+	
+	SampleInfo sampleSurface(Sampler& sampler) const
+	{
+		unsigned id = sampler.get1u(list.size());
+		SampleInfo info = list[id]->sampleSurface(sampler);
+		info.pdf /= list.size();
+		return info;
+	}
 
 private:
 	struct treenode {

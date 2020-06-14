@@ -20,16 +20,6 @@ public:
 	TriangleMesh(std::string filename):
 		BasicContainer(loadfromfile(getpath(filename).c_str())) {}
 
-	SampleInfo sampleSurface(Sampler& sampler) const
-	{
-		unsigned id = sampler.get1u(list.size());
-		Triangle* triangle = dynamic_cast<Triangle*>(list[id]);
-		assert(triangle != NULL);
-		SampleInfo info = triangle->sampleSurface(sampler);
-		info.pdf /= list.size();
-		return info;
-	}
-
 private:
 	// load mesh from an ascii Wavefront .obj file
 	// only supports triangle mesh with 2d texture
