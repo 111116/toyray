@@ -43,8 +43,8 @@ public:
 	{
 		return bound;
 	}
-	
-	SampleInfo sampleSurface(Sampler& sampler) const
+
+	SampleInfo sampleSurface(Sampler& sampler) const override
 	{
 		unsigned id = sampler.get1u(list.size());
 		SampleInfo info = list[id]->sampleSurface(sampler);
