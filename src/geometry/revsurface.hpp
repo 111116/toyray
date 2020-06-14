@@ -25,7 +25,7 @@ private:
 	    );
 	    p = (rot * vec4f(p, 1)).xyz();
 	    dpdu = (rot * vec4f(dpdu, 1)).xyz();
-	    dpdv = cross(vec3f(p.x,0,p.z), vec3f(0,-1,0));
+	    dpdv = cross(vec3f(p.x,0,p.z), vec3f(0,-2*PI,0));
 	    return p;
 	}
 	

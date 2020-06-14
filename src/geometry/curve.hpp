@@ -100,7 +100,7 @@ public:
             der += controls[i] * k * (B[i][k-1]/(t_(i+k)-t_(i)) - B[i+1][k-1]/(t_(i+k+1)-t_(i+1)));
         }
         #undef t_
-        return {res, der};
+        return {res, der * (tmax-tmin)};
     }
 
     // void discretize(int resolution, std::vector<CurvePoint>& data) override {

@@ -17,14 +17,21 @@ protected:
 			for (float j=0; j+step/2<1; j+=step)
 			{
 				vec3f t1,t2,t; // dummy vars
-				vec2f u; // dummy
 				vec3f p00 = surface(i,j,t1,t2);
 				vec3f p01 = surface(i,j+step,t1,t2);
 				vec3f p10 = surface(i+step,j,t1,t2);
 				vec3f p11 = surface(i+step,j+step,t1,t2);
-				trigs.push_back(new Triangle(p00,p01,p10,u,u,u,t,t,t));
+				vec2f u00 = vec2f(i,j);
+				vec2f u01 = vec2f(i,j+step);
+				vec2f u10 = vec2f(i+step,j);
+				vec2f u11 = vec2f(i+step,j+step);
+				if (norm(cross(p00-p01,p00-p10)) > 1e-12)
+				trigs.push_back(new Triangle(p00,p10,p01,u00,u10,u01,t,t,t));
+				if (norm(cross(p00-p01,p00-p10)) > 1e-12)
 				dynamic_cast<Triangle*>(trigs.back())->recompute_normal();
-				trigs.push_back(new Triangle(p10,p01,p11,u,u,u,t,t,t));
+				if (norm(cross(p11-p01,p11-p10)) > 1e-12)
+				trigs.push_back(new Triangle(p10,p11,p01,u10,u11,u01,t,t,t));
+				if (norm(cross(p11-p01,p11-p10)) > 1e-12)
 				dynamic_cast<Triangle*>(trigs.back())->recompute_normal();
 			}
 		mesh = new BasicContainer(trigs);
@@ -35,32 +42,38 @@ public:
 
 	bool intersect(const Ray& ray, Hit* result) const
 	{
-		return mesh->intersect(ray, result);
+		bool boolres = mesh->intersect(ray, result);
+		if (!boolres) return false;
 		// determine initial point
 		// TODO
-		float t=0, u=0.5, v=0.5;
+		float t = norm(result->p - ray.origin);
+		float u = result->uv.x;
+		float v = result->uv.y;
 		u = fmin(1, fmax(0, u));
 		v = fmin(1, fmax(0, v));
 		vec3f p, dpdu, dpdv;
 		// solve eqn(t,u,v): f(u,v) - origin - t * dir = 0
 		for (int _=0; _<20; ++_)
 		{
-			p = surface(u,v,dpdu,dpdv);
-			vec3f t1,t2;
-			auto dpdu1 = (surface(u+1e-4,v,t1,t2)-p)/1e-4;
-			auto dpdv1 = (surface(u,v+1e-4,t1,t2)-p)/1e-4;
+			p = surface(u,v,dpdu,dpdv) - ray.atParam(t);
+			// vec3f t1,t2;
+			// auto dpdu1 = (surface(u+1e-4,v,t1,t2)-surface(u,v,dpdu,dpdv))/1e-4;
+			// auto dpdv1 = (surface(u,v+1e-4,t1,t2)-surface(u,v,dpdu,dpdv))/1e-4;
 			// console.log(u,v);
 			// console.log(dpdu, dpdv);
 			// console.log(dpdu1, dpdv1);
 			// console.log(norm(dpdu-dpdu1)/norm(dpdu), norm(dpdv-dpdv1)/norm(dpdv));
-			p -= ray.atParam(t);
+			// console.log(_,":",norm(p),",  ",t,u,v);
+			// for (int i=0; i<3; ++i) for (int j=0; j<3; ++j)
+			// console.log((inverse(mat3f(-ray.dir, dpdu, dpdv))*mat3f(-ray.dir, dpdu, dpdv))[i][j]);
 			vec3f delt = inverse(mat3f(-ray.dir, dpdu, dpdv)) * p;
 			t -= delt.x;
 			u = fmin(1, fmax(0, u - delt.y));
-			v = fmin(1, fmax(0, v - delt.z));
+			v = v - delt.z;
+			// v = fmin(1, fmax(0, v - delt.z));
 		}
 		p = surface(u,v,dpdu,dpdv);
-		if (norm(p-ray.atParam(t)) < 1e-5) {
+		if (norm(p-ray.atParam(t)) < 1e-5 && t>0) {
 			vec3f N = normalized(cross(dpdu,dpdv));
 			*result = {p,N,N,vec2f(u,v)};
 			return true;
