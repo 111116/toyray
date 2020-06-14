@@ -10,6 +10,7 @@
 #include "plane.hpp"
 #include "quad.hpp"
 #include "cube.hpp"
+#include "revsurface.hpp"
 
 
 namespace {
@@ -58,6 +59,9 @@ Primitive* newPrimitive(const Json& conf)
 	}
 	if (conf["type"] == "quad") {
 		shape = new Quad();
+	}
+	if (conf["type"] == "revsurface") {
+		shape = new RevSurface(conf);
 	}
 	if (conf["type"] == "triangle") {
 		vec3f v1,v2,v3,n1,n2,n3;
