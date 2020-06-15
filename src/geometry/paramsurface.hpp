@@ -11,7 +11,7 @@ protected:
 	void buildmesh()
 	{
 		// build approximating mesh
-		float step = 0.05;
+		float step = 0.01;
 		std::vector<BasicPrimitive*> trigs;
 		for (float i=0; i+step/2<1; i+=step)
 			for (float j=0; j+step/2<1; j+=step)
@@ -42,18 +42,19 @@ public:
 
 	bool intersect(const Ray& ray, Hit* result) const
 	{
-		bool boolres = mesh->intersect(ray, result);
+		Hit tmpresult;
+		Ray forwardray (ray.atParam(1e-2), ray.dir);
+		bool boolres = mesh->intersect(forwardray, &tmpresult);
 		if (!boolres) return false;
 		// determine initial point
-		// TODO
-		float t = norm(result->p - ray.origin);
-		float u = result->uv.x;
-		float v = result->uv.y;
+		float t = norm(tmpresult.p - ray.origin);
+		float u = tmpresult.uv.x;
+		float v = tmpresult.uv.y;
 		u = fmin(1, fmax(0, u));
 		v = fmin(1, fmax(0, v));
 		vec3f p, dpdu, dpdv;
 		// solve eqn(t,u,v): f(u,v) - origin - t * dir = 0
-		for (int _=0; _<20; ++_)
+		for (int _=0; _<5; ++_)
 		{
 			p = surface(u,v,dpdu,dpdv) - ray.atParam(t);
 			// vec3f t1,t2;
@@ -69,11 +70,11 @@ public:
 			vec3f delt = inverse(mat3f(-ray.dir, dpdu, dpdv)) * p;
 			t -= delt.x;
 			u = fmin(1, fmax(0, u - delt.y));
-			v = v - delt.z;
-			// v = fmin(1, fmax(0, v - delt.z));
+			// v = v - delt.z;
+			v = fmin(1, fmax(0, v - delt.z));
 		}
 		p = surface(u,v,dpdu,dpdv);
-		if (norm(p-ray.atParam(t)) < 1e-5 && t>0) {
+		if (norm(p-ray.atParam(t)) < 1e-6 && t>0) {
 			vec3f N = normalized(cross(dpdu,dpdv));
 			*result = {p,N,N,vec2f(u,v)};
 			return true;
