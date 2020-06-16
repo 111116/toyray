@@ -32,6 +32,21 @@ public:
 		throw "ScalarImage load: unrecognized format";
 	}
 
+	vec2f dfduv(const vec2f& uv) {
+		int x = int(uv.x*w);
+		int y = int(uv.y*h);
+		if (uv.x<0 || uv.y<0 || x+2>=w || y+2>=h) return vec2f();
+		float xr = uv.x*w-x;
+		float yr = uv.y*h-y;
+		float dfdx1 = getPixel(x+1,y) - getPixel(x,y);
+		float dfdx2 = getPixel(x+1,y+1) - getPixel(x,y+1);
+		float dfdy1 = getPixel(x,y+1) - getPixel(x,y);
+		float dfdy2 = getPixel(x+1,y+1) - getPixel(x+1,y);
+		float dfdu = (xr*dfdx2 + (1-xr)*dfdx1) * 2;
+		float dfdv = (yr*dfdy2 + (1-yr)*dfdy1) * 2; // just a random scaling
+		return vec2f(dfdu, dfdv);
+	}
+
 	float getPixel(int x, int y) {
 		return pixels[y*w+x];
 	}
