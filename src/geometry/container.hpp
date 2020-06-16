@@ -35,13 +35,21 @@ public:
 		HitTmp tmp = treehit(ray, root);
 		if (!tmp) return false;
 		point p = ray.atParam(tmp.t);
-		*result = Hit(p, tmp.primitive->Ns(p), tmp.primitive->Ng(p));
+		*result = Hit(p, tmp.primitive->Ns(p), tmp.primitive->Ng(p), tmp.primitive->uv(p));
 		return true;
 	}
 	 
 	AABox boundingVolume() const override
 	{
 		return bound;
+	}
+
+	SampleInfo sampleSurface(Sampler& sampler) const override
+	{
+		unsigned id = sampler.get1u(list.size());
+		SampleInfo info = list[id]->sampleSurface(sampler);
+		info.pdf /= list.size();
+		return info;
 	}
 
 private:

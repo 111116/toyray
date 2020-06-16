@@ -55,6 +55,14 @@ public:
 				+ (vn2-vn1) * norm(cross(p-v1, v3-v1)) * one_by_2S); // TO OPTIMIZE
 	}
 
+	vec2f uv(const point& p) const
+	{
+		assert(onsurface(p));
+		return
+			vt1 + (vt3-vt1) * norm(cross(p-v1, v2-v1)) * one_by_2S
+				+ (vt2-vt1) * norm(cross(p-v1, v3-v1)) * one_by_2S; // TO OPTIMIZE
+	}
+
 	vec3f Ng(const point& p) const
 	{
 		return planeNormal;

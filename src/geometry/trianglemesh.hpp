@@ -17,29 +17,8 @@
 class TriangleMesh: public BasicContainer
 {
 public:
-	TriangleMesh(const Json& conf): BasicContainer(loadfromfile(getpath(conf["file"]).c_str())) {
-		// recompute normal
-		bool recompute_normals = true;
-		if (conf.find("recompute_normals") != conf.end()) {
-			recompute_normals = conf["recompute_normals"];
-		}
-		if (recompute_normals) {
-			for (Primitive* t: list) {
-				Triangle* o = dynamic_cast<Triangle*>(t);
-				o->recompute_normal();
-			}
-		}
-	}
-
-	SampleInfo sampleSurface(Sampler& sampler) const
-	{
-		unsigned id = sampler.get1u(list.size());
-		Triangle* triangle = dynamic_cast<Triangle*>(list[id]);
-		assert(triangle != NULL);
-		SampleInfo info = triangle->sampleSurface(sampler);
-		info.pdf /= list.size();
-		return info;
-	}
+	TriangleMesh(std::string filename):
+		BasicContainer(loadfromfile(getpath(filename).c_str())) {}
 
 private:
 	// load mesh from an ascii Wavefront .obj file
@@ -80,42 +59,46 @@ private:
 				if (cmd == "f") { // polygon face
 					std::vector<vec3f> vv, vvn;
 					std::vector<vec2f> vvt;
+					bool recompute_normal = false;
 					while (!in.fail() && !in.eof()) {					
 						// code from tungsten ObjLoader::loadFace
 						int indices[] = {0, 0, 0};
-				        for (int i = 0; i < 3; ++i) {
-				            if (in.peek() != '/')
-				                in >> indices[i];
-				            if (in.peek() == '/')
-				                in.get();
-				            else
-				                break;
-				        }
-				        while (isspace(in.peek()))
-			                in.get();
-				        if (!indices[0]) {
-				        	console.log("Obj line:", line);
-				        	throw "error parsing obj";
-				        }
-				        int iv = indices[0];
-				        int ivt = indices[1];
-				        int ivn = indices[2];
-				        if (iv < 0) iv += v.size()+1;
-				        if (ivt < 0) ivt += vt.size()+1;
-				        if (ivn < 0) ivn += vn.size()+1;
-				    	vv.push_back(v[iv-1]);
-				    	vvt.push_back(ivt? vt[ivt-1]: vec2f());
-				    	vvn.push_back(ivn? vn[ivn-1]: vec3f(0,1,0));
-				    }
-				    if (vv.size() == 3) {
-				    	// ignore triangles of zero surface area
+						for (int i = 0; i < 3; ++i) {
+							if (in.peek() != '/')
+								in >> indices[i];
+							if (in.peek() == '/')
+								in.get();
+							else
+								break;
+						}
+						while (isspace(in.peek()))
+							in.get();
+						if (!indices[0]) {
+							console.log("Obj line:", line);
+							throw "error parsing obj";
+						}
+						int iv = indices[0];
+						int ivt = indices[1];
+						int ivn = indices[2];
+						if (iv < 0) iv += v.size()+1;
+						if (ivt < 0) ivt += vt.size()+1;
+						if (ivn < 0) ivn += vn.size()+1;
+						vv.push_back(v[iv-1]);
+						vvt.push_back(ivt? vt[ivt-1]: vec2f());
+						vvn.push_back(ivn? vn[ivn-1]: vec3f(0,1,0));
+						recompute_normal |= !ivn;
+					}
+					if (vv.size() == 3) {
+						// ignore triangles of zero surface area
 						if (cross(vv[1]-vv[0],vv[2]-vv[0]) != vec3f(0)) {
-				    		faces.push_back(new Triangle(vv[0], vv[1], vv[2], vvt[0], vvt[1], vvt[2], vvn[0], vvn[1], vvn[2]));
-				    	}
-				    }
-				    else {
-				    	throw "mesh face other than triangle not supported";
-				    }
+							faces.push_back(new Triangle(vv[0], vv[1], vv[2], vvt[0], vvt[1], vvt[2], vvn[0], vvn[1], vvn[2]));
+							if (recompute_normal)
+								dynamic_cast<Triangle*>(faces.back())->recompute_normal();
+						}
+					}
+					else {
+						throw "mesh face other than triangle not supported";
+					}
 				} // end reading face
 			}
 		}

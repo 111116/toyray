@@ -10,29 +10,10 @@
 #include "plane.hpp"
 #include "quad.hpp"
 #include "cube.hpp"
-
-void instantiateGeometry(const Json& conf);
-Primitive* newPrimitive(const Json& conf);
+#include "revsurface.hpp"
 
 
-
-namespace
-{
-	std::string encodemesh(const Json& o)
-	{
-		bool recompute_normals = true;
-		if (o.find("recompute_normals") != o.end()) {
-			recompute_normals = o["recompute_normals"];
-		}
-		return (recompute_normals?"1":"0") + std::string(o["file"]);
-	};
-	Json decodemesh(const std::string& s)
-	{
-		std::unordered_map<std::string, Json> t;
-		t["file"] = s.substr(1);
-		t["recompute_normals"] = (s[0]=='1');
-		return t;
-	}
+namespace {
 	std::unordered_map<std::string, Primitive*> meshref;
 }
 
@@ -43,7 +24,7 @@ void instantiateGeometry(const Json& conf)
 	for (auto o: conf["primitives"])
 	{
 		if (o["type"] == "mesh") {
-			meshref[encodemesh(o)] = NULL;
+			meshref[o["file"]] = NULL;
 		}
 	}
 	// flatten map elements for parallelization
@@ -55,7 +36,7 @@ void instantiateGeometry(const Json& conf)
 	TaskScheduler tasks;
 	for (auto p = v.begin(); p != v.end(); ++p)
 		tasks.add([p](){
-			(*p)->second = new TriangleMesh(decodemesh((*p)->first));
+			(*p)->second = new TriangleMesh((*p)->first);
 		});
 	tasks.start();
 }
@@ -65,7 +46,7 @@ Primitive* newPrimitive(const Json& conf)
 {
 	Primitive* shape = NULL;
 	if (conf["type"] == "mesh") {
-		shape = meshref[encodemesh(conf)];
+		shape = meshref[conf["file"]];
 	}
 	if (conf["type"] == "sphere") {
 		shape = new Sphere(json2vec3f(conf["origin"]), (double)conf["radius"]);
@@ -78,6 +59,9 @@ Primitive* newPrimitive(const Json& conf)
 	}
 	if (conf["type"] == "quad") {
 		shape = new Quad();
+	}
+	if (conf["type"] == "revsurface") {
+		shape = new RevSurface(conf);
 	}
 	if (conf["type"] == "triangle") {
 		vec3f v1,v2,v3,n1,n2,n3;

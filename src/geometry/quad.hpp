@@ -33,6 +33,11 @@ public:
 		return vec3f(0,1,0);
 	}
 
+	vec2f uv(const point& p) const
+	{
+		return 0; // TODO texture
+	}
+	
 	SampleInfo sampleSurface(Sampler& sampler) const
 	{
 		vec2f t = sampler.get2f();

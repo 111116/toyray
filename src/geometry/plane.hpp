@@ -32,6 +32,11 @@ public:
         return abc;
     }
 
+    vec2f uv(const point& p) const
+    {
+        return 0; // TODO texture
+    }
+    
     AABox boundingVolume() const
     {
         return AABox::infAAB;

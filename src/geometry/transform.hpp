@@ -18,19 +18,24 @@ public:
 		// calculate bounding box of transformed shape
 		// (though this bound might be looser)
 		AABox t = inner->boundingVolume();
-		point boundpoints[] = {
-			vec3f(t.x1, t.y1, t.z1),
-			vec3f(t.x1, t.y1, t.z2),
-			vec3f(t.x1, t.y2, t.z1),
-			vec3f(t.x1, t.y2, t.z2),
-			vec3f(t.x2, t.y1, t.z1),
-			vec3f(t.x2, t.y1, t.z2),
-			vec3f(t.x2, t.y2, t.z1),
-			vec3f(t.x2, t.y2, t.z2)
-		};
-		bound = AABox(transformedPoint(trans, boundpoints[0]));
-		for (int i=1; i<8; ++i)
-			bound = bound + transformedPoint(trans, boundpoints[i]);
+		if (t.finite()) {
+			point boundpoints[] = {
+				vec3f(t.x1, t.y1, t.z1),
+				vec3f(t.x1, t.y1, t.z2),
+				vec3f(t.x1, t.y2, t.z1),
+				vec3f(t.x1, t.y2, t.z2),
+				vec3f(t.x2, t.y1, t.z1),
+				vec3f(t.x2, t.y1, t.z2),
+				vec3f(t.x2, t.y2, t.z1),
+				vec3f(t.x2, t.y2, t.z2)
+			};
+			bound = AABox(transformedPoint(trans, boundpoints[0]));
+			for (int i=1; i<8; ++i)
+				bound = bound + transformedPoint(trans, boundpoints[i]);
+		}
+		else {
+			bound = AABox::infAAB;
+		}
 	}
 
 	bool intersect(const Ray& ray, Hit* result) const
@@ -42,7 +47,8 @@ public:
 		*result = Hit(
 			transformedPoint(trans, iresult.p),
 			transformedDir(transposed(invTrans), iresult.Ns),
-			transformedDir(transposed(invTrans), iresult.Ng));
+			transformedDir(transposed(invTrans), iresult.Ng),
+			iresult.uv);
 		return true;
 	}
 

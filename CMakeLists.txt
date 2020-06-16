@@ -11,7 +11,7 @@ ENDIF()
 
 SET(CMAKE_CXX_STANDARD 14)
 message("Build type: " ${CMAKE_BUILD_TYPE})
-set(CMAKE_CXX_FLAGS_DEBUG "-DSINGLE_THREADED")
+set(CMAKE_CXX_FLAGS_DEBUG "-DSINGLE_THREADED -g")
 
 
 add_executable(${PROJECT_NAME} "src/main.cpp" "src/renderer.cpp")
@@ -36,7 +36,7 @@ target_include_directories(lights PUBLIC "src")
 target_link_libraries(lights PUBLIC imgfmt)
 target_link_libraries(toyray PUBLIC lights)
 
-add_library(material STATIC "src/bsdfs/bsdf.cpp" "src/bsdfs/materials.cpp")
+add_library(material STATIC "src/bsdfs/singlebsdf.cpp" "src/bsdfs/materials.cpp" "src/bsdfs/transparency.cpp" "src/bsdfs/twosidemix.cpp")
 target_include_directories(material PUBLIC "src")
 target_link_libraries(toyray PUBLIC material)
 

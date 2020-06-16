@@ -10,7 +10,6 @@
 #include "lib/consolelog.hpp"
 #include "util/jsonutil.hpp"
 #include "util/filepath.hpp"
-#include "util/taskscheduler.hpp"
 
 #include "renderer.hpp"
 #include "image.hpp"
@@ -21,6 +20,8 @@
 
 
 bool opt_preview = false;
+bool opt_albedo = false;
+bool opt_normal = false;
 int opt_spp = 0;
 // return scene filename
 const char* cmdlineparse(int argc, char* argv[]) {
@@ -33,6 +34,10 @@ const char* cmdlineparse(int argc, char* argv[]) {
 			console.loglevel = 2;
 		else if (std::string(argv[i]) == "--preview")
 			opt_preview = true;
+		else if (std::string(argv[i]) == "--albedo")
+			opt_albedo = true;
+		else if (std::string(argv[i]) == "--normal")
+			opt_normal = true;
 		else if (std::string(argv[i]) == "--spp")
 			opt_spp = atoi(argv[++i]);
 		else {
@@ -45,6 +50,8 @@ const char* cmdlineparse(int argc, char* argv[]) {
 		console.log ("  --quiet          Only show warnings and errors");
 		console.log ("  --preview        Render with lower quality");
 		console.log ("  --spp <n>        Render with n samples per pixel");
+		console.log ("  --albedo         Output albedo buffer to albedo-[filename]");
+		console.log ("  --normal         Output normal buffer to normal-[filename]");
 		throw "scene not specified.";
 	}
 	return argv[fileno];
@@ -57,14 +64,20 @@ std::unordered_map<std::string, BSDF*> bsdf;
 void loadObjects(const Json& conf, Renderer& renderer)
 {
 	for (auto o: conf["bsdfs"]) {
-		bsdf[o["name"]] = newMaterial(o);
+		bsdf[o["name"]] = newMaterial(o, bsdf);
 	}
 	instantiateGeometry(conf);
 	for (auto o: conf["primitives"]) {
 		Object* newobj;
-		if (bsdf.find(std::string(o["bsdf"])) == bsdf.end())
-			console.warn("Undefined BSDF", o["bsdf"]);
-		newobj = new Object(o, bsdf[o["bsdf"]]);
+		BSDF* sd;
+		if (o["bsdf"].type() == Json::value_t::object)
+			sd = newMaterial(o["bsdf"], bsdf);
+		else {
+			if (bsdf.find(std::string(o["bsdf"])) == bsdf.end())
+				console.warn("Undefined BSDF", o["bsdf"]);
+			sd = bsdf[o["bsdf"]];
+		}
+		newobj = new Object(o, sd);
 		renderer.objects.push_back(newobj);
 	}
 }
@@ -121,39 +134,28 @@ int main(int argc, char* argv[])
 				renderer.max_bounces = conf["integrator"]["max_bounces"];
 		}
 		renderer.nspp = conf["renderer"]["spp"];
-		Camera* camera = newCamera(conf["camera"]);
-		renderer.camera = camera;
+		renderer.camera = newCamera(conf["camera"]);
 		if (opt_preview) {
 			renderer.nspp = std::max(1, int(sqrt(renderer.nspp)));
-			camera->resx = std::max(1, camera->resx/2);
-			camera->resy = std::max(1, camera->resy/2);
+			renderer.camera->resx = std::max(1, renderer.camera->resx/2);
+			renderer.camera->resy = std::max(1, renderer.camera->resy/2);
 		}
 		if (opt_spp) {
 			renderer.nspp = opt_spp;
 		}
 
-		Image film(camera->resx, camera->resy);
-		console.info("Rendering at", camera->resx, 'x', camera->resy, 'x', renderer.nspp, "spp");
 		// start rendering
+		console.info("Rendering at", renderer.camera->resx, 'x', renderer.camera->resy, 'x', renderer.nspp, "spp");
 		console.time("Rendered");
-		TaskScheduler tasks;
-		for (int y=0; y<camera->resy; ++y) {
-			tasks.add([&,y](){
-				for (int x=0; x<camera->resx; ++x) {
-					vec2f pixelsize = vec2f(1.0/camera->resx, 1.0/camera->resy);
-					vec2f pixelpos = vec2f(x,y) * pixelsize;
-					film.setPixel(x, y, renderer.render(pixelpos, pixelsize));
-				}
-			});
-		}
-		tasks.onprogress = [](int k, int n){
-			fprintf(stderr, "\r    %.1f%% ", 100.0f*k/n);
-		};
-		tasks.start();
-		fprintf(stderr, "\n"); // new line after progress
+		auto func = &Renderer::radiance;
+		if (opt_albedo) func = &Renderer::albedo;
+		if (opt_normal) func = &Renderer::normal;
+		Image film = renderer.render(func);
 		console.timeEnd("Rendered");
 		// save files
 		for (std::string filename : getOutputFiles(conf["renderer"])) {
+			if (opt_albedo) filename = "albedo-" + filename;
+			if (opt_normal) filename = "normal-" + filename;
 			console.info("Writing result to", filename);
 			film.saveFile(filename);
 		}

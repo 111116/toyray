@@ -1,6 +1,6 @@
 # Toyray
 
-[![Build Status](https://travis-ci.org/111116/toyray.svg?branch=master)](https://travis-ci.org/111116/toyray)
+[![Build Status](https://travis-ci.org/111116/toyray.svg?branch=dev)](https://travis-ci.org/111116/toyray)
 
 a naive path tracer (CG course project). **under active development**
 
@@ -25,11 +25,16 @@ make -j
 - square
 - cube
 - transformed geometries
+- alpha-masked geometries
 
 #### materials:
 
 - lambert reflective
 - mirror
+- conductor (specular)
+- dielectric (specular)
+- plastic
+- rough conductor (partial support)
 
 #### light types:
 
@@ -47,7 +52,7 @@ make -j
 
 - shapes: Wavefront OBJ (ASCII)
 - scene configuration: Tungsten styled JSON
-- light probe: EXR, HDR
+- light probe / texture: EXR, HDR, PNG, JPG
 
 #### output format:
 
