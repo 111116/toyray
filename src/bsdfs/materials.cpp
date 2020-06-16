@@ -46,13 +46,11 @@ BSDF* newMaterial(const Json& conf, const std::unordered_map<std::string, BSDF*>
 		if (conf["type"] == "glass" || conf["type"] == "dielectric")
 			bsdf = new SingleBSDF(conf, new DielectricBRDF(conf["ior"]));
 		if (conf["type"] == "rough_conductor") {
-			console.warn("rough_conductor using naive sampling");
 			bsdf = new SingleBSDF(conf, new RoughConductorBRDF(conf));
 		}
 		if (conf["type"] == "plastic")
 			bsdf = new PlasticBSDF(conf);
 		if (conf["type"] == "rough_plastic") {
-			console.warn("plastic roughness is faked");
 			bsdf = new RoughPlasticBSDF(conf);
 		}
 		if (conf["type"] == "rough_dielectric") {
