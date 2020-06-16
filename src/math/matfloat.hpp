@@ -5,6 +5,17 @@
 #include "vecfloat.hpp"
 
 
+struct mat2f
+{
+	float data[2][2];
+	float* operator[](unsigned i) {
+		return data[i];
+	}
+	float const* operator[](unsigned i) const {
+		return data[i];
+	}
+};
+
 struct mat3f
 {
 	float data[3][3];
@@ -83,7 +94,9 @@ mat4f transposed(const mat4f& a);
 mat3f diag(int x, int y, int z);
 mat4f diag(int x, int y, int z, int w);
 
+float det(mat2f a);
 float det(mat3f a);
+mat2f inverse(mat2f a);
 mat3f inverse(mat3f a);
 mat4f inverse(mat4f a);
 
@@ -279,6 +292,11 @@ inline mat4f diag(int x, int y, int z, int w)
 }
 
 
+inline float det(mat2f a)
+{
+	return a[0][0] * a[1][1] - a[0][1] * a[1][0];
+}
+
 inline float det(mat3f a)
 {
 	return
@@ -288,6 +306,17 @@ inline float det(mat3f a)
 		- a[0][0] * a[1][2] * a[2][1]
 		- a[0][1] * a[1][0] * a[2][2]
 		- a[0][2] * a[1][1] * a[2][0];
+}
+
+inline mat2f inverse(mat2f a)
+{
+	float invdet = 1/det(a);
+	mat2f res;
+	res[0][0] = a[1][1] * invdet;
+	res[1][1] = a[0][0] * invdet;
+	res[0][1] = -a[0][1] * invdet;
+	res[1][0] = -a[1][0] * invdet;
+	return res;
 }
 
 inline mat3f inverse(mat3f a)
@@ -322,3 +351,4 @@ inline bool operator == (const mat4f& a, const mat4f& b) {
 inline bool operator != (const mat4f& a, const mat4f& b) {
 	return !(a==b);
 }
+
