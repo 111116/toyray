@@ -49,6 +49,8 @@ public:
 			transformedDir(transposed(invTrans), iresult.Ns),
 			transformedDir(transposed(invTrans), iresult.Ng),
 			iresult.uv);
+		result->dpdu = transformedDir(trans, iresult.dpdu);
+		result->dpdv = transformedDir(trans, iresult.dpdv);
 		return true;
 	}
 

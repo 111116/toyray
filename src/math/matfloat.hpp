@@ -8,6 +8,14 @@
 struct mat2f
 {
 	float data[2][2];
+	mat2f() {
+		memset(data, 0, sizeof data);
+	}
+	mat2f(const vec2f& a, const vec2f& b)
+	{
+		data[0][0] = a.x; data[1][0] = a.y;
+		data[0][1] = b.x; data[1][1] = b.y;
+	}
 	float* operator[](unsigned i) {
 		return data[i];
 	}
