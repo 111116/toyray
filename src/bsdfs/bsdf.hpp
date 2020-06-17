@@ -51,7 +51,7 @@ public:
 	{
 		if (bumpTexture == NULL) return;
 		vec2f dhduv = bumpTexture->dfduv(vec2f(hit.uv.x,1-hit.uv.y));
-		vec3f N = normalized(cross(hit.dpdu + hit.Ns * dhduv.x, hit.dpdv - hit.Ns * dhduv.y));
+		vec3f N = normalized(cross(normalized(hit.dpdu) + hit.Ns * dhduv.x, normalized(hit.dpdv) - hit.Ns * dhduv.y));
 		if (dot(N, hit.Ns)<0) N = -N;
 		hit.Ns = N;
 	}
