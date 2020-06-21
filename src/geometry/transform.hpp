@@ -49,6 +49,8 @@ public:
 			transformedDir(transposed(invTrans), iresult.Ns),
 			transformedDir(transposed(invTrans), iresult.Ng),
 			iresult.uv);
+		result->dpdu = (trans * vec4f(iresult.dpdu, 0)).xyz();
+		result->dpdv = (trans * vec4f(iresult.dpdv, 0)).xyz();
 		return true;
 	}
 

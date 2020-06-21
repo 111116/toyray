@@ -36,6 +36,10 @@ public:
 		if (!tmp) return false;
 		point p = ray.atParam(tmp.t);
 		*result = Hit(p, tmp.primitive->Ns(p), tmp.primitive->Ng(p), tmp.primitive->uv(p));
+		auto jacobi = dynamic_cast<Triangle const*>(tmp.primitive)->jacobi();
+		// TODO implement for other types of primitive
+		result->dpdu = jacobi.column(0);
+		result->dpdv = jacobi.column(1);
 		return true;
 	}
 	 

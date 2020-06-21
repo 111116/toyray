@@ -36,9 +36,22 @@ private:
 	Color sample_f(const Color& albedo, const vec3f& wo, vec3f& wi, float& pdf, bool& isDirac, Sampler& sampler) const
 	{
 		isDirac = false;
-		wi = sampler.cosSampleHemisphereSurface();
-		pdf = wi.z/PI;
-		if (wo.z<0) wi.z *= -1;
+		// simple 1:1 MIS
+		if (sampler.get1f() < 0.5) {
+			// sample method 1: lambert
+			wi = sampler.cosSampleHemisphereSurface();
+			if (wo.z<0) wi.z *= -1;
+		}
+		else {
+			// sample method 2: microfacet
+			vec2f u = sampler.get2f();
+	    	vec3f wm = schuttejoe::GgxVndf(wo, alpha, u.x, u.y);
+			wi = 2*dot(wm,wo)*wm-wo;
+		}
+		float pdf1 = fabs(wi.z)/PI;
+		vec3f wm = normalized(wo+wi); // microfacet normal
+		float pdf2 = EDX::Smith_G1(wi, wm, alpha) * EDX::GGX_D(wm,alpha) * fabs(dot(wo,wm)) / (4 * fabs(dot(wi, wm)) * fabs(wo.z));
+		pdf = (pdf1 + pdf2) / 2;
 		return f(albedo, wo, wi);
 	}
 

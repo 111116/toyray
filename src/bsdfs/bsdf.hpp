@@ -2,6 +2,7 @@
 
 #include "color.h"
 #include "image.hpp"
+#include "scalarimage.hpp"
 #include "accelarator/accelarator.hpp"
 #include "util/jsonutil.hpp"
 #include "util/filepath.hpp"
@@ -11,6 +12,7 @@ class Sampler;
 class BSDF
 {
 	Image* albedoTexture = NULL;
+	ScalarImage* bumpTexture = NULL;
 	Color albedoConst = Color(1);
 
 public:
@@ -35,6 +37,23 @@ public:
 			else
 				albedoConst = json2vec3f(conf["albedo"]);
 		}
+		if (conf.find("bump") != conf.end())
+		{
+			bumpTexture = new ScalarImage(getpath(conf["bump"]));
+		}
+		if (conf.find("bumpmap") != conf.end())
+		{
+			bumpTexture = new ScalarImage(getpath(conf["bumpmap"]));
+		}
+	}
+
+	void bump(HitInfo& hit)
+	{
+		if (bumpTexture == NULL) return;
+		vec2f dhduv = bumpTexture->dfduv(vec2f(hit.uv.x,1-hit.uv.y));
+		vec3f N = normalized(cross(normalized(hit.dpdu) + hit.Ns * dhduv.x, normalized(hit.dpdv) - hit.Ns * dhduv.y));
+		if (dot(N, hit.Ns)<0) N = -N;
+		hit.Ns = N;
 	}
 	// bidirectional scattering distribution function value of non-Dirac components
 	// wo: direction of outgoing ray (normalized)

@@ -2,6 +2,7 @@
 
 #include "geometrybasic.hpp"
 #include "math/matfloat.hpp"
+#include "math/matfloat_extra.hpp"
 
 class Triangle: public BasicPrimitive
 {
@@ -73,6 +74,11 @@ public:
 		vec2f t = sampler.sampleUnitTriangle();
 		vec3f p = v1 + t.x * (v2-v1) + t.y * (v3-v1);
 		return SampleInfo(p, planeNormal, 2 * one_by_2S);
+	}
+
+	mat3x2f jacobi() const // [dpdu dpdv]
+	{
+		return mat3x2f(v2-v1, v3-v1) * inverse(mat2f(vt2-vt1, vt3-vt1));
 	}
 
 	AABox boundingVolume() const

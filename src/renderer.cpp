@@ -49,6 +49,8 @@ Color Renderer::normal(Ray ray, Sampler&) {
 	if (!hit) {
 		return Color();
 	}
+	if (hit.object->bsdf)
+		hit.object->bsdf->bump(hit);
 	return hit.Ns;
 }
 
@@ -82,6 +84,7 @@ Color Renderer::radiance(Ray ray, Sampler& sampler)
 		}
 		BSDF* bsdf = hit.object->bsdf;
 		if (!bsdf) break;
+		bsdf->bump(hit);
 		// direct light
 		for (Light* l: samplable_lights) {
 			vec3f dirToLight;

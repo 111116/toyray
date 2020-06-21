@@ -63,28 +63,6 @@ inline float Smith_G(vec3f wo, vec3f wi, vec3f wm, float alpha)
 namespace schuttejoe {
 
 //====================================================================
-float SmithGGXMasking(vec3f wi, vec3f wo, float a2)
-{
-    float dotNL = wi.z;
-    float dotNV = wo.z;
-    float denomC = sqrtf(a2 + (1.0f - a2) * dotNV * dotNV) + dotNV;
-
-    return 2.0f * dotNV / denomC;
-}
-
-//====================================================================
-float SmithGGXMaskingShadowing(vec3f wi, vec3f wo, float a2)
-{
-    float dotNL = wi.z;
-    float dotNV = wo.z;
-
-    float denomA = dotNV * sqrtf(a2 + (1.0f - a2) * dotNL * dotNL);
-    float denomB = dotNL * sqrtf(a2 + (1.0f - a2) * dotNV * dotNV);
-
-    return 2.0f * dotNL * dotNV / (denomA + denomB);
-}
-
-//====================================================================
 // https://hal.archives-ouvertes.fr/hal-01509746/document
 vec3f GgxVndf(vec3f wo, float roughness, float u1, float u2)
 {
@@ -120,36 +98,6 @@ vec3f GgxVndf(vec3f wo, float roughness, float u1, float u2)
     return normalized(vec3f(roughness * n.x,
                             roughness * n.y,
                             fmax(0.0f, n.z) * ttt));
-}
-
-vec3f Reflect(const vec3f& wm, const vec3f& wo) {
-	return 2*dot(wm,wo)*wm-wo;
-}
-
-//====================================================================
-vec3f ImportanceSampleGgxVdn(float r0, float r1,
-                            vec3f wo, vec3f& wi, float roughness,
-                            std::function<float(float)> Fres)
-{
-    float a = roughness;
-    float a2 = a * a;
-
-    vec3f wm = GgxVndf(wo, roughness, r0, r1);
-
-    wi = Reflect(wm, wo);
-
-    if(wi.z > 0.0f) {
-
-        vec3f F = Fres(dot(wi, wm));
-        float G1 = SmithGGXMasking(wi, wo, a2);
-        float G2 = SmithGGXMaskingShadowing(wi, wo, a2);
-
-        return F * (G2 / G1);
-        
-    }
-    else {
-        return vec3f(0);
-    }
 }
 
 }
