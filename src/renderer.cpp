@@ -49,7 +49,8 @@ Color Renderer::normal(Ray ray, Sampler&) {
 	if (!hit) {
 		return Color();
 	}
-	hit.object->bsdf->bump(hit);
+	if (hit.object->bsdf)
+		hit.object->bsdf->bump(hit);
 	return hit.Ns;
 }
 
