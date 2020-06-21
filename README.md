@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/111116/toyray.svg?branch=dev)](https://travis-ci.org/111116/toyray)
 
-a naive path tracer (CG course project). **under active development**
+a naive path tracer (CG course project).
 
 ## Compile and Run
 
@@ -26,15 +26,16 @@ make -j
 - cube
 - transformed geometries
 - alpha-masked geometries
+- bump-mapped geometries
 
 #### materials:
 
 - lambert reflective
+- lambert transmissive
 - mirror
-- conductor (specular)
-- dielectric (specular)
-- plastic
-- rough conductor (partial support)
+- conductor (smooth / rough)
+- dielectric (smooth)
+- plastic (smooth / rough)
 
 #### light types:
 
@@ -60,6 +61,8 @@ make -j
 - BMP
 
 ## Other notes
+
+This renderer is neither reliable or efficient.
 
 If you decide to learn path tracing by reading this code, I recommend start by looking at the path tracing core `src/renderer.cpp`.
 
