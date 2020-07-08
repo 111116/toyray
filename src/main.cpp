@@ -63,9 +63,10 @@ std::unordered_map<std::string, BSDF*> bsdf;
 
 void loadObjects(const Json& conf, Renderer& renderer)
 {
-	for (auto o: conf["bsdfs"]) {
-		bsdf[o["name"]] = newMaterial(o, bsdf);
-	}
+	if (conf.find("bsdfs") != conf.end())
+		for (auto o: conf["bsdfs"]) {
+			bsdf[o["name"]] = newMaterial(o, bsdf);
+		}
 	instantiateGeometry(conf);
 	for (auto o: conf["primitives"]) {
 		Object* newobj;
