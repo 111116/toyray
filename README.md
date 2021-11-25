@@ -2,7 +2,11 @@
 
 [![Build Status](https://travis-ci.org/111116/toyray.svg?branch=dev)](https://travis-ci.org/111116/toyray)
 
-a naive path tracer (CG course project).
+a naive path tracer.
+
+![poster](gallery/toyray_poster.jpg)
+
+See `gallery` for scene credits.
 
 ## Compile and Run
 
@@ -62,7 +66,7 @@ make -j
 
 ## Other notes
 
-This renderer is neither reliable or efficient.
+This renderer is neither reliable or efficient. If you are looking for open-source renderers, check out Mitsuba, PBRT, Tungsten...
 
 If you decide to learn path tracing by reading this code, I recommend start by looking at the path tracing core `src/renderer.cpp`.
 
